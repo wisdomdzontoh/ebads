@@ -25,5 +25,8 @@ COPY config ./config
 
 EXPOSE 8000
 
-# Bind to all interfaces so the published port is reachable from the host.
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Apply migrations and (idempotently) seed the facility registry, then serve. Baked into
+# the image so hosted platforms need no fragile start-command override (Render's Docker
+# Command field mis-tokenizes quoted sh -c chains). Binds all interfaces; honors the
+# platform's $PORT, defaulting to 8000 for local compose.
+CMD ["sh", "-c", "alembic upgrade head && python -m scripts.seed_facilities --source data/ga_facilities.csv && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

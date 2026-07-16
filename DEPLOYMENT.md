@@ -98,13 +98,11 @@ Keep this value handy for step 3.
    > `API_KEY` is what the mobile app must send as `X-API-Key`. Leaving it blank would
    > disable auth on a public URL — don't.
 
-5. **Docker Command** (Settings → Docker Command, or "Advanced" during creation). Override it
-   so every deploy runs migrations, seeds the facility registry (idempotent — safe to re-run),
-   and then starts the API on Render's port:
-
-   ```
-   sh -c "alembic upgrade head && python -m scripts.seed_facilities --source data/ga_facilities.csv && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"
-   ```
+5. **Docker Command** (Settings → Docker Command): **leave it empty.** The image's own
+   start command already runs the migrations, seeds the facility registry (idempotent —
+   safe to re-run), and starts the API on Render's `$PORT` (see `backend/Dockerfile`).
+   Do not wrap a command in `sh -c "…"` here — Render mis-tokenizes the quotes and the
+   deploy exits with status 127.
 
 6. **Health Check Path** (Settings → Health Checks): `/healthz`
 
@@ -197,6 +195,7 @@ you stop using plain-HTTP LAN engines.
 | Symptom | Cause | Fix |
 |---|---|---|
 | Build fails: `pyproject.toml not found` | Root Directory not set | Set **Root Directory = `backend`** in the service settings. |
+| Deploy exits with status 127: `sh: 1: alembic upgrade head && …: not found` | A quoted `sh -c "…"` chain in Render's Docker Command field | Clear the field (step 3.5) — the image runs migrations + seed + API by itself. |
 | Logs: password / SSL errors on startup | `DATABASE_URL` mangled | Re-paste the Neon connection string exactly as Neon shows it (step 2.4) — no manual edits needed. |
 | `/readyz` returns 503 | Engine up, DB unreachable | Neon project paused/deleted, or wrong host in `DATABASE_URL`. Test the URL in Neon's SQL editor. |
 | App says "engine rejected the API key" | Key mismatch | The app must send the *exact* `API_KEY` value — no extra spaces. Re-paste both sides. |
