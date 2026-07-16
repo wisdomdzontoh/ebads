@@ -28,15 +28,19 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+from app.config import normalize_database_url
 from app.db.session import get_session
 from app.main import create_app
 
 # backend/ directory — used as cwd for the Alembic/seed subprocesses.
 BACKEND_DIR = Path(__file__).resolve().parents[2]
 
-TEST_DATABASE_URL = os.environ.get(
-    "TEST_DATABASE_URL",
-    "postgresql+psycopg://ebads:ebads@localhost:5432/ebads_test",
+# Normalized like DATABASE_URL, so any provider/driver spelling of the URL works here too.
+TEST_DATABASE_URL = normalize_database_url(
+    os.environ.get(
+        "TEST_DATABASE_URL",
+        "postgresql+psycopg://ebads:ebads@localhost:5432/ebads_test",
+    )
 )
 
 

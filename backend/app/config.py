@@ -16,6 +16,20 @@ from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+def normalize_database_url(value: str) -> str:
+    """Coerce any common Postgres URL onto the async psycopg (v3) dialect.
+
+    Accepts the URL exactly as a hosting provider hands it out: ``postgres://``
+    (Heroku-era), plain ``postgresql://`` (Neon/Render), or a URL written for the
+    previous asyncpg driver. libpq query options such as ``sslmode`` and
+    ``channel_binding`` pass through to psycopg untouched; only asyncpg's ``ssl=``
+    spelling is renamed to ``sslmode=``. Also used by the integration-test harness
+    so ``TEST_DATABASE_URL`` follows the same contract as ``DATABASE_URL``.
+    """
+    value = re.sub(r"^postgres(ql)?(\+\w+)?://", "postgresql+psycopg://", value.strip())
+    return re.sub(r"([?&])ssl=", r"\1sslmode=", value)
+
+
 class Settings(BaseSettings):
     """Process configuration loaded from the environment / ``infra/.env``.
 
@@ -53,16 +67,8 @@ class Settings(BaseSettings):
     @field_validator("database_url")
     @classmethod
     def _normalize_database_url(cls, value: str) -> str:
-        """Coerce any common Postgres URL onto the async psycopg (v3) dialect.
-
-        Accepts the URL exactly as a hosting provider hands it out: ``postgres://``
-        (Heroku-era), plain ``postgresql://`` (Neon/Render), or a URL written for the
-        previous asyncpg driver. libpq query options such as ``sslmode`` and
-        ``channel_binding`` pass through to psycopg untouched; only asyncpg's ``ssl=``
-        spelling is renamed to ``sslmode=``.
-        """
-        value = re.sub(r"^postgres(ql)?(\+\w+)?://", "postgresql+psycopg://", value.strip())
-        return re.sub(r"([?&])ssl=", r"\1sslmode=", value)
+        """Providers' connection strings work pasted verbatim (see normalize_database_url)."""
+        return normalize_database_url(value)
 
     @property
     def cors_origin_list(self) -> list[str]:

@@ -65,5 +65,5 @@ jobs:
 
       - name: Integration tests (facility registry + migration + seed)
         env:
-          TEST_DATABASE_URL: postgresql+asyncpg://ebads:ebads@localhost:5432/ebads_test
+          TEST_DATABASE_URL: postgresql+psycopg://ebads:ebads@localhost:5432/ebads_test
         run: pytest tests/integration -q
