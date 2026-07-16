@@ -1,0 +1,58 @@
+{
+  "description": "Algo1 greedy standard over A/B/C",
+  "algorithm": "greedy",
+  "request": {
+    "urgency": "standard",
+    "required_bed_type": "icu"
+  },
+  "radius_minutes": 90,
+  "candidates": [
+    {
+      "id": "A",
+      "tier": "tertiary",
+      "travel_min": 10,
+      "beds": 1
+    },
+    {
+      "id": "B",
+      "tier": "secondary",
+      "travel_min": 20,
+      "beds": 5
+    },
+    {
+      "id": "C",
+      "tier": "tertiary",
+      "travel_min": 30,
+      "beds": 2
+    }
+  ],
+  "expected": {
+    "passes_hard_filter": [
+      "A",
+      "B",
+      "C"
+    ],
+    "t_hat": {
+      "A": 0.0,
+      "B": 0.5,
+      "C": 1.0
+    },
+    "b_hat": {
+      "A": 0.0,
+      "B": 1.0,
+      "C": 0.25
+    },
+    "c_hat": {
+      "A": 0.5,
+      "B": 0.8,
+      "C": 0.5
+    },
+    "weights": null,
+    "score": {
+      "A": 10,
+      "B": 20,
+      "C": 30
+    },
+    "selected": "A"
+  }
+}

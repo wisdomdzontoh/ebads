@@ -1,0 +1,52 @@
+{
+  "description": "bed=0 and travel>R(u) are excluded",
+  "algorithm": "urgency_adaptive",
+  "request": {
+    "urgency": "critical",
+    "required_bed_type": "icu"
+  },
+  "radius_minutes": 30,
+  "candidates": [
+    {
+      "id": "A",
+      "tier": "tertiary",
+      "travel_min": 10,
+      "beds": 1
+    },
+    {
+      "id": "B",
+      "tier": "secondary",
+      "travel_min": 15,
+      "beds": 0
+    },
+    {
+      "id": "C",
+      "tier": "tertiary",
+      "travel_min": 40,
+      "beds": 3
+    }
+  ],
+  "expected": {
+    "passes_hard_filter": [
+      "A"
+    ],
+    "t_hat": {
+      "A": 0.5
+    },
+    "b_hat": {
+      "A": 0.5
+    },
+    "c_hat": {
+      "A": 1.0
+    },
+    "weights": {
+      "w_t": 0.5,
+      "w_b": 0.15,
+      "w_c": 0.35
+    },
+    "score": {
+      "A": 0.325
+    },
+    "selected": "A"
+  }
+}

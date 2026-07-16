@@ -1,0 +1,72 @@
+[project]
+name = "ebads-engine"
+version = "0.1.0"
+description = "EBADS allocation engine — algorithm-driven emergency bed allocation and dispatch (BSc thesis prototype)."
+requires-python = ">=3.12"
+
+# Runtime dependencies. Kept deliberately small for Phase 0; analysis/simulation
+# libraries (numpy, scipy, pandas, pyarrow) are added in the phases that need them
+# so the dependency surface always mirrors what the code actually uses.
+dependencies = [
+    "fastapi>=0.111",
+    "uvicorn[standard]>=0.30",
+    "sqlalchemy[asyncio]>=2.0",
+    "asyncpg>=0.29",
+    "alembic>=1.13",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "httpx>=0.27",
+    # Simulation (Phase 4): numeric arrays for the distance matrix + nearest-node lookup,
+    # and Parquet I/O for the distance matrix and per-run metrics datasets (docs/07).
+    "numpy>=1.26",
+    "pandas>=2.2",
+    "pyarrow>=16.0",
+    # Evaluation (Phase 5): hypothesis tests (docs/08 §3), report figures (docs/08 §6),
+    # and the sensitivity-variant config file (docs/09 §10).
+    "scipy>=1.13",
+    "matplotlib>=3.8",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.5",
+    "mypy>=1.10",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+# The importable packages are `app` (the engine) and `scripts` (dev/ops helpers).
+include = ["app*", "scripts*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# E/F: pyflakes+pycodestyle, I: import sorting, UP: pyupgrade, B: bugbear.
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+
+# pandas ships no type stubs compatible with strict mode; the simulation/analysis layers use
+# it only for Parquet I/O and DataFrame assembly (numpy, which is typed, does the numeric
+# work). Treat the module as untyped rather than vendoring pandas-stubs into strict mode.
+[[tool.mypy.overrides]]
+module = ["pandas", "pandas.*", "scipy", "scipy.*", "matplotlib", "matplotlib.*", "yaml"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+# `pythonpath = ["."]` lets tests import `app...` without an editable install,
+# so `pytest` works from the backend/ directory directly.
+pythonpath = ["."]
+testpaths = ["tests"]
+asyncio_mode = "auto"

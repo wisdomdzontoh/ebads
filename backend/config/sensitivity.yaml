@@ -1,0 +1,46 @@
+# EBADS sensitivity-analysis variants (docs/08 §4, docs/09 §10).
+#
+# Each variant re-runs the FULL evaluation grid with the stated overrides MERGED onto the
+# parameters.py defaults; any value not stated keeps its default ("other rows as agreed",
+# docs/09 §10). The analysis then re-tests H1/H2/H3 under every variant and reports which
+# hypotheses are robust (hold everywhere) vs conditional (hold only under the default).
+#
+# IMPORTANT [IMPL / RESEARCHER]: docs/09 §10 requires the exact weight and radius vectors to
+# be defined HERE (not in code) and reviewed before the evaluation run. Only the default and
+# the doc-specified steeper-critical capability variant are ACTIVE below. The weight (3) and
+# radius (2) families are commented placeholders — fill in the researcher-approved vectors
+# (each weight row must sum to 1.0; radii must keep R(critical) <= R(urgent) <= R(standard))
+# and uncomment them before running the full sensitivity study.
+
+variants:
+  - name: default
+    family: baseline
+    # No overrides — the parameters.py configuration (docs/09 §3-5).
+
+  - name: capability_steep_critical
+    family: capability
+    # Steeper critical gradient (docs/09 §10; thesis §3.5.3). Other urgency rows unchanged.
+    capability:
+      critical: {tertiary: 1.0, secondary: 0.4, primary: 0.1}
+
+  # --- [RESEARCHER: fill the exact vectors and uncomment — docs/09 §10] -------------------
+  # Weights — 3 variants of the Algorithm-3 urgency gradient (e.g. flatter / steeper). The
+  # values below are placeholder SHAPES, not researcher-approved numbers.
+  #
+  # - name: weights_flatter
+  #   family: weights
+  #   weights:
+  #     urgency_adaptive:
+  #       critical: {w_t: 0.40, w_b: 0.30, w_c: 0.30}
+  #       urgent:   {w_t: 0.40, w_b: 0.30, w_c: 0.30}
+  #       standard: {w_t: 0.40, w_b: 0.30, w_c: 0.30}
+  #
+  # Radii — 2 variants (tighter / looser bands), monotonic in urgency.
+  #
+  # - name: radii_tighter
+  #   family: radius
+  #   radius: {critical: 20, urgent: 45, standard: 70}
+  #
+  # - name: radii_looser
+  #   family: radius
+  #   radius: {critical: 40, urgent: 75, standard: 120}

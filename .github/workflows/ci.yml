@@ -1,0 +1,69 @@
+# Continuous integration (docs/15-roadmap.md Phase 0, docs/12-testing.md §9).
+# Phase 0 scope: lint + unit test scaffold. Integration tests against an ephemeral
+# Postgres and the mobile suite are added in their respective phases.
+
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Lint (ruff)
+        run: ruff check .
+
+      - name: Type-check (mypy)
+        run: mypy app
+
+      - name: Unit tests + algorithm vectors
+        run: pytest tests/unit -q
+
+  integration:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      db:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ebads
+          POSTGRES_PASSWORD: ebads
+          POSTGRES_DB: ebads
+        ports:
+          - 5432:5432
+        # Wait until Postgres is accepting connections before the job's steps run.
+        options: >-
+          --health-cmd "pg_isready -U ebads"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Integration tests (facility registry + migration + seed)
+        env:
+          TEST_DATABASE_URL: postgresql+asyncpg://ebads:ebads@localhost:5432/ebads_test
+        run: pytest tests/integration -q

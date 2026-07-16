@@ -1,0 +1,36 @@
+# Local deployment topology (docs/01-architecture.md §5, docs/11-development-setup.md §3).
+# Two services: the FastAPI engine and PostgreSQL 16. The engine waits for the DB to pass
+# its healthcheck before starting, so `/readyz` is meaningful from the first request.
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ebads
+      POSTGRES_PASSWORD: ebads
+      POSTGRES_DB: ebads
+    ports:
+      - "5432:5432"
+    volumes:
+      - ebads_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # `pg_isready` succeeding is the readiness signal the engine depends on.
+      test: ["CMD-SHELL", "pg_isready -U ebads -d ebads"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  engine:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  ebads_pgdata:

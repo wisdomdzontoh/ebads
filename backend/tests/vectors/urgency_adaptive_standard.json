@@ -1,0 +1,62 @@
+{
+  "description": "Algo3 standard over A/B/C",
+  "algorithm": "urgency_adaptive",
+  "request": {
+    "urgency": "standard",
+    "required_bed_type": "icu"
+  },
+  "radius_minutes": 90,
+  "candidates": [
+    {
+      "id": "A",
+      "tier": "tertiary",
+      "travel_min": 10,
+      "beds": 1
+    },
+    {
+      "id": "B",
+      "tier": "secondary",
+      "travel_min": 20,
+      "beds": 5
+    },
+    {
+      "id": "C",
+      "tier": "tertiary",
+      "travel_min": 30,
+      "beds": 2
+    }
+  ],
+  "expected": {
+    "passes_hard_filter": [
+      "A",
+      "B",
+      "C"
+    ],
+    "t_hat": {
+      "A": 0.0,
+      "B": 0.5,
+      "C": 1.0
+    },
+    "b_hat": {
+      "A": 0.0,
+      "B": 1.0,
+      "C": 0.25
+    },
+    "c_hat": {
+      "A": 0.5,
+      "B": 0.8,
+      "C": 0.5
+    },
+    "weights": {
+      "w_t": 0.3,
+      "w_b": 0.5,
+      "w_c": 0.2
+    },
+    "score": {
+      "A": 0.6,
+      "B": 0.19,
+      "C": 0.775
+    },
+    "selected": "B"
+  }
+}

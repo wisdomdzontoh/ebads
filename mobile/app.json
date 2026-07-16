@@ -1,0 +1,75 @@
+{
+  "expo": {
+    "name": "EBADS Dispatcher",
+    "slug": "ebads-dispatcher",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon-ebads.png",
+    "userInterfaceStyle": "light",
+    "scheme": "ebads",
+    "ios": {
+      "bundleIdentifier": "com.ebads.dispatcher",
+      "buildNumber": "1",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "EBADS uses your location to find the nearest available hospital bed for a patient."
+      }
+    },
+    "android": {
+      "package": "com.ebads.dispatcher",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff",
+        "foregroundImage": "./assets/android-icon-foreground-ebads.png",
+        "monochromeImage": "./assets/android-icon-monochrome-ebads.png"
+      },
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ],
+      "predictiveBackGestureEnabled": false,
+      "config": {
+        "googleMaps": {
+          "apiKey": ""
+        }
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon-ebads.png"
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "EBADS uses your location to find the nearest available hospital bed for a patient."
+        }
+      ],
+      "expo-notifications",
+      "expo-background-task",
+      "expo-sqlite",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/ebads_logo.png",
+          "imageWidth": 220,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "938c80e8-1cd4-4432-9dbf-d648ca13cc3c"
+      }
+    },
+    "owner": "falconafrique"
+  }
+}

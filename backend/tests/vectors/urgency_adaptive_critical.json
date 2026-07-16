@@ -1,0 +1,62 @@
+{
+  "description": "Algo3 critical over A/B/C",
+  "algorithm": "urgency_adaptive",
+  "request": {
+    "urgency": "critical",
+    "required_bed_type": "icu"
+  },
+  "radius_minutes": 30,
+  "candidates": [
+    {
+      "id": "A",
+      "tier": "tertiary",
+      "travel_min": 10,
+      "beds": 1
+    },
+    {
+      "id": "B",
+      "tier": "secondary",
+      "travel_min": 20,
+      "beds": 5
+    },
+    {
+      "id": "C",
+      "tier": "tertiary",
+      "travel_min": 30,
+      "beds": 2
+    }
+  ],
+  "expected": {
+    "passes_hard_filter": [
+      "A",
+      "B",
+      "C"
+    ],
+    "t_hat": {
+      "A": 0.0,
+      "B": 0.5,
+      "C": 1.0
+    },
+    "b_hat": {
+      "A": 0.0,
+      "B": 1.0,
+      "C": 0.25
+    },
+    "c_hat": {
+      "A": 1.0,
+      "B": 0.6,
+      "C": 1.0
+    },
+    "weights": {
+      "w_t": 0.5,
+      "w_b": 0.15,
+      "w_c": 0.35
+    },
+    "score": {
+      "A": 0.15,
+      "B": 0.39,
+      "C": 0.6125
+    },
+    "selected": "A"
+  }
+}

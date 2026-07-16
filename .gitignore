@@ -1,0 +1,24 @@
+# Generated study outputs (docs/10-project-structure.md §6).
+artifacts/
+
+# Secrets / local config
+.env*
+infra/.env
+
+# Large binary study data
+*.parquet
+*.npz
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Node / Expo (mobile, Phase 6)
+node_modules/
+.expo/
+dist/

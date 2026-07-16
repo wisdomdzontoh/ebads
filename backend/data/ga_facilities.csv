@@ -1,0 +1,25 @@
+name,latitude,longitude,tier,supported_bed_types,capacity_general,capacity_icu,capacity_maternity_specialist,contact_phone
+Korle Bu Teaching Hospital,5.536600,-0.226100,tertiary,general|icu|maternity_specialist,350,40,90,+233302739401
+37 Military Hospital,5.582600,-0.188000,tertiary,general|icu|maternity_specialist,300,30,70,+233302776111
+Greater Accra Regional Hospital (Ridge),5.564100,-0.196900,tertiary,general|icu|maternity_specialist,250,25,80,+233302228382
+University of Ghana Medical Centre,5.650500,-0.186900,tertiary,general|icu|maternity_specialist,200,20,50,+233302550000
+La General Hospital,5.558900,-0.162000,secondary,general|icu|maternity_specialist,120,8,40,+233302774301
+Tema General Hospital,5.669000,-0.017000,secondary,general|icu|maternity_specialist,150,10,45,+233303202103
+Achimota Hospital,5.615000,-0.227000,secondary,general|maternity_specialist,100,0,35,+233302402560
+Ga East Municipal Hospital,5.690000,-0.210000,secondary,general|maternity_specialist,90,0,30,+233302501234
+Maamobi General Hospital,5.590000,-0.198000,secondary,general|maternity_specialist,80,0,25,+233302223451
+LEKMA Hospital,5.597000,-0.101000,secondary,general|icu|maternity_specialist,110,6,30,+233302717890
+Pantang Hospital,5.714000,-0.166000,secondary,general|maternity_specialist,70,0,20,+233302501987
+Amasaman Hospital,5.704000,-0.303000,secondary,general|maternity_specialist,80,0,25,+233302912345
+Shai Osudoku District Hospital,5.883000,0.096000,secondary,general|maternity_specialist,60,0,20,+233303091234
+Ashaiman Municipal Hospital,5.689000,-0.034000,secondary,general|maternity_specialist,90,0,30,+233303305678
+Mamprobi Polyclinic,5.538000,-0.236000,primary,general|maternity_specialist,30,0,15,+233302315678
+Ussher Polyclinic,5.533000,-0.211000,primary,general|maternity_specialist,25,0,12,+233302664321
+Kaneshie Polyclinic,5.565000,-0.236000,primary,general|maternity_specialist,28,0,14,+233302224567
+Dansoman Polyclinic,5.543000,-0.263000,primary,general|maternity_specialist,30,0,15,+233302311223
+Adabraka Polyclinic,5.561000,-0.212000,primary,general|maternity_specialist,22,0,10,+233302228899
+Madina Polyclinic,5.683000,-0.166000,primary,general|maternity_specialist,26,0,12,+233302520011
+Tema Polyclinic,5.679000,-0.004000,primary,general|maternity_specialist,24,0,12,+233303202244
+Weija-Gbawe Polyclinic,5.556000,-0.334000,primary,general|maternity_specialist,26,0,13,+233302851122
+Princess Marie Louise Children's Hospital,5.547000,-0.220000,primary,general,40,0,0,+233302664778
+Adenta Polyclinic,5.708000,-0.159000,primary,general|maternity_specialist,24,0,12,+233302501555
