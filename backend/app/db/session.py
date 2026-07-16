@@ -21,8 +21,19 @@ from app.config import get_settings
 
 # One engine per process. `pool_pre_ping` recycles connections that the DB dropped while
 # idle, which matters because the engine container may outlive transient `db` restarts.
+settings = get_settings()
+
+database_url = settings.database_url
+
+if database_url.startswith("postgresql://"):
+    database_url = database_url.replace(
+        "postgresql://",
+        "postgresql+asyncpg://",
+        1,
+    )
+
 _engine: AsyncEngine = create_async_engine(
-    get_settings().database_url,
+    database_url,
     pool_pre_ping=True,
 )
 
