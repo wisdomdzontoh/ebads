@@ -25,7 +25,7 @@ class Settings(BaseSettings):
 
     # Async SQLAlchemy URL for PostgreSQL 16. The default targets the docker-compose
     # `db` service; override locally when running the engine outside Docker.
-    database_url: str = "postgresql+asyncpg://ebads:ebads@db:5432/ebads"
+    database_url: str = ""
 
     # Static API key for the prototype's X-API-Key auth (docs/04-api-spec.md §1). [IMPL]
     # Blank disables the check (unit/integration tests, bare local dev); the deployed stack
