@@ -15,6 +15,7 @@ dependencies = [
     "alembic>=1.13",
     "pydantic>=2.7",
     "pydantic-settings>=2.3",
+    "psycopg[binary]>=3.3",
     "httpx>=0.27",
     # Simulation (Phase 4): numeric arrays for the distance matrix + nearest-node lookup,
     # and Parquet I/O for the distance matrix and per-run metrics datasets (docs/07).
