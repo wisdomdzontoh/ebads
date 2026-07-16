@@ -63,16 +63,9 @@ The repo can be **private** — Render and Neon both work with private repos.
    postgresql://neondb_owner:AbC123xyz@ep-cool-name-a1b2c3.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
    ```
 
-4. **Convert it for the engine** (SQLAlchemy + asyncpg). Two changes:
-   - scheme `postgresql://` → `postgresql+asyncpg://`
-   - query string `?sslmode=require&channel_binding=require` → `?ssl=require`
-     (asyncpg uses `ssl`, not `sslmode`)
-
-   Result — this is your `DATABASE_URL`:
-
-   ```
-   postgresql+asyncpg://neondb_owner:AbC123xyz@ep-cool-name-a1b2c3.eu-central-1.aws.neon.tech/neondb?ssl=require
-   ```
+4. **Use it as-is — this is your `DATABASE_URL`.** No conversion needed: the engine
+   normalizes the scheme onto its async psycopg driver at startup (`app/config.py`), and
+   psycopg understands Neon's `sslmode` / `channel_binding` options natively.
 
 Keep this value handy for step 3.
 
@@ -97,7 +90,7 @@ Keep this value handy for step 3.
 
    | Key | Value |
    |---|---|
-   | `DATABASE_URL` | the `postgresql+asyncpg://…?ssl=require` URL from step 2 |
+   | `DATABASE_URL` | the Neon connection string from step 2, pasted verbatim |
    | `API_KEY` | a strong random key — generate one: `openssl rand -hex 32` (Git Bash) |
    | `CORS_ALLOW_ORIGINS` | `*` (fine for the prototype; restrict later if you host the web build) |
    | `LOG_LEVEL` | `info` |
@@ -204,7 +197,7 @@ you stop using plain-HTTP LAN engines.
 | Symptom | Cause | Fix |
 |---|---|---|
 | Build fails: `pyproject.toml not found` | Root Directory not set | Set **Root Directory = `backend`** in the service settings. |
-| Logs: `InvalidPasswordError` / SSL errors on startup | `DATABASE_URL` not converted | Re-check step 2.4: scheme `postgresql+asyncpg://`, query `?ssl=require`, nothing else. |
+| Logs: password / SSL errors on startup | `DATABASE_URL` mangled | Re-paste the Neon connection string exactly as Neon shows it (step 2.4) — no manual edits needed. |
 | `/readyz` returns 503 | Engine up, DB unreachable | Neon project paused/deleted, or wrong host in `DATABASE_URL`. Test the URL in Neon's SQL editor. |
 | App says "engine rejected the API key" | Key mismatch | The app must send the *exact* `API_KEY` value — no extra spaces. Re-paste both sides. |
 | App connection test fails only on the *first* try after idle | Render cold start | Wait ~1 min, test again (see §6). |

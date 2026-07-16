@@ -20,7 +20,7 @@ from collections.abc import AsyncIterator
 from pathlib import Path
 from urllib.parse import urlparse
 
-import asyncpg
+import psycopg
 import pytest
 import pytest_asyncio
 from fastapi import FastAPI
@@ -36,13 +36,13 @@ BACKEND_DIR = Path(__file__).resolve().parents[2]
 
 TEST_DATABASE_URL = os.environ.get(
     "TEST_DATABASE_URL",
-    "postgresql+asyncpg://ebads:ebads@localhost:5432/ebads_test",
+    "postgresql+psycopg://ebads:ebads@localhost:5432/ebads_test",
 )
 
 
 def _admin_connect_kwargs() -> tuple[dict[str, object], str]:
-    """Split TEST_DATABASE_URL into asyncpg connect kwargs and the target database name."""
-    parsed = urlparse(TEST_DATABASE_URL.replace("+asyncpg", ""))
+    """Split TEST_DATABASE_URL into psycopg connect kwargs and the target database name."""
+    parsed = urlparse(TEST_DATABASE_URL.replace("+psycopg", ""))
     kwargs: dict[str, object] = {
         "host": parsed.hostname,
         "port": parsed.port or 5432,
@@ -55,7 +55,10 @@ def _admin_connect_kwargs() -> tuple[dict[str, object], str]:
 async def _recreate_database() -> None:
     """Drop and recreate the test database (CREATE DATABASE cannot run in a transaction)."""
     kwargs, dbname = _admin_connect_kwargs()
-    connection = await asyncpg.connect(database="postgres", **kwargs)
+    # autocommit: CREATE/DROP DATABASE must run outside psycopg's implicit transaction.
+    connection = await psycopg.AsyncConnection.connect(
+        dbname="postgres", autocommit=True, **kwargs
+    )
     try:
         await connection.execute(f'DROP DATABASE IF EXISTS "{dbname}" WITH (FORCE)')
         await connection.execute(f'CREATE DATABASE "{dbname}"')

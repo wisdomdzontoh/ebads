@@ -9,10 +9,8 @@ deployment tweak from silently changing a thesis-defined number.
 
 from __future__ import annotations
 
-import re
 from functools import lru_cache
 
-from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -26,10 +24,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     # Async SQLAlchemy URL for PostgreSQL 16. The default targets the docker-compose
-    # `db` service; override locally when running the engine outside Docker. Providers'
-    # connection strings (Neon, Render, Heroku) can be pasted verbatim — the validator
-    # below normalizes the scheme and SSL parameter to what the psycopg driver expects.
-    database_url: str = "postgresql+psycopg://ebads:ebads@db:5432/ebads"
+    # `db` service; override locally when running the engine outside Docker.
+    database_url: str = "postgresql+asyncpg://ebads:ebads@db:5432/ebads"
 
     # Static API key for the prototype's X-API-Key auth (docs/04-api-spec.md §1). [IMPL]
     # Blank disables the check (unit/integration tests, bare local dev); the deployed stack
@@ -49,20 +45,6 @@ class Settings(BaseSettings):
     cors_allow_origins: str = "*"
 
     log_level: str = "info"
-
-    @field_validator("database_url")
-    @classmethod
-    def _normalize_database_url(cls, value: str) -> str:
-        """Coerce any common Postgres URL onto the async psycopg (v3) dialect.
-
-        Accepts the URL exactly as a hosting provider hands it out: ``postgres://``
-        (Heroku-era), plain ``postgresql://`` (Neon/Render), or a URL written for the
-        previous asyncpg driver. libpq query options such as ``sslmode`` and
-        ``channel_binding`` pass through to psycopg untouched; only asyncpg's ``ssl=``
-        spelling is renamed to ``sslmode=``.
-        """
-        value = re.sub(r"^postgres(ql)?(\+\w+)?://", "postgresql+psycopg://", value.strip())
-        return re.sub(r"([?&])ssl=", r"\1sslmode=", value)
 
     @property
     def cors_origin_list(self) -> list[str]:

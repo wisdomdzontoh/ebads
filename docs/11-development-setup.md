@@ -11,7 +11,7 @@
 ## 2. Environment variables (`infra/.env`, never committed)
 ```
 # engine
-DATABASE_URL=postgresql+asyncpg://ebads:ebads@db:5432/ebads
+DATABASE_URL=postgresql+psycopg://ebads:ebads@db:5432/ebads
 API_KEY=dev-only-key
 GOOGLE_MAPS_API_KEY=            # optional; blank => Haversine fallback
 LOG_LEVEL=info

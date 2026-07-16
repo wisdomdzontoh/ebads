@@ -1,6 +1,6 @@
 """Async database engine, session factory, and readiness probe (docs/02-data-model.md).
 
-The engine targets PostgreSQL 16 over async psycopg (v3). ``get_session`` is the FastAPI dependency
+The engine targets PostgreSQL 16 over asyncpg. ``get_session`` is the FastAPI dependency
 that yields a request-scoped ``AsyncSession``; ``check_database_ready`` backs the
 ``/readyz`` endpoint (docs/04-api-spec.md §2) by issuing a trivial round-trip to the DB.
 """
@@ -21,9 +21,19 @@ from app.config import get_settings
 
 # One engine per process. `pool_pre_ping` recycles connections that the DB dropped while
 # idle, which matters because the engine container may outlive transient `db` restarts.
-# The URL is already normalized onto the psycopg dialect by Settings (app/config.py).
+settings = get_settings()
+
+database_url = settings.database_url
+
+if database_url.startswith("postgresql://"):
+    database_url = database_url.replace(
+        "postgresql://",
+        "postgresql+asyncpg://",
+        1,
+    )
+
 _engine: AsyncEngine = create_async_engine(
-    get_settings().database_url,
+    database_url,
     pool_pre_ping=True,
 )
 
