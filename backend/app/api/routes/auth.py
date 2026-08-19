@@ -7,9 +7,21 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.schemas.auth import AccessTokenResponse, LoginRequest, RefreshRequest, TokenResponse
+from app.api.schemas.auth import (
+    AccessTokenResponse,
+    LoginRequest,
+    PasswordChangeRequest,
+    RefreshRequest,
+    TokenResponse,
+)
 from app.db.session import get_session
-from app.domain.auth.service import AuthService, InvalidCredentialsError, InvalidRefreshTokenError
+from app.domain.auth.service import (
+    AuthService,
+    InvalidCredentialsError,
+    InvalidRefreshTokenError,
+    WrongPasswordError,
+)
+from app.security.dependencies import CurrentUser
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -48,3 +60,14 @@ async def refresh(payload: RefreshRequest, service: ServiceDep) -> AccessTokenRe
             status.HTTP_401_UNAUTHORIZED, "invalid or expired refresh token"
         ) from exc
     return AccessTokenResponse(access_token=access_token)
+
+
+@router.patch("/password", status_code=status.HTTP_204_NO_CONTENT)
+async def change_password(
+    payload: PasswordChangeRequest, service: ServiceDep, actor: CurrentUser
+) -> None:
+    """Self-service password change — every authenticated role, own account only."""
+    try:
+        await service.change_password(actor, payload.current_password, payload.new_password)
+    except WrongPasswordError as exc:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "current password is incorrect") from exc

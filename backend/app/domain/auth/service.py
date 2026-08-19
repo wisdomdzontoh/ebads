@@ -19,7 +19,7 @@ from app.domain.audit import service as audit
 from app.parameters import Role, UserStatus
 from app.security.jwt import InvalidTokenError as _InvalidTokenError
 from app.security.jwt import TokenType, create_access_token, create_refresh_token, decode_token
-from app.security.passwords import verify_password
+from app.security.passwords import hash_password, verify_password
 
 
 class InvalidCredentialsError(Exception):
@@ -28,6 +28,10 @@ class InvalidCredentialsError(Exception):
 
 class InvalidRefreshTokenError(Exception):
     """Raised when a refresh token is invalid, expired, or its account is gone/suspended."""
+
+
+class WrongPasswordError(Exception):
+    """Raised when a password-change request's current_password does not match."""
 
 
 @dataclass(frozen=True)
@@ -79,3 +83,21 @@ class AuthService:
         if user is None or user.status != UserStatus.ACTIVE:
             raise InvalidRefreshTokenError("account is unknown or suspended")
         return create_access_token(user.id, Role(user.role.name), user.facility_id)
+
+    async def change_password(
+        self, actor: UserAccount, current_password: str, new_password: str
+    ) -> None:
+        """Self-service password rotation — every role may change only their own password.
+
+        No token invalidation here: PyJWT tokens are stateless, so existing access/refresh
+        tokens for this account remain valid until they expire on their own schedule
+        (ACCESS_TOKEN_TTL_MIN / REFRESH_TOKEN_TTL_DAYS) — consistent with rotating
+        JWT_SECRET_KEY being the only way to invalidate tokens early (DEPLOYMENT.md).
+        """
+        if not verify_password(current_password, actor.password_hash):
+            raise WrongPasswordError("current password is incorrect")
+        actor.password_hash = hash_password(new_password)
+        await audit.record(
+            self._session, actor.id, "update", "user_account", actor.id, {"field": "password"}
+        )
+        await self._session.commit()

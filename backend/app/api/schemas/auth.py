@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import uuid
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
-from app.parameters import Role
+from app.parameters import MIN_PASSWORD_LENGTH, Role
 
 
 class LoginRequest(BaseModel):
@@ -29,3 +29,10 @@ class RefreshRequest(BaseModel):
 
 class AccessTokenResponse(BaseModel):
     access_token: str
+
+
+class PasswordChangeRequest(BaseModel):
+    """Body of ``PATCH /auth/password`` — self-service, the caller's own account only."""
+
+    current_password: str
+    new_password: str = Field(min_length=MIN_PASSWORD_LENGTH)

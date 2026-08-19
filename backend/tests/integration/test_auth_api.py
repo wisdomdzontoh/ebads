@@ -82,3 +82,84 @@ async def test_refresh_rejects_an_access_token(client: AsyncClient, make_user: M
 async def test_garbage_refresh_token_is_401(client: AsyncClient) -> None:
     response = await client.post("/api/v1/auth/refresh", json={"refresh_token": "not-a-token"})
     assert response.status_code == 401
+
+
+async def test_change_password_with_correct_current_password_succeeds(
+    client: AsyncClient, make_user: MakeUser
+) -> None:
+    await make_user(Role.DISPATCHER, email="dispatcher@example.test")
+    login = await client.post(
+        "/api/v1/auth/login",
+        json={"email": "dispatcher@example.test", "password": "test-password-123"},
+    )
+    access_token = login.json()["access_token"]
+
+    changed = await client.patch(
+        "/api/v1/auth/password",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json={"current_password": "test-password-123", "new_password": "a-new-password-99"},
+    )
+    assert changed.status_code == 204
+
+    old_login = await client.post(
+        "/api/v1/auth/login",
+        json={"email": "dispatcher@example.test", "password": "test-password-123"},
+    )
+    assert old_login.status_code == 401
+
+    new_login = await client.post(
+        "/api/v1/auth/login",
+        json={"email": "dispatcher@example.test", "password": "a-new-password-99"},
+    )
+    assert new_login.status_code == 200
+
+
+async def test_change_password_with_wrong_current_password_is_401(
+    client: AsyncClient, make_user: MakeUser
+) -> None:
+    await make_user(Role.DISPATCHER, email="dispatcher@example.test")
+    login = await client.post(
+        "/api/v1/auth/login",
+        json={"email": "dispatcher@example.test", "password": "test-password-123"},
+    )
+    access_token = login.json()["access_token"]
+
+    changed = await client.patch(
+        "/api/v1/auth/password",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json={"current_password": "totally-wrong", "new_password": "a-new-password-99"},
+    )
+    assert changed.status_code == 401
+
+    # The password was not changed.
+    still_works = await client.post(
+        "/api/v1/auth/login",
+        json={"email": "dispatcher@example.test", "password": "test-password-123"},
+    )
+    assert still_works.status_code == 200
+
+
+async def test_change_password_requires_authentication(client: AsyncClient) -> None:
+    response = await client.patch(
+        "/api/v1/auth/password",
+        json={"current_password": "whatever", "new_password": "a-new-password-99"},
+    )
+    assert response.status_code == 401
+
+
+async def test_change_password_rejects_a_too_short_new_password(
+    client: AsyncClient, make_user: MakeUser
+) -> None:
+    await make_user(Role.DISPATCHER, email="dispatcher@example.test")
+    login = await client.post(
+        "/api/v1/auth/login",
+        json={"email": "dispatcher@example.test", "password": "test-password-123"},
+    )
+    access_token = login.json()["access_token"]
+
+    response = await client.patch(
+        "/api/v1/auth/password",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json={"current_password": "test-password-123", "new_password": "short"},
+    )
+    assert response.status_code == 422
