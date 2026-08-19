@@ -94,6 +94,8 @@ Keep this value handy for step 3.
    | `JWT_SECRET_KEY` | a strong random key — generate one: `openssl rand -hex 32` (Git Bash) |
    | `CORS_ALLOW_ORIGINS` | `*` (fine for the prototype; restrict later if you host the web build) |
    | `LOG_LEVEL` | `info` |
+   | `SEED_ADMIN_EMAIL` | (optional) email for the first system_administrator account — see step 8 |
+   | `SEED_ADMIN_PASSWORD` | (optional) its password, 12+ characters — see step 8 |
 
    > `JWT_SECRET_KEY` signs every access/refresh token (docs/01 §4). Leaving it blank
    > doesn't disable auth (unlike the old `API_KEY` scheme this replaced) — every
@@ -113,15 +115,29 @@ Keep this value handy for step 3.
    (24 facilities), then `Uvicorn running on 0.0.0.0:…`.
 
 8. **Bootstrap the first account.** No HTTP endpoint can create one (every `/users` route
-   needs an existing system_administrator caller — that's deliberate, FR16). From a shell
-   with the deployed `DATABASE_URL` exported, run once:
+   needs an existing system_administrator caller — that's deliberate, FR16), and Render's
+   **free** instance type has no shell/exec access to run a one-off command. Two ways to do
+   it, depending on your plan:
+
+   **Free tier (no shell) — via environment variables:** set `SEED_ADMIN_EMAIL` and
+   `SEED_ADMIN_PASSWORD` (12+ characters) in Environment (step 4), then deploy or redeploy.
+   The image's start command runs `scripts.create_system_admin` on every boot; it's a no-op
+   unless both variables are set, and — importantly — it never *resets* an existing account's
+   password, so leaving these variables in place across future redeploys is safe: the first
+   boot creates the account, every boot after that is a no-op, and changing the password
+   through any other path later isn't clobbered by the next deploy. Don't use a real email
+   you don't control here purely as a placeholder — reserved-use domains like `.test` are
+   rejected outright (they can never receive `/auth/login` either, by the same check).
+
+   **Paid tier or local (shell available):** run it directly instead —
    ```bash
    cd backend
    DATABASE_URL=<the Neon connection string> python -m scripts.create_system_admin \
      --email you@example.com --password '<a strong password>'
    ```
-   This is the one out-of-band exception — every account after this one is created through
-   the API by an already-authenticated admin.
+
+   Either way, this is the one out-of-band exception — every account after this one is
+   created through the API by an already-authenticated admin.
 
 ---
 
@@ -188,6 +204,11 @@ you stop using plain-HTTP LAN engines.
 - **Rotate the signing key:** Render → Environment → edit `JWT_SECRET_KEY` → Save (service
   restarts). Every previously issued access/refresh token is invalidated — every account
   must log in again.
+- **Reset the seeded admin's password** (free tier, no shell): editing `SEED_ADMIN_PASSWORD`
+  in Environment does *not* reset it on the next deploy (by design — see step 8). To force a
+  reset, run the one-off Render Shell if you're on a paid plan (`--force`, see step 8's
+  second option), or drop the account row via Neon's SQL Editor and let the next deploy
+  recreate it from the current `SEED_ADMIN_*` values.
 - **Logs:** Render → your service → **Logs** (live tail; allocation requests, migrations,
   seed output all appear here).
 - **Database console:** Neon → **SQL Editor** to inspect `facility`, `bed_count`,

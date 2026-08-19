@@ -1,8 +1,8 @@
-"""POST/GET /allocations integration tests (docs/04 §4, docs/12 §7).
+"""POST/GET /allocations integration tests (docs/04 §4, docs/01 §7, docs/12 §7).
 
-Covers the happy path with full audit persistence, the escalation shape, the maps-failure
-fallback flag (via an overridden travel service), and the GET audit endpoints. Since
-Increment 1, ``/allocations`` is dispatcher-only (facility setup, done here via a
+Covers the happy path with full reservation persistence, the escalation shape, the
+maps-failure fallback flag (via an overridden travel service), and the GET read endpoints.
+Since Increment 1, ``/allocations`` is dispatcher-only (facility setup, done here via a
 system_administrator + a facility_staff account it provisions, is a separate concern —
 docs/01 §4 separation of duties).
 """
@@ -60,7 +60,7 @@ async def _create_facility_with_icu_beds(
     return facility_id
 
 
-async def test_allocation_happy_path_persists_audit(
+async def test_allocation_happy_path_persists_reservation(
     client: AsyncClient,
     system_admin_headers: dict[str, str],
     dispatcher_headers: dict[str, str],
@@ -80,19 +80,30 @@ async def test_allocation_happy_path_persists_audit(
     )
     assert response.status_code == 200
     body = response.json()
-    assert body["status"] == "allocated"
+    assert body["status"] == "confirmed"
     assert body["recommended_facility"]["id"] == facility_id
     assert body["algorithm_used"] == "urgency_adaptive"
     assert body["weight_vector"] == {"w_t": 0.50, "w_b": 0.10, "w_c": 0.40}
     assert body["candidates_evaluated"] == 1
+    assert body["attempts"] == 1
+    assert body["eta_minutes"] == 0.0
 
-    # Audit record is persisted and fetchable by the same dispatcher.
+    # The reservation actually decremented the bed (FR8).
+    facility = (
+        await client.get(f"/api/v1/facilities/{facility_id}", headers=system_admin_headers)
+    ).json()
+    icu = next(b for b in facility["bed_counts"] if b["bed_type"] == "icu")
+    assert icu["available"] == 3
+    assert icu["version"] == 1
+
+    # The decision is persisted and fetchable by the same dispatcher.
     fetched = await client.get(f"/api/v1/allocations/{body['id']}", headers=dispatcher_headers)
     assert fetched.status_code == 200
     record = fetched.json()
-    assert record["status"] == "allocated"
-    assert record["recommended_facility_id"] == facility_id
+    assert record["status"] == "confirmed"
+    assert record["facility_id"] == facility_id
     assert record["weight_vector"] == {"w_t": 0.50, "w_b": 0.10, "w_c": 0.40}
+    assert record["attempts"] == 1
 
 
 async def test_create_allocation_without_auth_is_401(client: AsyncClient) -> None:
@@ -174,7 +185,7 @@ async def test_maps_failure_sets_estimated_flag(
         headers=dispatcher_headers,
     )
     body = response.json()
-    assert body["status"] == "allocated"
+    assert body["status"] == "confirmed"
     assert body["recommended_facility"]["is_estimated_travel_time"] is True
 
     record = (
@@ -270,11 +281,11 @@ async def test_list_allocations_filters_by_status(
         },
         headers=dispatcher_headers,
     )
-    allocated = await client.get(
-        "/api/v1/allocations", params={"status": "allocated"}, headers=dispatcher_headers
+    confirmed = await client.get(
+        "/api/v1/allocations", params={"status": "confirmed"}, headers=dispatcher_headers
     )
-    assert allocated.status_code == 200
-    assert len(allocated.json()) == 1
+    assert confirmed.status_code == 200
+    assert len(confirmed.json()) == 1
     escalated = await client.get(
         "/api/v1/allocations", params={"status": "escalated"}, headers=dispatcher_headers
     )

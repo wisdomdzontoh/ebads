@@ -1,6 +1,7 @@
-# Local deployment topology (docs/01-architecture.md §5, docs/11-development-setup.md §3).
-# Two services: the FastAPI engine and PostgreSQL 16. The engine waits for the DB to pass
-# its healthcheck before starting, so `/readyz` is meaningful from the first request.
+# Local deployment topology (docs/01-architecture.md §5, §10, docs/11-development-setup.md §3).
+# Three services: the FastAPI engine, PostgreSQL 16 + PostGIS, and the expiry sweeper
+# (docs/01 §10: "same image, different entrypoint" — FR10, S5). Both engine and sweeper wait
+# for the DB healthcheck before starting, so `/readyz` is meaningful from the first request.
 
 services:
   db:
@@ -30,6 +31,22 @@ services:
       - .env
     ports:
       - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  sweeper:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    # Overrides the image's default CMD (migrate + seed + serve) to just run the sweeper
+    # loop — migrations are the engine service's job, not run twice. There is no
+    # healthcheck-gated "wait for engine to finish migrating" here (engine has none either);
+    # restart: on-failure covers the rare case the sweeper starts before the schema exists.
+    command: ["python", "-m", "scripts.run_sweeper"]
+    restart: on-failure
     depends_on:
       db:
         condition: service_healthy

@@ -127,12 +127,34 @@ def run_create_system_admin(email: str, password: str, force: bool = False) -> N
     _run(args)
 
 
+def run_create_system_admin_env(
+    extra_env: dict[str, str] | None = None, *, check: bool = True
+) -> subprocess.CompletedProcess[str]:
+    """Run the bootstrap script bare (no --email/--password) — the same invocation shape
+    backend/Dockerfile's CMD uses so platforms with no shell access (Render's free tier)
+    still get a first admin account, driven entirely by SEED_ADMIN_EMAIL/SEED_ADMIN_PASSWORD.
+    """
+    env = {**os.environ, "DATABASE_URL": TEST_DATABASE_URL}
+    env.pop("SEED_ADMIN_EMAIL", None)
+    env.pop("SEED_ADMIN_PASSWORD", None)
+    env.update(extra_env or {})
+    return subprocess.run(
+        [sys.executable, "-m", "scripts.create_system_admin"],
+        cwd=BACKEND_DIR,
+        env=env,
+        check=check,
+        capture_output=True,
+        text=True,
+    )
+
+
 # Clears every table; CASCADE handles the FK chains. Order is irrelevant with CASCADE.
 # role/permission are deliberately NOT truncated — they are seeded once by migration 0005
 # (docs/02 §6: "behaviour, not sample data"), not per-test fixture data.
 _TRUNCATE = text(
     "TRUNCATE TABLE audit_log, facility_request, simulation_allocation_event, "
-    "emergency_request, simulation_bed_state, simulation_session, bed_count, "
+    "decision_log, notification, reservation, allocation, emergency_request, "
+    "simulation_bed_state, simulation_session, bed_count, "
     "user_account, facility RESTART IDENTITY CASCADE"
 )
 

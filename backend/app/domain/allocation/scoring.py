@@ -29,12 +29,24 @@ class ScoringResult:
     weights: WeightVector | None
 
 
+def _sort_key(sc: ScoredCandidate) -> tuple[float, float, str]:
+    """Score, then travel time, then facility id — the documented tie-break (docs/03 §9)."""
+    return (sc.score, sc.candidate.travel_time_min, sc.candidate.facility_id)
+
+
 def _argmin(scored: Sequence[ScoredCandidate]) -> ScoredCandidate:
     """Pick the lowest-score candidate; tie-break by travel time, then facility id (docs/03 §9)."""
-    return min(
-        scored,
-        key=lambda sc: (sc.score, sc.candidate.travel_time_min, sc.candidate.facility_id),
-    )
+    return min(scored, key=_sort_key)
+
+
+def rank_by_score(scored: Sequence[ScoredCandidate]) -> list[ScoredCandidate]:
+    """Full ranking in the same deterministic order ``_argmin`` picks its winner from.
+
+    Shared by the reservation fall-through (FR9 — try the next-ranked candidate on
+    ``VersionConflict``, from this list, never a re-query) and the simulation step trace,
+    so there is exactly one place the tie-break order is implemented.
+    """
+    return sorted(scored, key=_sort_key)
 
 
 def score_candidates(

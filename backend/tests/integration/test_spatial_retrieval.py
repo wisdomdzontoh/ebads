@@ -13,7 +13,7 @@ from __future__ import annotations
 import math
 from typing import Any
 
-from sqlalchemy import Select
+from sqlalchemy import Select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import ClauseElement, Executable
@@ -89,6 +89,10 @@ async def _seed_scattered_facilities(session: AsyncSession, count: int = 300) ->
 async def test_spatial_retrieval_query_uses_the_gist_index(db_session: AsyncSession) -> None:
     """FR3's accept criterion: EXPLAIN shows index usage, not a sequential scan."""
     await _seed_scattered_facilities(db_session, count=300)
+    # A freshly bulk-inserted table has no planner statistics yet — without ANALYZE, the
+    # planner may still guess a sequential scan regardless of the index (it doesn't yet
+    # know the table has 300 rows, not the near-empty default it assumes for a new table).
+    await db_session.execute(text("ANALYZE facility"))
 
     origin = Coordinate(_ORIGIN_LAT, _ORIGIN_LON)
     query = AllocationService.spatial_retrieve_query(

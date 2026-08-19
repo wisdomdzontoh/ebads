@@ -66,6 +66,26 @@ export interface Facility {
   bed_counts: BedCount[];
 }
 
+// Body of PUT /facilities/{id} — a full replacement of static attributes, not a partial
+// patch (backend/app/api/schemas/facility.py::FacilityUpdate).
+export interface FacilityUpdate {
+  name: string;
+  latitude: number;
+  longitude: number;
+  tier: Tier;
+  supported_bed_types: BedType[];
+  contact_phone: string;
+  active_data_source?: DataSource | null;
+}
+
+// Body of PATCH /facilities/{id}/beds — upserts one bed-type's counts (no client-supplied
+// version: this is the human-correction path, distinct from the CAS reservation protocol).
+export interface BedCountUpdate {
+  bed_type: BedType;
+  available: number;
+  capacity: number;
+}
+
 // --- registrations ------------------------------------------------------------------------
 
 export interface FacilityRequest {

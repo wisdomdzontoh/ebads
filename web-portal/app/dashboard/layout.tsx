@@ -41,9 +41,9 @@ const NAV_BY_ROLE: Record<Role, NavItem[]> = {
   ],
   facility_administrator: [
     { title: "Overview", href: "/dashboard" },
-    { title: "Facility profile" },
-    { title: "Users" },
-    { title: "Beds" },
+    { title: "Facility profile", href: "/dashboard/facility" },
+    { title: "Users", href: "/dashboard/users" },
+    { title: "Beds", href: "/dashboard/beds" },
   ],
   facility_staff: [
     { title: "Overview", href: "/dashboard" },

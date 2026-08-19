@@ -3,10 +3,12 @@
 import { useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { useAuth } from "@/components/auth-provider";
 import { listFacilities } from "@/lib/api/facilities";
 import { listUsers } from "@/lib/api/users";
 import { ApiError } from "@/lib/api-client";
 import { ROLE_LABELS, USER_STATUS_LABELS } from "@/lib/labels";
+import type { Role, UserStatus } from "@/lib/types";
 
 import { Badge, badgeVariants } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,9 +28,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { VariantProps } from "class-variance-authority";
-import type { UserStatus } from "@/lib/types";
 
 import { CreateUserDialog } from "./create-user-dialog";
+
+const ALL_ROLES: Role[] = [
+  "system_administrator",
+  "facility_administrator",
+  "facility_staff",
+  "dispatcher",
+];
+const FACILITY_ADMIN_ASSIGNABLE_ROLES: Role[] = ["facility_administrator", "facility_staff"];
 
 type BadgeVariant = VariantProps<typeof badgeVariants>["variant"];
 
@@ -39,6 +48,8 @@ const STATUS_BADGE_VARIANT: Record<UserStatus, BadgeVariant> = {
 
 export default function UsersPage() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const isFacilityAdmin = user?.role === "facility_administrator";
 
   const usersQuery = useQuery({ queryKey: ["users"], queryFn: listUsers });
   const facilitiesQuery = useQuery({
@@ -63,10 +74,17 @@ export default function UsersPage() {
         <div>
           <h1 className="text-xl font-semibold">Users</h1>
           <p className="text-sm text-muted-foreground">
-            Every account across the system, and where it&apos;s scoped.
+            {isFacilityAdmin
+              ? "Staff and administrator accounts at your facility."
+              : "Every account across the system, and where it's scoped."}
           </p>
         </div>
-        <CreateUserDialog onSuccess={invalidate} />
+        <CreateUserDialog
+          assignableRoles={isFacilityAdmin ? FACILITY_ADMIN_ASSIGNABLE_ROLES : ALL_ROLES}
+          defaultRole={isFacilityAdmin ? "facility_staff" : "dispatcher"}
+          fixedFacilityId={isFacilityAdmin ? (user?.facilityId ?? undefined) : undefined}
+          onSuccess={invalidate}
+        />
       </div>
 
       <Card>

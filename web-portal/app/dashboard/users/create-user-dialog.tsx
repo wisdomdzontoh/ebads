@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
@@ -32,43 +32,56 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const ROLES = Object.keys(ROLE_LABELS) as Role[];
 const FACILITY_SCOPED_ROLES: Role[] = ["facility_administrator", "facility_staff"];
 
-const createUserSchema = z
-  .object({
-    email: z.email("Enter a valid email address"),
-    password: z
-      .string()
-      .min(MIN_PASSWORD_LENGTH, `Must be at least ${MIN_PASSWORD_LENGTH} characters`),
-    role: z.enum(ROLES as [Role, ...Role[]]),
-    facility_id: z.string().optional(),
-  })
-  .superRefine((data, ctx) => {
-    if (FACILITY_SCOPED_ROLES.includes(data.role) && !data.facility_id) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["facility_id"],
-        message: "Select a facility for this role",
-      });
-    }
-  });
+function buildSchema(assignableRoles: Role[], hasFixedFacility: boolean) {
+  return z
+    .object({
+      email: z.email("Enter a valid email address"),
+      password: z
+        .string()
+        .min(MIN_PASSWORD_LENGTH, `Must be at least ${MIN_PASSWORD_LENGTH} characters`),
+      role: z.enum(assignableRoles as [Role, ...Role[]]),
+      facility_id: z.string().optional(),
+    })
+    .superRefine((data, ctx) => {
+      if (!hasFixedFacility && FACILITY_SCOPED_ROLES.includes(data.role) && !data.facility_id) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["facility_id"],
+          message: "Select a facility for this role",
+        });
+      }
+    });
+}
 
-type CreateUserFormValues = z.infer<typeof createUserSchema>;
-
-const DEFAULT_VALUES: CreateUserFormValues = {
-  email: "",
-  password: "",
-  role: "dispatcher",
-  facility_id: undefined,
-};
+type CreateUserFormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 interface CreateUserDialogProps {
+  /** Roles this caller is permitted to create, most to least privileged. */
+  assignableRoles: Role[];
+  defaultRole: Role;
+  /** Set when the caller is a facility_administrator: every new account is implicitly
+   * pinned to this facility, so the facility picker is hidden entirely. */
+  fixedFacilityId?: string;
   onSuccess: () => void;
 }
 
-export function CreateUserDialog({ onSuccess }: CreateUserDialogProps) {
+export function CreateUserDialog({
+  assignableRoles,
+  defaultRole,
+  fixedFacilityId,
+  onSuccess,
+}: CreateUserDialogProps) {
   const [open, setOpen] = useState(false);
+  const schema = useMemo(
+    () => buildSchema(assignableRoles, !!fixedFacilityId),
+    [assignableRoles, fixedFacilityId]
+  );
+  const defaultValues = useMemo<CreateUserFormValues>(
+    () => ({ email: "", password: "", role: defaultRole, facility_id: undefined }),
+    [defaultRole]
+  );
 
   const {
     control,
@@ -78,23 +91,23 @@ export function CreateUserDialog({ onSuccess }: CreateUserDialogProps) {
     watch,
     formState: { errors },
   } = useForm<CreateUserFormValues>({
-    resolver: zodResolver(createUserSchema),
-    defaultValues: DEFAULT_VALUES,
+    resolver: zodResolver(schema),
+    defaultValues,
   });
 
   const role = watch("role");
-  const facilityScoped = FACILITY_SCOPED_ROLES.includes(role);
+  const showFacilityPicker = !fixedFacilityId && FACILITY_SCOPED_ROLES.includes(role);
 
   const facilitiesQuery = useQuery({
     queryKey: ["facilities"],
     queryFn: listFacilities,
-    enabled: open && facilityScoped,
+    enabled: open && showFacilityPicker,
     staleTime: 60_000,
   });
 
   useEffect(() => {
-    if (open) reset(DEFAULT_VALUES);
-  }, [open, reset]);
+    if (open) reset(defaultValues);
+  }, [open, defaultValues, reset]);
 
   const mutation = useMutation({
     mutationFn: (values: CreateUserFormValues) =>
@@ -102,7 +115,7 @@ export function CreateUserDialog({ onSuccess }: CreateUserDialogProps) {
         email: values.email,
         password: values.password,
         role: values.role,
-        facility_id: facilityScoped ? values.facility_id : null,
+        facility_id: fixedFacilityId ?? (showFacilityPicker ? values.facility_id : null),
       }),
     onSuccess: () => {
       setOpen(false);
@@ -147,7 +160,7 @@ export function CreateUserDialog({ onSuccess }: CreateUserDialogProps) {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {ROLES.map((r) => (
+                      {assignableRoles.map((r) => (
                         <SelectItem key={r} value={r}>
                           {ROLE_LABELS[r]}
                         </SelectItem>
@@ -158,7 +171,7 @@ export function CreateUserDialog({ onSuccess }: CreateUserDialogProps) {
               />
             </Field>
 
-            {facilityScoped && (
+            {showFacilityPicker && (
               <Field data-invalid={!!errors.facility_id}>
                 <FieldLabel htmlFor="facility_id">Facility</FieldLabel>
                 <Controller

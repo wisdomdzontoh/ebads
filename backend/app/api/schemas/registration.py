@@ -7,7 +7,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-from app.parameters import BedType, DataSource, FacilityRequestStatus, Tier
+from app.parameters import MIN_PASSWORD_LENGTH, BedType, DataSource, FacilityRequestStatus, Tier
 
 _LAT_MIN, _LAT_MAX = -90.0, 90.0
 _LON_MIN, _LON_MAX = -180.0, 180.0
@@ -52,7 +52,10 @@ class FacilityRequestApprove(BaseModel):
     # Null = manual maintenance (docs/02 §3.1) — the default for a newly approved facility.
     active_data_source: DataSource | None = None
     initial_admin_email: EmailStr
-    initial_admin_password: str = Field(min_length=1)
+    # Matches app/security/passwords.py::hash_password's own floor, enforced here too so a
+    # too-short password 422s cleanly instead of reaching the service as an unhandled
+    # PasswordTooShortError (docs/09-parameters.md §10).
+    initial_admin_password: str = Field(min_length=MIN_PASSWORD_LENGTH)
 
 
 class FacilityRequestReject(BaseModel):

@@ -25,8 +25,11 @@ COPY config ./config
 
 EXPOSE 8000
 
-# Apply migrations and (idempotently) seed the facility registry, then serve. Baked into
-# the image so hosted platforms need no fragile start-command override (Render's Docker
-# Command field mis-tokenizes quoted sh -c chains). Binds all interfaces; honors the
-# platform's $PORT, defaulting to 8000 for local compose.
-CMD ["sh", "-c", "alembic upgrade head && python -m scripts.seed_facilities --source data/ga_facilities.csv && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Apply migrations, (idempotently) seed the facility registry, then the first
+# system_administrator (a no-op unless SEED_ADMIN_EMAIL/SEED_ADMIN_PASSWORD are set — see
+# scripts/create_system_admin.py; this is how platforms with no shell/exec access, like
+# Render's free tier, get a first admin account at all), then serve. Baked into the image so
+# hosted platforms need no fragile start-command override (Render's Docker Command field
+# mis-tokenizes quoted sh -c chains). Binds all interfaces; honors the platform's $PORT,
+# defaulting to 8000 for local compose.
+CMD ["sh", "-c", "alembic upgrade head && python -m scripts.seed_facilities --source data/ga_facilities.csv && python -m scripts.create_system_admin && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

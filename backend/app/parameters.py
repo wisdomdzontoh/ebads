@@ -143,6 +143,39 @@ class DataSource(StrEnum):
     REST_POLLING = "rest_polling"  # RESTPollingAdapter (specified, not built)
 
 
+class AllocationStatus(StrEnum):
+    """Lifecycle of one live ``allocation`` (docs/09 §1, docs/02 §3.5).
+
+    Distinct from ``Status`` (the simulation event's simpler pending/allocated/escalated —
+    unchanged, Increment 5 replaces the whole module that reads it), because backdating the
+    richer reservation lifecycle onto simulation would mean editing code this project has
+    deliberately left untouched ahead of its scheduled replacement. This is the live path's
+    enum; docs/09 §1 names it just ``Status``, but that name is already taken here. [IMPL]
+    """
+
+    PENDING = "pending"
+    CONFIRMED = "confirmed"
+    ARRIVED = "arrived"
+    EXPIRED = "expired"
+    REFUSED = "refused"
+    ESCALATED = "escalated"
+
+
+class NotificationChannel(StrEnum):
+    """Delivery channel for a facility notification (docs/02 §3.7). [IMPL] enum spelling."""
+
+    SMS = "sms"
+    PUSH = "push"
+
+
+class NotificationDeliveryStatus(StrEnum):
+    """Delivery outcome of one notification attempt (docs/02 §3.7). [IMPL] enum spelling."""
+
+    PENDING = "pending"
+    SENT = "sent"
+    FAILED = "failed"
+
+
 # ---------------------------------------------------------------------------
 # 2. Urgency-based travel-time radius R(u) (docs/09-parameters.md §2, thesis Table 3.2)
 # ---------------------------------------------------------------------------
@@ -312,11 +345,34 @@ LOS_RANDOM_STREAM_OFFSET: int = 1_000_003
 
 
 # ---------------------------------------------------------------------------
-# 9. Statistical analysis (docs/09 §9, thesis §3.12.4 / §3.13.2)
+# [LEGACY — superseded, still in use until Increment 5] Statistical analysis
 # ---------------------------------------------------------------------------
-
-# Significance level for the hypothesis tests (paired t-test, Wilcoxon fallback).
+# This constant is NOT current docs/09 §9 any more (the doc was rewritten — §9 is now
+# "Reservation and notification", added below). It stays here, unrenumbered, only because
+# app/analysis/statistics.py (the discrete-event-era hypothesis-testing module) still reads
+# it; docs/08 §3 and docs/AGENTS.md §3 now explicitly forbid this kind of analysis over the
+# case set ("Do not compute p-values, t-tests or Cohen's d"). Removed when Increment 5
+# replaces app/analysis/ and app/simulation/ with the deterministic scenario runner.
 SIGNIFICANCE_ALPHA: float = 0.05
+
+
+# ---------------------------------------------------------------------------
+# 9. Reservation and notification (docs/09-parameters.md §9, thesis §3.6.6)
+# ---------------------------------------------------------------------------
+# None of these four are thesis-specified numbers; they are implementation defaults
+# recorded here (not hardcoded in domain/reservation/ or domain/notify/) per docs/09 §9.
+
+# Minutes added to ETA before an unconfirmed reservation expires (docs/01 §7, FR10).
+RESERVATION_GRACE_MIN: int = 15
+
+# How often the expiry sweeper checks for reservations past expires_at (docs/01 §7).
+SWEEPER_INTERVAL_SEC: int = 60
+
+# Notification channel used for facility confirmation (docs/02 §3.7, FR19).
+SMS_CHANNEL: str = "sms"
+
+# Gateway retries before a notification is recorded as delivery-failed (docs/02 §3.7).
+SMS_RETRY_ATTEMPTS: int = 2
 
 
 # ---------------------------------------------------------------------------

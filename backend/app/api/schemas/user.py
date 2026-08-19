@@ -7,7 +7,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
-from app.parameters import Role, UserStatus
+from app.parameters import MIN_PASSWORD_LENGTH, Role, UserStatus
 
 
 class UserCreate(BaseModel):
@@ -19,7 +19,10 @@ class UserCreate(BaseModel):
     """
 
     email: EmailStr
-    password: str = Field(min_length=1)
+    # Matches app/security/passwords.py::hash_password's own floor, enforced here too so a
+    # too-short password 422s cleanly instead of reaching the service as an unhandled
+    # PasswordTooShortError (docs/09-parameters.md §10).
+    password: str = Field(min_length=MIN_PASSWORD_LENGTH)
     role: Role
     facility_id: uuid.UUID | None = None
 

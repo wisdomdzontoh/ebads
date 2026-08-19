@@ -32,6 +32,7 @@ from app.config import get_settings
 from app.db.models.facility import Facility
 from app.db.models.user_account import UserAccount
 from app.db.session import get_session
+from app.domain.allocation.scoring import rank_by_score
 from app.domain.travel.base import TravelTimeService
 from app.domain.travel.live import LiveTravelTimeService
 from app.parameters import PermissionAction
@@ -141,10 +142,7 @@ def _step_trace(processed: ProcessedEvent) -> StepTrace:
     itself (docs/05 §8): the first candidate is the selected one.
     """
     outcome = processed.outcome
-    ranked = sorted(
-        outcome.scored,
-        key=lambda sc: (sc.score, sc.candidate.travel_time_min, sc.candidate.facility_id),
-    )
+    ranked = rank_by_score(outcome.scored)
     candidates = [
         StepCandidate(
             facility_id=uuid.UUID(scored.candidate.facility_id),

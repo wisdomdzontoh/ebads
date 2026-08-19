@@ -1,8 +1,9 @@
-"""Request/response schemas for the Allocation Service (docs/04-api-spec.md §4).
+"""Request/response schemas for the Allocation Service (docs/04-api-spec.md §4, docs/01 §7).
 
-The response is a discriminated union on ``status``: an ``allocated`` shape with the chosen
-facility, or an ``escalated`` shape with the two fallbacks and ``requires_manual_decision``.
-Keeping them as distinct models makes ``/docs`` show exactly the two documented payloads.
+The response is a discriminated union on ``status``: a ``confirmed`` shape with the reserved
+facility and ETA, or an ``escalated`` shape with the two fallbacks and
+``requires_manual_decision``. Keeping them as distinct models makes ``/docs`` show exactly
+the two documented payloads.
 """
 
 from __future__ import annotations
@@ -13,7 +14,7 @@ from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.parameters import AlgorithmName, BedType, Status, Tier, Urgency, WeightVector
+from app.parameters import AlgorithmName, AllocationStatus, BedType, Tier, Urgency, WeightVector
 
 _LAT_MIN, _LAT_MAX = -90.0, 90.0
 _LON_MIN, _LON_MAX = -180.0, 180.0
@@ -30,7 +31,7 @@ class AllocationCreate(BaseModel):
 
 
 class RecommendedFacility(BaseModel):
-    """The recommended facility in an allocated response (docs/04 §4)."""
+    """The reserved facility in a confirmed response (docs/04 §4)."""
 
     id: uuid.UUID
     name: str
@@ -53,23 +54,28 @@ class FacilityBrief(BaseModel):
 
 
 class AllocatedResponse(BaseModel):
-    """Recommendation payload (docs/04 §4)."""
+    """Confirmed-reservation payload (docs/01 §7, FR8, FR19)."""
 
     id: uuid.UUID
-    status: Literal[Status.ALLOCATED] = Status.ALLOCATED
+    status: Literal[AllocationStatus.CONFIRMED] = AllocationStatus.CONFIRMED
     recommended_facility: RecommendedFacility
     algorithm_used: AlgorithmName
     weight_vector: WeightVector | None
     capability_match: float
     candidates_evaluated: int
+    attempts: int
+    eta_minutes: float
     selection_reason: str
 
 
 class EscalatedResponse(BaseModel):
-    """Escalation payload (docs/04 §4)."""
+    """Escalation payload (docs/04 §4, FR11) — either no admissible candidate, or every
+
+    candidate was claimed by a concurrent request before this one could reserve one.
+    """
 
     id: uuid.UUID
-    status: Literal[Status.ESCALATED] = Status.ESCALATED
+    status: Literal[AllocationStatus.ESCALATED] = AllocationStatus.ESCALATED
     recommended_facility: None = None
     requires_manual_decision: Literal[True] = True
     nearest_within_radius: FacilityBrief | None
@@ -84,7 +90,12 @@ AllocationResponse = Annotated[AllocatedResponse | EscalatedResponse, Field(disc
 
 
 class AllocationAuditRead(BaseModel):
-    """One persisted audit record (docs/02 §2.3) returned by the GET endpoints."""
+    """One persisted allocation decision, with its request's facts (docs/02 §3.4-3.5).
+
+    Assembled from a joined ``Allocation`` (whose ``request`` relationship is eager-loaded)
+    rather than ``model_validate``-ed directly — the two source tables are split, but the
+    read model presents them as one record, matching the previous single-table shape.
+    """
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -98,9 +109,28 @@ class AllocationAuditRead(BaseModel):
     algorithm_used: AlgorithmName
     weight_vector: dict[str, Any] | None
     selection_reason: str
-    recommended_facility_id: uuid.UUID | None
+    facility_id: uuid.UUID | None
     travel_time_minutes: float | None
     is_estimated_travel_time: bool
+    eta_minutes: float | None
     capability_match: float | None
     candidates_evaluated: int
-    status: Status
+    attempts: int
+    status: AllocationStatus
+
+
+class ReservationRead(BaseModel):
+    """The reservation behind a confirmed allocation (docs/02 §3.6)."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    allocation_id: uuid.UUID
+    expires_at: datetime
+    acknowledged_at: datetime | None
+    confirmed: bool
+    released_at: datetime | None
+
+
+class RefuseRequest(BaseModel):
+    reason: str = Field(min_length=1)

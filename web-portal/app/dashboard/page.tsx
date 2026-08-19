@@ -1,6 +1,9 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+
 import { useAuth } from "@/components/auth-provider";
+import { listFacilities } from "@/lib/api/facilities";
 import {
   Card,
   CardContent,
@@ -22,6 +25,14 @@ const ROLE_SUMMARY: Record<string, string> = {
 export default function DashboardOverviewPage() {
   const { user } = useAuth();
 
+  const facilitiesQuery = useQuery({
+    queryKey: ["facilities"],
+    queryFn: listFacilities,
+    enabled: !!user?.facilityId,
+    staleTime: 60_000,
+  });
+  const facility = facilitiesQuery.data?.find((f) => f.id === user?.facilityId);
+
   if (!user) {
     return null;
   }
@@ -35,9 +46,7 @@ export default function DashboardOverviewPage() {
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
           {user.facilityId ? (
-            <p>
-              Facility: <span className="font-mono">{user.facilityId}</span>
-            </p>
+            <p>Facility: {facility?.name ?? user.facilityId}</p>
           ) : (
             <p>No facility assigned to this account.</p>
           )}
