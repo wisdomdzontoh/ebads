@@ -1,26 +1,209 @@
 @import "tailwindcss";
 
+/*
+ * EBADS design tokens — mirrors artifacts/Mobile app UI design system/DESIGN.md so the
+ * portal and the dispatcher app read as one product. Material-3-derived surface roles
+ * (background/card/muted/etc.) come from that file's YAML front matter; --primary is the
+ * DESIGN.md prose's "Primary (Clinical Teal)" (#0A616B) rather than the M3 block's literal
+ * `primary` (#004850, used here only as a strong on-light text/stroke tone where needed) —
+ * clinical-teal is what the mobile app actually paints as its brand/action color, and this
+ * file follows it for cross-client consistency. --destructive is likewise the semantic
+ * "critical" triage red (#E5484D) the mobile app uses, not the M3 `error` token.
+ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --radius: 0.5rem; /* DESIGN.md rounded.DEFAULT */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+
+  --background: #f7f9fd;
+  --foreground: #191c1f;
+
+  --card: #ffffff;
+  --card-foreground: #191c1f;
+  --popover: #ffffff;
+  --popover-foreground: #191c1f;
+
+  --primary: #0a616b; /* clinical-teal */
+  --primary-foreground: #ffffff;
+
+  --secondary: #d8e0f4;
+  --secondary-foreground: #5b6374;
+
+  --muted: #f2f4f8;
+  --muted-foreground: #3f484a;
+
+  --accent: #e6e8ec;
+  --accent-foreground: #191c1f;
+
+  --destructive: #e5484d; /* critical-red */
+  --destructive-foreground: #ffffff;
+
+  --border: #bec8ca;
+  --input: #bec8ca;
+  --ring: #0a616b;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #191c1f;
+  --sidebar-primary: #0a616b;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eceef2;
+  --sidebar-accent-foreground: #191c1f;
+  --sidebar-border: #bec8ca;
+  --sidebar-ring: #0a616b;
+
+  /* Semantic triage colors — never decorative; the one channel that carries urgency and
+     availability meaning (DESIGN.md "Semantic Urgency"). Independent of light/dark. */
+  --critical: #e5484d;
+  --critical-tint: #fdecec;
+  --urgent: #d98324;
+  --urgent-tint: #fdf2e3;
+  --standard: #2f9e6b;
+  --standard-tint: #e7f5ee;
+
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
+}
+
+/* Dark palette derived from DESIGN.md's M3 inverse-* roles (the doc itself is light-only —
+   no dark scheme is specified there, so this extrapolates using the given inverse tokens
+   rather than inventing an unrelated one). Applies both to an explicit dark selection and
+   to system "no explicit choice" dark preference, per the artifact theming contract. */
+:root[data-theme="dark"],
+:root:not([data-theme="light"]) {
+  @media (prefers-color-scheme: dark) {
+    --background: #101826;
+    --foreground: #eff1f5;
+
+    --card: #182233;
+    --card-foreground: #eff1f5;
+    --popover: #182233;
+    --popover-foreground: #eff1f5;
+
+    --primary: #8cd2dd;
+    --primary-foreground: #001f24;
+
+    --secondary: #3f4757;
+    --secondary-foreground: #dbe2f6;
+
+    --muted: #1c2635;
+    --muted-foreground: #8a94a3;
+
+    --accent: #232f42;
+    --accent-foreground: #eff1f5;
+
+    --destructive: #e5484d;
+    --destructive-foreground: #ffffff;
+
+    --border: #2d3648;
+    --input: #2d3648;
+    --ring: #8cd2dd;
+
+    --sidebar: #182233;
+    --sidebar-foreground: #eff1f5;
+    --sidebar-primary: #8cd2dd;
+    --sidebar-primary-foreground: #001f24;
+    --sidebar-accent: #232f42;
+    --sidebar-accent-foreground: #eff1f5;
+    --sidebar-border: #2d3648;
+    --sidebar-ring: #8cd2dd;
+
+    --critical-tint: #3a1f20;
+    --urgent-tint: #3a2c17;
+    --standard-tint: #16332a;
+  }
+}
+
+:root[data-theme="dark"] {
+  --background: #101826;
+  --foreground: #eff1f5;
+  --card: #182233;
+  --card-foreground: #eff1f5;
+  --popover: #182233;
+  --popover-foreground: #eff1f5;
+  --primary: #8cd2dd;
+  --primary-foreground: #001f24;
+  --secondary: #3f4757;
+  --secondary-foreground: #dbe2f6;
+  --muted: #1c2635;
+  --muted-foreground: #8a94a3;
+  --accent: #232f42;
+  --accent-foreground: #eff1f5;
+  --destructive: #e5484d;
+  --destructive-foreground: #ffffff;
+  --border: #2d3648;
+  --input: #2d3648;
+  --ring: #8cd2dd;
+  --sidebar: #182233;
+  --sidebar-foreground: #eff1f5;
+  --sidebar-primary: #8cd2dd;
+  --sidebar-primary-foreground: #001f24;
+  --sidebar-accent: #232f42;
+  --sidebar-accent-foreground: #eff1f5;
+  --sidebar-border: #2d3648;
+  --sidebar-ring: #8cd2dd;
+  --critical-tint: #3a1f20;
+  --urgent-tint: #3a2c17;
+  --standard-tint: #16332a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-critical: var(--critical);
+  --color-critical-tint: var(--critical-tint);
+  --color-urgent: var(--urgent);
+  --color-urgent-tint: var(--urgent-tint);
+  --color-standard: var(--standard);
+  --color-standard-tint: var(--standard-tint);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-mono);
 }
