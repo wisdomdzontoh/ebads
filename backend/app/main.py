@@ -11,14 +11,22 @@ from __future__ import annotations
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Imported for its side effect: loading the module runs validate_parameters(), so a
 # malformed study configuration prevents the engine from starting at all (docs/09 §12).
 from app import parameters as _parameters  # noqa: F401
-from app.api.routes import allocations, facilities, health, simulation
-from app.api.security import require_api_key
+from app.api.routes import (
+    allocations,
+    audit,
+    auth,
+    facilities,
+    health,
+    registrations,
+    simulation,
+    users,
+)
 from app.config import get_settings
 from app.db.session import get_engine
 
@@ -53,13 +61,20 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    # Health probes stay unauthenticated (liveness must not depend on credentials); every
-    # /api/v1 router requires the static X-API-Key when one is configured (docs/04 §1).
-    auth = [Depends(require_api_key)]
+    # Health probes and login/registration submission stay unauthenticated (liveness must
+    # not depend on credentials; FR16 registration confers no privilege). Every other
+    # router enforces auth per-route via app/security/dependencies.py::require_permission
+    # — there is no router-level blanket dependency any more (docs/01 §4: the RBAC
+    # decision depends on which resource/action/scope the specific route needs, which a
+    # single router-wide dependency cannot express).
     app.include_router(health.router)
-    app.include_router(facilities.router, prefix=API_V1_PREFIX, dependencies=auth)
-    app.include_router(allocations.router, prefix=API_V1_PREFIX, dependencies=auth)
-    app.include_router(simulation.router, prefix=API_V1_PREFIX, dependencies=auth)
+    app.include_router(auth.router, prefix=API_V1_PREFIX)
+    app.include_router(registrations.router, prefix=API_V1_PREFIX)
+    app.include_router(users.router, prefix=API_V1_PREFIX)
+    app.include_router(audit.router, prefix=API_V1_PREFIX)
+    app.include_router(facilities.router, prefix=API_V1_PREFIX)
+    app.include_router(allocations.router, prefix=API_V1_PREFIX)
+    app.include_router(simulation.router, prefix=API_V1_PREFIX)
     return app
 
 

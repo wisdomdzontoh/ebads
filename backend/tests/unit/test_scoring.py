@@ -32,8 +32,8 @@ def test_mu_regression_guard_algo3_differs_from_algo2() -> None:
 
     Proves urgency is encoded in the weight vector and genuinely changes the argmin — not the
     rejected scalar ``M(u)·Score2`` formulation, which cannot (docs/03 §6, docs/12 §2).
-    Critical: weighted (w_b=0.35) favours the bed-rich primary X; urgency-adaptive
-    (w_c=0.35) favours the high-capability tertiary Y.
+    Critical: weighted (w_b=0.30) favours the bed-rich primary X; urgency-adaptive
+    (w_c=0.40) favours the high-capability tertiary Y.
     """
     candidates = [
         _candidate("X", Tier.PRIMARY, travel=10, beds=10),

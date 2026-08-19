@@ -4,7 +4,9 @@
 
 services:
   db:
-    image: postgres:16
+    # PostGIS-enabled Postgres 16 (docs/01 §2, FR3) — a drop-in superset of postgres:16 built
+    # on the same base image, so the existing pgdata volume and credentials are unaffected.
+    image: postgis/postgis:16-3.4
     environment:
       POSTGRES_USER: ebads
       POSTGRES_PASSWORD: ebads

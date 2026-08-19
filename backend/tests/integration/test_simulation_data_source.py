@@ -18,7 +18,7 @@ from app.db.models.facility import Facility
 from app.db.models.simulation_bed_state import SimulationBedState
 from app.db.models.simulation_session import SimulationSession
 from app.domain.beds import BedUnavailableError, SimulationDataSource
-from app.parameters import AlgorithmName, BedType, DataSource, Tier
+from app.parameters import AlgorithmName, BedType, Tier
 
 
 async def _make_facility(session: AsyncSession, name: str = "Test Hospital") -> Facility:
@@ -29,7 +29,6 @@ async def _make_facility(session: AsyncSession, name: str = "Test Hospital") -> 
         tier=Tier.TERTIARY,
         supported_bed_types=[BedType.ICU],
         contact_phone="+233000000000",
-        active_data_source=DataSource.SIMULATION,
     )
     session.add(facility)
     await session.flush()

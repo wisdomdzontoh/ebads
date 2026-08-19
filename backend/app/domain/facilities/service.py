@@ -80,11 +80,16 @@ class FacilityRegistryService:
         await self._session.refresh(facility)
         return facility
 
-    async def update_beds(self, facility_id: uuid.UUID, data: BedCountUpdate) -> Facility | None:
+    async def update_beds(
+        self, facility_id: uuid.UUID, data: BedCountUpdate, updated_by: uuid.UUID | None = None
+    ) -> Facility | None:
         """Upsert one bed-type count for a facility (docs/04 §3 ``PATCH .../beds``).
 
         Updates the existing row for ``(facility, bed_type)`` if present, else inserts one.
         The ``available <= capacity`` invariant is enforced by the schema and the DB.
+        ``version`` is incremented on every write (docs/02 §3.2 invariant) — this is a human
+        correction via the portal, so ``updated_by`` is recorded (unlike an adapter's
+        ``reserve``/``release``, which leave it null).
         """
         facility = await self._session.get(Facility, facility_id)
         if facility is None:
@@ -96,11 +101,14 @@ class FacilityRegistryService:
                     bed_type=data.bed_type,
                     available=data.available,
                     capacity=data.capacity,
+                    updated_by=updated_by,
                 )
             )
         else:
             existing.available = data.available
             existing.capacity = data.capacity
+            existing.version += 1
+            existing.updated_by = updated_by
         await self._session.commit()
         await self._session.refresh(facility)
         return facility

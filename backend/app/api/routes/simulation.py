@@ -30,9 +30,12 @@ from app.api.schemas.simulation import (
 )
 from app.config import get_settings
 from app.db.models.facility import Facility
+from app.db.models.user_account import UserAccount
 from app.db.session import get_session
 from app.domain.travel.base import TravelTimeService
 from app.domain.travel.live import LiveTravelTimeService
+from app.parameters import PermissionAction
+from app.security.dependencies import require_permission
 from app.simulation.distance_matrix import (
     MatrixTravelTimeService,
     build_distance_matrix,
@@ -51,6 +54,15 @@ from app.simulation.service import (
 router = APIRouter(prefix="/simulation", tags=["simulation"])
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
+# [IMPL] Research/dev tool, not a PRD-described role capability; gated to
+# system_administrator as a minimal retrofit ahead of Increment 5's replacement
+# (docs/07-scenario-testing.md) — see the migration's permission-seed comment.
+RunnerDep = Annotated[
+    UserAccount, Depends(require_permission("simulation", PermissionAction.WRITE))
+]
+ViewerDep = Annotated[
+    UserAccount, Depends(require_permission("simulation", PermissionAction.READ))
+]
 
 # Cache built travel services so a 100-event run does not rebuild the matrix each request.
 # Keyed so a rebuilt matrix file (new mtime) or a different facility set busts the entry.
@@ -157,7 +169,7 @@ def _step_trace(processed: ProcessedEvent) -> StepTrace:
 
 @router.post("/sessions", response_model=SimulationSessionRead, status_code=status.HTTP_201_CREATED)
 async def create_session(
-    payload: SimulationSessionCreate, service: ServiceDep
+    payload: SimulationSessionCreate, service: ServiceDep, _actor: RunnerDep
 ) -> SimulationSessionRead:
     """Create a session and seed its isolated bed state at the target occupancy (docs/04 §5)."""
     sim = await service.create_session(
@@ -172,7 +184,7 @@ async def create_session(
 
 
 @router.post("/sessions/{session_id}/run", response_model=RunSummary)
-async def run_session(session_id: uuid.UUID, service: ServiceDep) -> RunSummary:
+async def run_session(session_id: uuid.UUID, service: ServiceDep, _actor: RunnerDep) -> RunSummary:
     """Automatic mode: process all planned events and return the run metrics (docs/04 §5)."""
     try:
         metrics = await service.run_session(session_id)
@@ -190,7 +202,7 @@ async def run_session(session_id: uuid.UUID, service: ServiceDep) -> RunSummary:
 
 
 @router.post("/sessions/{session_id}/step", response_model=StepTrace)
-async def step_session(session_id: uuid.UUID, service: ServiceDep) -> StepTrace:
+async def step_session(session_id: uuid.UUID, service: ServiceDep, _actor: RunnerDep) -> StepTrace:
     """Interactive mode: process one event and return its full decision trace (docs/04 §5)."""
     try:
         processed = await service.step_session(session_id)
@@ -202,7 +214,9 @@ async def step_session(session_id: uuid.UUID, service: ServiceDep) -> StepTrace:
 
 
 @router.get("/sessions/{session_id}", response_model=SimulationSessionRead)
-async def get_session_endpoint(session_id: uuid.UUID, service: ServiceDep) -> SimulationSessionRead:
+async def get_session_endpoint(
+    session_id: uuid.UUID, service: ServiceDep, _actor: ViewerDep
+) -> SimulationSessionRead:
     """Return a session's configuration and derived progress (docs/04 §5)."""
     try:
         state = await service.get_state(session_id)
@@ -212,7 +226,9 @@ async def get_session_endpoint(session_id: uuid.UUID, service: ServiceDep) -> Si
 
 
 @router.get("/sessions/{session_id}/results", response_model=SimulationResults)
-async def get_results(session_id: uuid.UUID, service: ServiceDep) -> SimulationResults:
+async def get_results(
+    session_id: uuid.UUID, service: ServiceDep, _actor: ViewerDep
+) -> SimulationResults:
     """Return per-event records + aggregated metrics for a session (docs/04 §5)."""
     try:
         state, records, metrics = await service.get_results(session_id)

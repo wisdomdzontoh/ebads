@@ -1,60 +1,73 @@
 # 08 — Evaluation
 
-> Source of truth: thesis §3.12.4, §3.13. Constants in [09-parameters.md §9–10](./09-parameters.md). This describes how the simulation output becomes the thesis results. It does **not** predetermine outcomes: a non-significant or negative result is a valid finding and is reported in full.
+> Source of truth: thesis §3.8.3–3.8.4. **Replaces the previous hypothesis-testing and sensitivity-analysis plan.** No paired t-tests over 30 runs, no Shapiro–Wilk, no Cohen's d, no 270-run grid. Those depended on stochastic simulation, which the project no longer performs.
 
 ## 1. Unit of analysis
-Per-run metric means (n = 30 per configuration per occupancy scenario), produced by the batch runner ([07-simulation.md §7](./07-simulation.md)).
 
-## 2. Hypotheses (thesis Table 3.9)
+One value per **strategy × urgency tier × measure**, computed over the fixed case set ([07](./07-scenario-testing.md)). There is no distribution of run means, because there is only one deterministic run per configuration.
 
-| ID | Statement | Primary metric | Comparison |
-|----|-----------|----------------|------------|
-| H1 | Weighted (Algo 2) yields significantly lower ATBP than Greedy (Algo 1) | ATBP | Algo 1 vs 2, all three scenarios |
-| H2 | Urgency-Adaptive (Algo 3) yields significantly lower ATBP **and** higher capability-match for critical patients than Algo 2 | ATBP; CM (critical) | Algo 2 vs 3, mixed-urgency runs, all scenarios |
-| H3 | Both Algo 2 and Algo 3 yield significantly lower FRR than Algo 1 at 100% occupancy | FRR | Algo 1 vs 2, and Algo 1 vs 3, Scenario C |
+This is the honest consequence of deterministic testing and it must be reflected in how results are reported: **descriptive comparison and paired per-case differences, not inferential statistics over runs.**
 
-These are directional but **not predetermined**. If H1 fails under some occupancy, that is reported. Because Algo 3 prioritises critical patients, it may place standard patients slightly worse; the analysis reports the effect on **every** urgency tier, characterising the trade-off rather than only the critical-patient benefit.
+## 2. Expectations (thesis §3.8.3)
 
-## 3. Statistical procedure (thesis §3.13.2)
+Stated in advance so results confirm or contradict them rather than being interpreted after the fact.
 
-For each comparison:
-1. Compute the 30 paired per-run means for each configuration.
-2. **Normality**: Shapiro–Wilk on the paired differences.
-3. **Test**: paired t-test if normal; otherwise Wilcoxon signed-rank.
-4. **Effect size**: Cohen's d (paired).
-5. Report: test name, statistic, df (t-test), p-value, Cohen's d, and the mean difference with direction. Significant at **α = 0.05**.
+| ID | Expectation | Primary measure |
+|----|-------------|-----------------|
+| **E1** | The urgency-adaptive strategy places a higher proportion of critical cases at tertiary facilities than the nearest-facility strategy, at the cost of some additional travel time for those cases | critical-at-tertiary; travel time (critical) |
+| **E2** | The urgency-adaptive strategy performs no worse than the fixed-weight strategy on standard-urgency cases | all measures, standard tier |
+| **E3** | The nearest-facility strategy produces the shortest mean travel time overall and the lowest capability match | travel time (all); capability match (all) |
 
-Pairing is valid because compared configurations share the same seeded facility state and seed at each run index ([07-simulation.md §7](./07-simulation.md)).
+**E3 concedes in advance that the baseline wins on one measure.** This is deliberate. The claim of this study is not that urgency-adaptive allocation is faster — it will not always be — but that a modest increase in travel time for critical patients purchases a substantial improvement in the clinical appropriateness of their placement, and that this is a trade worth making. Stating the expected direction of every result in advance is what allows that argument to be assessed rather than asserted.
 
-`backend/app/analysis/statistics.py` implements this; it consumes the runner's per-run dataset and emits a results table (one row per comparison per scenario).
+**E2 is a non-inferiority condition.** A policy that improves outcomes for the most acute by displacing the least acute is a redistribution, not an improvement. The evaluation must be capable of detecting that outcome and reporting it as such.
 
-## 4. Sensitivity analysis (thesis §3.13.3)
+## 3. Comparison procedure
 
-Re-run the **main grid** under parameter variants to test robustness:
+For each pair of strategies and each measure:
 
-| Family | Configurations | Source |
-|--------|----------------|--------|
-| Weights | 4 (default + 3 variants) | [09 §10](./09-parameters.md) |
-| Radii | 3 (default + 2 variants) | [09 §10](./09-parameters.md) |
-| Capability matrix | 2 (default + steeper critical 1.0/0.4/0.1) | [09 §10](./09-parameters.md) |
+1. Report the value per urgency tier and overall, with the difference and its direction.
+2. Where a difference is claimed, support it with a **paired per-case comparison**: every strategy sees the identical case, so per-case differences are directly meaningful. Report the number of cases where each strategy did better, and the median per-case difference.
+3. Report the number of cases where the strategies chose **different facilities** — if that number is small, no measure difference can be large, and this is worth knowing before interpreting anything else.
 
-For each variant, recompute the hypothesis tests. A result that holds under the default **and all variants** is reported as robust; a result that holds only under the default is reported as a **conditional** finding. `backend/app/analysis/sensitivity.py` drives this and tabulates which hypotheses survive which variants.
+`backend/app/analysis/compare.py` consumes `measures.csv` + `decisions.jsonl` and emits the comparison table.
 
-## 5. Contextual baseline comparison (thesis §3.13.4)
+**Do not compute p-values over the case set.** The cases are a fixed fixture, not a random sample from a population, so a significance test would answer a question nobody asked. If a reviewer requests inferential statistics, the correct response is to explain the design, not to manufacture a test.
 
-Present simulated ATBP alongside the documented manual referral times for Greater Accra — median referral-to-arrival ≈ 5 hours, <25% of urgent cases within the WHO 2-hour window (Owen et al., 2022). This is **contextual, not experimental**: the manual figures were not generated under the same conditions, so the comparison judges whether the *magnitude* of any improvement is clinically meaningful — never a claim of statistical superiority over the manual process.
+## 4. Robustness check
 
-## 6. Outputs (what the evaluation produces)
+Re-run the complete case set under the alternative weight set ([09 §12](./09-parameters.md)) and reproduce the comparison table.
+
+Reported as one of two outcomes:
+
+- **Robust** — the direction of the fixed-weight vs urgency-adaptive difference is unchanged under the alternative weights.
+- **Conditional** — the difference holds only under the primary weights, and is reported as a finding about that specific weighting rather than about urgency-adaptive allocation in general.
+
+`backend/app/analysis/robustness.py`.
+
+## 5. Contextual baseline
+
+Present the scenario travel times alongside the documented manual referral figures for Greater Accra — median referral-to-arrival ≈ 5 hours, fewer than 25% of urgent cases within the WHO 2-hour window (Owen et al. 2022).
+
+**Contextual, not experimental.** The manual figures were not generated under the same conditions and describe end-to-end referral rather than travel alone. The comparison judges whether the *magnitude* of any improvement is clinically meaningful. It is never a claim of statistical superiority over the manual process, and any wording implying otherwise is a defect.
+
+## 6. Outputs
 
 Under `artifacts/eval/<study_id>/`:
-- `per_run_metrics.parquet` — n=30 per configuration per scenario (ATBP, FRR, MCEE, CM, CM-critical).
-- `hypothesis_tests.csv` — one row per comparison per scenario (test, statistic, df, p, Cohen's d, mean diff).
-- `sensitivity_results.csv` — hypothesis survival across all variant configurations.
-- `figures/` — per-scenario metric plots (Algo 1/2/3) for the thesis Chapter 4.
-- `study_manifest.json` — seeds, parameter snapshot, distance-matrix hash, code commit, timestamps (full reproducibility record).
+
+| File | Contents |
+|------|----------|
+| `comparison.csv` | strategy × measure × urgency tier, with pairwise differences |
+| `per_case.csv` | one row per case per strategy: chosen facility, score, travel time, ĉ |
+| `divergence.csv` | cases where strategies chose different facilities, with both scores |
+| `robustness.csv` | comparison table under the alternative weight set, with robust/conditional verdict |
+| `figures/` | travel time by strategy and tier; capability match by strategy and tier; critical-at-tertiary |
+| `manifest.json` | parameter snapshot, case-set hash, facility-CSV hash, code commit, timestamps |
 
 ## 7. Reporting rules
-- Report all three algorithms on all metrics, all scenarios, all urgency tiers.
-- Report negative/null results without suppression (thesis ethics commitment).
-- Every reported number is reproducible from `study_manifest.json` + the recorded seeds.
-- The evaluation report maps 1:1 onto thesis Chapter 4 sections.
+
+- Report **all three strategies** on **all measures** across **all urgency tiers**. No selective reporting.
+- Report results that contradict E1, E2 or E3 without suppression. A contradicted expectation is a finding.
+- Every reported number must be reproducible from `manifest.json` and the version-controlled fixtures.
+- The evaluation output maps 1:1 onto thesis Chapter Four sections.
+- Where the two scoring strategies chose the same facility for most cases, say so prominently — it bounds every other claim in the chapter.

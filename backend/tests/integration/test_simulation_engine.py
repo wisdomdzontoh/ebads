@@ -20,7 +20,7 @@ from app.db.models.simulation_allocation_event import SimulationAllocationEvent
 from app.db.models.simulation_bed_state import SimulationBedState
 from app.db.models.simulation_session import SimulationSession
 from app.domain.travel.base import Coordinate, TravelTimeResult, TravelTimeService
-from app.parameters import AlgorithmName, BedType, DataSource, Status, Tier, Urgency
+from app.parameters import AlgorithmName, BedType, Status, Tier, Urgency
 from app.simulation.engine import SimulationEngine
 from app.simulation.service import (
     SessionConfig,
@@ -48,7 +48,6 @@ async def _make_facility(
         tier=Tier.TERTIARY,
         supported_bed_types=list(_ALL_BED_TYPES),
         contact_phone="+233000000000",
-        active_data_source=DataSource.SIMULATION,
     )
     session.add(facility)
     await session.flush()

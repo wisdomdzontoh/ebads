@@ -17,7 +17,7 @@ from app.db.models.simulation_bed_state import SimulationBedState
 from app.db.models.simulation_session import SimulationSession
 from app.domain.allocation.service import AllocationRequest, AllocationService
 from app.domain.travel.base import Coordinate, TravelTimeResult, TravelTimeService
-from app.parameters import AlgorithmName, BedType, DataSource, Status, Tier, Urgency
+from app.parameters import AlgorithmName, BedType, Status, Tier, Urgency
 
 
 class _StubTravel(TravelTimeService):
@@ -35,7 +35,6 @@ async def _make_icu_facility(session: AsyncSession) -> Facility:
         tier=Tier.TERTIARY,
         supported_bed_types=[BedType.ICU],
         contact_phone="+233000000000",
-        active_data_source=DataSource.SIMULATION,
     )
     session.add(facility)
     await session.flush()

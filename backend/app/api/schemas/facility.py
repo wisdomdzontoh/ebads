@@ -29,7 +29,8 @@ class FacilityBase(BaseModel):
     tier: Tier
     supported_bed_types: list[BedType] = Field(min_length=1)
     contact_phone: str = Field(min_length=1)
-    active_data_source: DataSource = DataSource.SIMULATION
+    # Null = manual maintenance (docs/02 §3.1) — the default for a newly registered facility.
+    active_data_source: DataSource | None = None
 
     @field_validator("supported_bed_types")
     @classmethod
@@ -74,7 +75,9 @@ class BedCountRead(BaseModel):
     bed_type: BedType
     available: int
     capacity: int
+    version: int
     updated_at: datetime
+    updated_by: uuid.UUID | None
 
 
 class FacilityRead(FacilityBase):

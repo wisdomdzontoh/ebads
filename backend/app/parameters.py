@@ -78,18 +78,69 @@ class AlgorithmName(StrEnum):
     URGENCY_ADAPTIVE = "urgency_adaptive"
 
 
-class DataSource(StrEnum):
-    """Which BedDataSource feeds a facility's live bed availability (docs/01 §3.2).
+class Role(StrEnum):
+    """The four account roles (docs/09-parameters.md §1, EBADS_PRD.md §2).
 
-    One member per concrete Bridge implementation in docs/01-architecture.md §3.2.
-    ``simulation`` is the prototype default (docs/02 §2.1, docs/04 §3 example). The other
-    three literal spellings are an implementation choice not pinned by the thesis. [IMPL]
+    Every ``user_account`` carries exactly one. ``system_administrator`` and ``dispatcher``
+    are unscoped (``facility_id`` null); ``facility_administrator`` and ``facility_staff``
+    are scoped to exactly one facility — enforced by a DB CHECK constraint, not just here.
     """
 
-    SIMULATION = "simulation"
-    FACILITY_MANAGEMENT = "facility_management"  # [IMPL] FacilityManagementSystemSource
-    NATIONAL_EMR = "national_emr"  # [IMPL] NationalEMRSource (LHIMS / GHIMS)
-    HL7_FHIR = "hl7_fhir"  # [IMPL] HL7FHIRSource
+    SYSTEM_ADMINISTRATOR = "system_administrator"
+    FACILITY_ADMINISTRATOR = "facility_administrator"
+    FACILITY_STAFF = "facility_staff"
+    DISPATCHER = "dispatcher"
+
+
+class PermissionAction(StrEnum):
+    """What a permission row grants (docs/02-data-model.md §2.2). [IMPL] enum spelling."""
+
+    READ = "read"
+    WRITE = "write"
+    APPROVE = "approve"
+
+
+class PermissionScope(StrEnum):
+    """How far a permission reaches (docs/02-data-model.md §2.2).
+
+    ``own_facility`` is resolved against the caller's ``user_account.facility_id`` by the
+    RBAC dependency; ``all`` is unscoped.
+    """
+
+    OWN_FACILITY = "own_facility"
+    ALL = "all"
+
+
+class UserStatus(StrEnum):
+    """Account lifecycle state (docs/02-data-model.md §2.3). [IMPL] enum spelling."""
+
+    ACTIVE = "active"
+    SUSPENDED = "suspended"
+
+
+class FacilityRequestStatus(StrEnum):
+    """Registration-request lifecycle (docs/02-data-model.md §2.4). [IMPL] enum spelling."""
+
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+
+
+class DataSource(StrEnum):
+    """Which BedDataSource feeds a facility's live bed availability (docs/01 §5, docs/02 §3.3).
+
+    Mirrors ``emr_adapter.adapter_type``. ``facility.active_data_source`` is nullable and
+    only ever holds one of the three *non-manual* members below — null means manual
+    maintenance via ``PATCH .../beds`` (docs/02 §3.1: "null ⇒ manual maintenance"); ``MANUAL``
+    exists on this enum for the future ``emr_adapter`` history table (docs/02 §3.3), which
+    can record an explicit "reverted to manual" entry. [IMPL] Enum spellings are an
+    implementation choice; the adapter roster (docs/01 §5) is what they name.
+    """
+
+    MANUAL = "manual"  # ManualAdapter
+    GHS_DATA = "ghs_data"  # GHSDataAdapter
+    FHIR_R4 = "fhir_r4"  # FHIRAdapter (specified, not built)
+    REST_POLLING = "rest_polling"  # RESTPollingAdapter (specified, not built)
 
 
 # ---------------------------------------------------------------------------
@@ -157,14 +208,19 @@ class WeightVector(BaseModel):
         return self
 
 
-# Algorithm 2 — fixed weights, identical for every urgency (docs/03 §5).
-ALGORITHM_2_WEIGHTS: WeightVector = WeightVector(w_t=0.40, w_b=0.35, w_c=0.25)
+# Algorithm 2 — fixed weights, identical for every urgency (docs/09-parameters.md §5).
+# Corrected 2026-08-19: an earlier document set recorded 0.40/0.35/0.25 (docs/09 §5's own
+# note: "Chapter Three is authoritative"). This constant carried the stale value until now —
+# see docs/09 §5 and tests/vectors/weighted_*.json, regenerated alongside this fix.
+ALGORITHM_2_WEIGHTS: WeightVector = WeightVector(w_t=0.40, w_b=0.30, w_c=0.30)
 
-# Algorithm 3 — urgency-adaptive weights (docs/03 §6, thesis Table 3.5).
+# Algorithm 3 — urgency-adaptive weights (docs/09-parameters.md §6, thesis Table 3.5).
+# Corrected 2026-08-19: an earlier document set recorded critical 0.50/0.15/0.35 and
+# standard 0.30/0.50/0.20 (docs/09 §6's own note). See tests/vectors/urgency_adaptive_*.json.
 ALGORITHM_3_WEIGHTS: Mapping[Urgency, WeightVector] = {
-    Urgency.CRITICAL: WeightVector(w_t=0.50, w_b=0.15, w_c=0.35),
-    Urgency.URGENT: WeightVector(w_t=0.40, w_b=0.30, w_c=0.30),
-    Urgency.STANDARD: WeightVector(w_t=0.30, w_b=0.50, w_c=0.20),
+    Urgency.CRITICAL: WeightVector(w_t=0.50, w_b=0.10, w_c=0.40),
+    Urgency.URGENT: WeightVector(w_t=0.40, w_b=0.25, w_c=0.35),
+    Urgency.STANDARD: WeightVector(w_t=0.25, w_b=0.50, w_c=0.25),
 }
 
 
@@ -261,6 +317,19 @@ LOS_RANDOM_STREAM_OFFSET: int = 1_000_003
 
 # Significance level for the hypothesis tests (paired t-test, Wilcoxon fallback).
 SIGNIFICANCE_ALPHA: float = 0.05
+
+
+# ---------------------------------------------------------------------------
+# 10. Authentication and access control (docs/09 §10, thesis §3.6.5) [IMPL]
+# ---------------------------------------------------------------------------
+# None of these four are thesis-specified numbers; they are standard, defensible defaults
+# for a JWT + argon2id scheme and are recorded here (not hardcoded in app/security/) so a
+# future change is a one-line, auditable edit.
+
+ACCESS_TOKEN_TTL_MIN: int = 30
+REFRESH_TOKEN_TTL_DAYS: int = 7
+PASSWORD_HASH: str = "argon2id"
+MIN_PASSWORD_LENGTH: int = 12
 
 
 # ---------------------------------------------------------------------------

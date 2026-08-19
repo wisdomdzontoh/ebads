@@ -12,25 +12,48 @@ service). Override the target with ``TEST_DATABASE_URL``.
 
 from __future__ import annotations
 
-import asyncio
 import os
+
+# A fixed, non-secret test signing key — app/security/jwt.py fails closed if this is unset
+# (docs/09 §10). Settings.jwt_secret_key is read once into an @lru_cache'd singleton
+# (app/config.py::get_settings), so this MUST run before any import below — several of them
+# transitively import app.db.session, which calls get_settings() at module load time to
+# build the DB engine, caching the (otherwise blank) settings before a later env-var write
+# could take effect.
+os.environ.setdefault("JWT_SECRET_KEY", "test-only-jwt-secret-key-at-least-32-bytes-long")
+
+import asyncio
 import subprocess
 import sys
-from collections.abc import AsyncIterator
+import uuid
+from collections.abc import AsyncIterator, Awaitable, Callable
 from pathlib import Path
 from urllib.parse import urlparse
 
+import email_validator
 import psycopg
 import pytest
 import pytest_asyncio
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import text
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from app.config import normalize_database_url
-from app.db.session import get_session
-from app.main import create_app
+# Pydantic's EmailStr performs a real deliverability check by default (MX lookup /
+# reserved-domain rejection), which fails every fixture email in this suite
+# ("...@example.test" etc. — the RFC 2606 domains reserved exactly for this purpose).
+# email_validator's own escape hatch for test suites is this flag, not a config option
+# on our side — see https://github.com/JoshData/python-email-validator#testing.
+email_validator.TEST_ENVIRONMENT = True
+
+from app.config import normalize_database_url  # noqa: E402
+from app.db.models.role import Role as RoleRow  # noqa: E402
+from app.db.models.user_account import UserAccount  # noqa: E402
+from app.db.session import get_session  # noqa: E402
+from app.main import create_app  # noqa: E402
+from app.parameters import Role  # noqa: E402
+from app.security.jwt import create_access_token  # noqa: E402
+from app.security.passwords import hash_password  # noqa: E402
 
 # backend/ directory — used as cwd for the Alembic/seed subprocesses.
 BACKEND_DIR = Path(__file__).resolve().parents[2]
@@ -88,10 +111,29 @@ def run_seed_script() -> None:
     _run([sys.executable, "-m", "scripts.seed_facilities", "--source", "data/ga_facilities.csv"])
 
 
+def run_create_system_admin(email: str, password: str, force: bool = False) -> None:
+    """Run the system_administrator bootstrap script against the test database."""
+    args = [
+        sys.executable,
+        "-m",
+        "scripts.create_system_admin",
+        "--email",
+        email,
+        "--password",
+        password,
+    ]
+    if force:
+        args.append("--force")
+    _run(args)
+
+
 # Clears every table; CASCADE handles the FK chains. Order is irrelevant with CASCADE.
+# role/permission are deliberately NOT truncated — they are seeded once by migration 0005
+# (docs/02 §6: "behaviour, not sample data"), not per-test fixture data.
 _TRUNCATE = text(
-    "TRUNCATE TABLE simulation_allocation_event, emergency_request, simulation_bed_state, "
-    "simulation_session, bed_count, facility RESTART IDENTITY CASCADE"
+    "TRUNCATE TABLE audit_log, facility_request, simulation_allocation_event, "
+    "emergency_request, simulation_bed_state, simulation_session, bed_count, "
+    "user_account, facility RESTART IDENTITY CASCADE"
 )
 
 
@@ -138,3 +180,60 @@ async def db_session() -> AsyncIterator[AsyncSession]:
     async with sessionmaker() as session:
         yield session
     await engine.dispose()
+
+
+# --- auth helpers (Increment 1: registry hardening + auth + RBAC) --------------------
+
+MakeUser = Callable[..., Awaitable[tuple[UserAccount, dict[str, str]]]]
+
+
+@pytest_asyncio.fixture
+async def make_user(app_under_test: FastAPI) -> AsyncIterator[MakeUser]:
+    """Factory fixture: create a ``user_account`` directly and return ``(user, headers)``.
+
+    Depends on ``app_under_test`` so the schema-truncate has already run. Bypasses the
+    ``/auth/login`` HTTP round-trip — tests exercise the RBAC boundary itself, not login,
+    so minting the token directly (same code path as ``AuthService.login``) keeps them fast
+    and focused. ``role`` rows come from migration 0005's seed; ``facility_id`` is required
+    for facility_administrator/facility_staff, forbidden otherwise (docs/02 §2.3).
+    """
+    engine = create_async_engine(TEST_DATABASE_URL)
+    sessionmaker = async_sessionmaker(engine, expire_on_commit=False)
+
+    async def _make(
+        role: Role,
+        *,
+        facility_id: uuid.UUID | None = None,
+        email: str | None = None,
+    ) -> tuple[UserAccount, dict[str, str]]:
+        async with sessionmaker() as session:
+            role_row = await session.scalar(select(RoleRow).where(RoleRow.name == role))
+            assert role_row is not None, f"role {role!r} is not seeded"
+            user = UserAccount(
+                email=email or f"{role.value}-{uuid.uuid4().hex[:8]}@example.test",
+                password_hash=hash_password("test-password-123"),
+                role_id=role_row.id,
+                facility_id=facility_id,
+            )
+            session.add(user)
+            await session.commit()
+            await session.refresh(user)
+        token = create_access_token(user.id, role, facility_id)
+        return user, {"Authorization": f"Bearer {token}"}
+
+    yield _make
+    await engine.dispose()
+
+
+@pytest_asyncio.fixture
+async def system_admin_headers(make_user: MakeUser) -> dict[str, str]:
+    """Bearer headers for a fresh system_administrator (the common case for most tests)."""
+    _, headers = await make_user(Role.SYSTEM_ADMINISTRATOR)
+    return headers
+
+
+@pytest_asyncio.fixture
+async def dispatcher_headers(make_user: MakeUser) -> dict[str, str]:
+    """Bearer headers for a fresh dispatcher (the common case for allocation tests)."""
+    _, headers = await make_user(Role.DISPATCHER)
+    return headers

@@ -26,6 +26,7 @@ from app.api.schemas.allocation import (
 )
 from app.config import get_settings
 from app.db.models.emergency_request import EmergencyRequest
+from app.db.models.user_account import UserAccount
 from app.db.session import get_session
 from app.domain.allocation.service import (
     AllocationOutcome,
@@ -38,9 +39,20 @@ from app.domain.allocation.service import (
 )
 from app.domain.travel.base import TravelTimeService
 from app.domain.travel.live import LiveTravelTimeService
-from app.parameters import Status
+from app.parameters import PermissionAction, Status
+from app.security.dependencies import require_permission
 
 router = APIRouter(prefix="/allocations", tags=["allocations"])
+
+# Submitting and reading allocation history are both dispatcher-only (PRD §2: "submit
+# emergency requests ... view own request history"); scope=all at the grant level, but the
+# routes below additionally filter reads to the caller's own dispatcher_id.
+DispatcherDep = Annotated[
+    UserAccount, Depends(require_permission("allocation", PermissionAction.WRITE))
+]
+ReaderDep = Annotated[
+    UserAccount, Depends(require_permission("allocation", PermissionAction.READ))
+]
 
 
 def get_travel_service() -> TravelTimeService:
@@ -107,7 +119,7 @@ def _to_response(outcome: AllocationOutcome) -> AllocatedResponse | EscalatedRes
 
 @router.post("", response_model=AllocationResponse)
 async def create_allocation(
-    payload: AllocationCreate, service: ServiceDep
+    payload: AllocationCreate, service: ServiceDep, actor: DispatcherDep
 ) -> AllocatedResponse | EscalatedResponse:
     """Submit an emergency; return a recommendation or a structured escalation (docs/04 §4)."""
     request = AllocationRequest(
@@ -116,6 +128,7 @@ async def create_allocation(
         required_bed_type=payload.required_bed_type,
         urgency=payload.urgency,
         simulation_session_id=payload.simulation_session_id,
+        dispatcher_id=actor.id,
     )
     try:
         outcome = await service.allocate(request)
@@ -127,10 +140,12 @@ async def create_allocation(
 
 
 @router.get("/{allocation_id}", response_model=AllocationAuditRead)
-async def get_allocation(allocation_id: uuid.UUID, session: SessionDep) -> AllocationAuditRead:
-    """Fetch one audit record by id, or ``404`` if unknown."""
+async def get_allocation(
+    allocation_id: uuid.UUID, session: SessionDep, actor: ReaderDep
+) -> AllocationAuditRead:
+    """Fetch one of the caller's own audit records by id, or ``404`` if unknown/not theirs."""
     record = await session.get(EmergencyRequest, allocation_id)
-    if record is None:
+    if record is None or record.dispatcher_id != actor.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="allocation not found")
     return AllocationAuditRead.model_validate(record)
 
@@ -138,12 +153,17 @@ async def get_allocation(allocation_id: uuid.UUID, session: SessionDep) -> Alloc
 @router.get("", response_model=list[AllocationAuditRead])
 async def list_allocations(
     session: SessionDep,
+    actor: ReaderDep,
     status_filter: Annotated[Status | None, Query(alias="status")] = None,
     from_: Annotated[datetime | None, Query(alias="from")] = None,
     to: datetime | None = None,
 ) -> list[AllocationAuditRead]:
-    """List audit records, newest first; filter by ``status``, ``from``, and ``to``."""
-    query = select(EmergencyRequest).order_by(EmergencyRequest.created_at.desc())
+    """List the caller's own audit records, newest first; filter by ``status``/``from``/``to``."""
+    query = (
+        select(EmergencyRequest)
+        .where(EmergencyRequest.dispatcher_id == actor.id)
+        .order_by(EmergencyRequest.created_at.desc())
+    )
     if status_filter is not None:
         query = query.where(EmergencyRequest.status == status_filter)
     if from_ is not None:

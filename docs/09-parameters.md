@@ -1,17 +1,19 @@
 # 09 — Parameters (Single Source of Truth)
 
-> Every numeric constant in EBADS lives here and is read from **one config module** (`backend/app/parameters.py`). Logic code must never hardcode these values. All values are from the thesis unless tagged `[IMPL]` (an implementation default not specified in the thesis — confirm with the researcher before evaluation runs).
+> Every numeric constant lives here and is read from **one config module** (`backend/app/parameters.py`). Logic code must never hardcode these values. Values are from the thesis unless tagged `[IMPL]`.
 
 ## 1. Enumerations
 
 ```
 Urgency  = { critical, urgent, standard }
 Tier     = { tertiary, secondary, primary }
-BedType  = { general, icu, maternity_specialist }
-Status   = { pending, allocated, escalated }
+BedType  = { general, icu, maternity, specialist }
+Strategy = { nearest_facility, fixed_weight, urgency_adaptive }
+Status   = { pending, confirmed, arrived, expired, refused, escalated }
+Role     = { system_administrator, facility_administrator, facility_staff, dispatcher }
 ```
 
-## 2. Urgency-based travel-time radius R(u) — thesis Table 3.2
+## 2. Urgency-based travel-time radius R(u) — thesis Table 3.6
 
 | Urgency | R(u) (minutes) |
 |---------|----------------|
@@ -19,7 +21,17 @@ Status   = { pending, allocated, escalated }
 | urgent | 60 |
 | standard | 90 |
 
-## 3. Capability-match matrix ĉ[urgency][tier] — thesis Table 3.3
+Assert: `R(critical) ≤ R(urgent) ≤ R(standard)`.
+
+## 3. Bed types supported by tier — thesis Table 3.7
+
+| Tier | Bed types |
+|------|-----------|
+| tertiary | general, maternity, icu, specialist |
+| secondary | general, maternity, icu |
+| primary | general, maternity |
+
+## 4. Capability-match matrix ĉ[urgency][tier] — thesis Table 3.8
 
 | Urgency \ Tier | tertiary | secondary | primary |
 |----------------|----------|-----------|---------|
@@ -27,101 +39,106 @@ Status   = { pending, allocated, escalated }
 | urgent | 0.8 | 1.0 | 0.5 |
 | standard | 0.5 | 0.8 | 1.0 |
 
-## 4. Algorithm 2 — fixed weights (w_t, w_b, w_c) — thesis §3.5.5
+All values ∈ [0,1]. `ĉ` is **not** min–max normalised; it is looked up directly.
+
+## 5. Fixed-weight strategy — thesis §3.7.4
 
 ```
 w_t = 0.40   # travel time
-w_b = 0.35   # bed scarcity
-w_c = 0.25   # capability mismatch
-# constraint: w_t + w_b + w_c = 1.0
+w_b = 0.30   # bed scarcity
+w_c = 0.30   # capability mismatch
 ```
+Identical for all urgencies. Sum = 1.0.
 
-## 5. Algorithm 3 — urgency-adaptive weight vectors — thesis Table 3.5
+> **Corrected.** An earlier document set recorded 0.40 / 0.35 / 0.25. Chapter Three is authoritative.
 
-| Urgency | w_t | w_b | w_c | (sum) |
-|---------|-----|-----|-----|-------|
-| critical | 0.50 | 0.15 | 0.35 | 1.00 |
-| urgent | 0.40 | 0.30 | 0.30 | 1.00 |
-| standard | 0.30 | 0.50 | 0.20 | 1.00 |
+## 6. Urgency-adaptive strategy — thesis Table 3.9
 
-Each row must sum to 1.0 (assert on load).
+| Urgency | w_t | w_b | w_c | sum |
+|---------|-----|-----|-----|-----|
+| critical | 0.50 | 0.10 | 0.40 | 1.00 |
+| urgent | 0.40 | 0.25 | 0.35 | 1.00 |
+| standard | 0.25 | 0.50 | 0.25 | 1.00 |
 
-## 6. Normalization — thesis §3.5.2
+Each row must sum to 1.0 (±1e-9), asserted on load.
 
-- Method: min–max across the **current** candidate set Hₑ, per criterion.
-- Tie rule: if `x_max == x_min` for a criterion, every normalised value = **0.5**.
+> **Corrected.** An earlier set recorded critical 0.50/0.15/0.35 and standard 0.30/0.50/0.20. Chapter Three is authoritative.
 
-## 7. Travel-time service — thesis §3.5.7
+## 7. Normalisation — thesis §3.7.2
+
+- Min–max across the **current** candidate set Hₑ, per criterion (travel time, bed count).
+- Tie rule: if `x_max == x_min`, every normalised value = **0.5**.
+
+## 8. Travel-time service
 
 | Parameter | Value | Note |
 |-----------|-------|------|
 | Primary source | Google Maps Distance Matrix API | road, traffic-aware |
-| Fallback | Haversine great-circle distance | on API unavailability |
-| Fallback speed factor | 30 km/h | urban |
+| Fallback | Haversine great-circle | on API unavailability |
+| Fallback speed factor `[IMPL]` | 30 km/h | urban |
 | Flag | `is_estimated_travel_time = true` when fallback used | always returned |
 
-## 8. Simulation parameters — thesis Table 3.8 (as revised)
+## 9. Reservation and notification — thesis §3.6.6
+
+| Parameter | Default | Meaning |
+|-----------|---------|---------|
+| `RESERVATION_GRACE_MIN` `[IMPL]` | 15 | minutes added to ETA before a reservation expires |
+| `SWEEPER_INTERVAL_SEC` `[IMPL]` | 60 | how often the expiry sweeper runs |
+| `SMS_CHANNEL` | sms | notification channel to the receiving facility |
+| `SMS_RETRY_ATTEMPTS` `[IMPL]` | 2 | gateway retries before recording delivery failure |
+
+Reservation lifetime is `now + eta_minutes + RESERVATION_GRACE_MIN`. A **fixed** timeout is explicitly rejected: journeys in this network differ by an order of magnitude, so a timeout generous enough for a 90-minute transfer would hold a bed far too long after a short urban one (thesis §3.6.6).
+
+## 10. Authentication and access control — thesis §3.6.5
+
+| Parameter | Default | Meaning |
+|-----------|---------|---------|
+| `ACCESS_TOKEN_TTL_MIN` `[IMPL]` | 30 | access token lifetime |
+| `REFRESH_TOKEN_TTL_DAYS` `[IMPL]` | 7 | refresh token lifetime |
+| `PASSWORD_HASH` `[IMPL]` | argon2id | password hashing algorithm |
+| `MIN_PASSWORD_LENGTH` `[IMPL]` | 12 | |
+
+Role permission matrix is data, seeded by migration — see [02 §2.2](./02-data-model.md).
+
+## 11. Scenario testing — thesis §3.8
 
 | Parameter | Value | Basis |
 |-----------|-------|-------|
-| Facilities in simulation | 24 public emergency-receiving facilities across the three tiers (Greater Accra) | GHS regional facility list |
-| Emergency event rate | 1 event per 3–7 minutes (uniform random) | stress-test rate informed by NAS utilisation (Zakariah et al., 2024) |
-| Urgency distribution | critical 20% / urgent 35% / standard 45% | modelling assumption (triage acuity patterns) |
-| Bed-type distribution | general 40% / icu 30% / maternity_specialist 30% | GHS facility data |
-| Occupancy scenario A | 75% | lower bound of documented range |
-| Occupancy scenario B | 90% | mid range |
-| Occupancy scenario C | 100% | documented peak |
-| Runs per configuration per scenario | 30 | researcher-defined |
-| Events per run | 100 (⇒ 3,000 events per configuration per scenario) | researcher-defined |
-| Algorithm configurations | greedy, weighted, urgency_adaptive | researcher-defined |
+| Facility set | Greater Accra public emergency-receiving facilities | GHS regional facility list |
+| Case set size `[IMPL]` | 120 cases | researcher-defined; fixed and version-controlled |
+| Urgency distribution `[IMPL]` | critical 20% / urgent 35% / standard 45% | triage acuity assumption |
+| Bed-type distribution `[IMPL]` | general 40% / icu 30% / maternity 20% / specialist 10% | GHS facility data |
+| Starting occupancy `[IMPL]` | 85% | mid-range of documented occupancy |
+| Depletion | each allocation decrements availability; no release during the run | makes the test a test of policy, not of lookups |
 
-### 8.1 Simulation constants not enumerated in the thesis `[IMPL]`
+> Case origins, urgencies and bed types are **fixed in `scenario/cases.json`** and version-controlled. There is no random sampling and no seed: the test is deterministic by construction.
 
-These are required to implement the virtual clock and bed lifecycle (thesis §3.12.1 describes them qualitatively). Defaults below are placeholders — **confirm with the researcher and record the chosen values before any evaluation run**, then treat them as fixed for the whole study.
+## 12. Robustness check — thesis §3.8.4
 
-| Parameter | Default `[IMPL]` | Meaning |
-|-----------|------------------|---------|
-| `COORDINATION_OVERHEAD_MIN` | 5 | fixed dispatch-handling overhead added to travel time in ATBP |
-| `LOS_DISTRIBUTION` | exponential | length-of-stay distribution shape |
-| `LOS_MEAN_MIN.general` | 2880 (48 h) | mean LOS, general beds |
-| `LOS_MEAN_MIN.icu` | 5760 (96 h) | mean LOS, ICU beds |
-| `LOS_MEAN_MIN.maternity_specialist` | 2160 (36 h) | mean LOS, maternity/specialist |
-| `PATIENT_LOCATION_SAMPLING` | uniform over Greater Accra bounding box | source of synthetic patient coordinates |
-| `GA_BBOX` | lat [5.45, 5.95], lon [-0.45, 0.25] | Greater Accra bounding box for sampling + distance matrix grid |
-| `RANDOM_SEED` | 20260617 | global seed; every run records its seed |
+One alternative weight set, with the contrast between urgency tiers deliberately reduced:
 
-## 9. Statistical analysis — thesis §3.12.4, §3.13.2
+| Urgency | w_t | w_b | w_c |
+|---------|-----|-----|-----|
+| critical | 0.40 | 0.20 | 0.40 |
+| urgent | 0.35 | 0.30 | 0.35 |
+| standard | 0.30 | 0.40 | 0.30 |
+
+Purpose is confined: establish whether any observed difference between fixed-weight and urgency-adaptive survives a change in the *degree* of urgency conditioning.
+
+## 13. Mobile / sync — thesis §3.6.4
 
 | Parameter | Value |
 |-----------|-------|
-| Significance level α | 0.05 |
-| Primary test | paired t-test (per-run metric means, n=30) |
-| Normality check | Shapiro–Wilk |
-| Non-normal fallback | Wilcoxon signed-rank |
-| Effect size | Cohen's d (paired) |
-| Pairing basis | same seeded facility state + same random seed across compared configurations |
-
-## 10. Sensitivity analysis configurations — thesis §3.13.3
-
-- **Weights: 4 configurations.** Config 1 = default (§5 above). `[IMPL]` Configs 2–4 are systematic variants (e.g. flatter and steeper urgency gradients); record the exact four vectors here before running. All must sum to 1.0 per urgency.
-- **Radii: 3 configurations.** Config 1 = default (30/60/90). `[IMPL]` Configs 2–3 are tighter and looser bands; record exact values.
-- **Capability matrix: 2 configurations.** Config 1 = default (§3). Config 2 = steeper critical gradient **1.0 / 0.4 / 0.1** for critical patients (thesis §3.5.3 names this variant); other rows as agreed.
-
-> The exact sensitivity vectors must be filled in here (not in code) and reviewed before the evaluation run, so the sensitivity study is reproducible and auditable.
-
-## 11. Mobile / sync — thesis §3.9–3.10
-
-| Parameter | Value |
-|-----------|-------|
-| Background sync interval (default) | 15 minutes |
+| Background sync interval | 15 minutes |
 | Cache contents | facility profiles + last-known bed counts only |
-| Offline mode | read-only; no algorithm execution |
+| Offline mode | read-only; no scoring executes on the device |
 
-## 12. Validation rules to assert on config load
+## 14. Validation rules asserted on config load
 
-1. Each Algorithm 3 weight row sums to 1.0 (±1e-9).
-2. Algorithm 2 weights sum to 1.0.
-3. Capability matrix values ∈ [0, 1].
-4. R(critical) ≤ R(urgent) ≤ R(standard).
-5. Occupancy scenarios are exactly {0.75, 0.90, 1.00}.
-6. Urgency and bed-type distributions each sum to 1.0.
+1. Each urgency-adaptive weight row sums to 1.0 (±1e-9).
+2. Fixed weights sum to 1.0.
+3. Capability matrix values ∈ [0,1].
+4. `R(critical) ≤ R(urgent) ≤ R(standard)`.
+5. Urgency and bed-type distributions each sum to 1.0.
+6. `RESERVATION_GRACE_MIN > 0`.
+7. Every bed type in the case set is supported by at least one tier.

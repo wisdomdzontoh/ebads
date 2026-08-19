@@ -29,7 +29,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.models.bed_count import BedCount
 from app.db.models.facility import Facility
 from app.db.session import get_engine, get_sessionmaker
-from app.parameters import BedType, DataSource, Tier
+from app.parameters import BedType, Tier
 
 # Maps a bed type to the CSV column that carries its capacity.
 _CAPACITY_COLUMN: dict[BedType, str] = {
@@ -50,7 +50,6 @@ def _parse_row(row: dict[str, str]) -> tuple[Facility, dict[BedType, int]]:
         tier=Tier(row["tier"].strip()),
         supported_bed_types=supported,
         contact_phone=row["contact_phone"].strip(),
-        active_data_source=DataSource.SIMULATION,
     )
     return facility, capacities
 

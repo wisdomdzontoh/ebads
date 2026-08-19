@@ -32,6 +32,11 @@ class EmergencyRequest(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False, index=True
     )
+    # Nullable: only live (non-simulation) requests submitted through the authenticated API
+    # carry a dispatcher (docs/02 §2.3, NFR8). Simulation-generated requests have none.
+    dispatcher_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("user_account.id", ondelete="SET NULL"), nullable=True
+    )
     patient_lat: Mapped[Decimal] = mapped_column(Numeric(9, 6), nullable=False)
     patient_lon: Mapped[Decimal] = mapped_column(Numeric(9, 6), nullable=False)
     # null when urgency was missing/invalid (Algorithm 2 fallback applied).

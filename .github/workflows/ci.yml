@@ -40,7 +40,8 @@ jobs:
         working-directory: backend
     services:
       db:
-        image: postgres:16
+        # PostGIS-enabled Postgres 16 (docs/01 §2, FR3) — matches infra/docker-compose.yml.
+        image: postgis/postgis:16-3.4
         env:
           POSTGRES_USER: ebads
           POSTGRES_PASSWORD: ebads

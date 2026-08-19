@@ -4,7 +4,11 @@ Exercises the documented flow — create session → step (interactive trace, RB
 (automatic metrics) → results — plus the error model: 409 on re-running/over-stepping, 404 on
 unknown ids, and 422 on an invalid occupancy or a not-yet-supported sensitivity override. A
 fixed in-radius stub travel service is injected so decisions are deterministic and no
-distance-matrix file is required.
+distance-matrix file is required. Since Increment 1, every ``/simulation`` endpoint requires
+a system_administrator caller (a minimal retrofit ahead of this module's Increment 5
+replacement — see the migration's permission-seed comment); facility bed maintenance
+still requires a facility-scoped account (facility_administrator/facility_staff), as
+elsewhere.
 """
 
 from __future__ import annotations
@@ -14,6 +18,8 @@ from httpx import AsyncClient
 
 from app.api.routes.simulation import get_simulation_travel_service
 from app.domain.travel.base import Coordinate, TravelTimeResult, TravelTimeService
+from app.parameters import Role
+from tests.integration.conftest import MakeUser
 
 _UNKNOWN_ID = "00000000-0000-0000-0000-000000000000"
 _ALL_BED_TYPES = ["general", "icu", "maternity_specialist"]
@@ -30,7 +36,12 @@ def _use_stub_travel(app: FastAPI) -> None:
     app.dependency_overrides[get_simulation_travel_service] = _StubTravel
 
 
-async def _seed_facility(client: AsyncClient, capacity: int = 12) -> str:
+async def _seed_facility(
+    client: AsyncClient,
+    system_admin_headers: dict[str, str],
+    make_user: MakeUser,
+    capacity: int = 12,
+) -> str:
     """Register one tertiary facility offering every bed type, each with ``capacity`` beds."""
     created = await client.post(
         "/api/v1/facilities",
@@ -41,19 +52,26 @@ async def _seed_facility(client: AsyncClient, capacity: int = 12) -> str:
             "tier": "tertiary",
             "supported_bed_types": _ALL_BED_TYPES,
             "contact_phone": "+233000000000",
-            "active_data_source": "simulation",
         },
+        headers=system_admin_headers,
     )
     facility_id = created.json()["id"]
+    _, staff_headers = await make_user(Role.FACILITY_STAFF, facility_id=facility_id)
     for bed_type in _ALL_BED_TYPES:
         await client.patch(
             f"/api/v1/facilities/{facility_id}/beds",
             json={"bed_type": bed_type, "available": capacity, "capacity": capacity},
+            headers=staff_headers,
         )
     return facility_id
 
 
-async def _create_session(client: AsyncClient, occupancy: float = 0.75, events: int = 6) -> str:
+async def _create_session(
+    client: AsyncClient,
+    system_admin_headers: dict[str, str],
+    occupancy: float = 0.75,
+    events: int = 6,
+) -> str:
     response = await client.post(
         "/api/v1/simulation/sessions",
         json={
@@ -62,17 +80,22 @@ async def _create_session(client: AsyncClient, occupancy: float = 0.75, events: 
             "events_planned": events,
             "random_seed": 20260617,
         },
+        headers=system_admin_headers,
     )
     assert response.status_code == 201, response.text
     return response.json()["id"]
 
 
-async def test_create_session_returns_pending_status(client: AsyncClient) -> None:
+async def test_create_session_returns_pending_status(
+    client: AsyncClient, system_admin_headers: dict[str, str], make_user: MakeUser
+) -> None:
     """Creating a session returns it in the 'pending' state with no events processed."""
-    await _seed_facility(client)
-    session_id = await _create_session(client)
+    await _seed_facility(client, system_admin_headers, make_user)
+    session_id = await _create_session(client, system_admin_headers)
 
-    fetched = await client.get(f"/api/v1/simulation/sessions/{session_id}")
+    fetched = await client.get(
+        f"/api/v1/simulation/sessions/{session_id}", headers=system_admin_headers
+    )
     assert fetched.status_code == 200
     body = fetched.json()
     assert body["status"] == "pending"
@@ -80,13 +103,33 @@ async def test_create_session_returns_pending_status(client: AsyncClient) -> Non
     assert body["events_planned"] == 6
 
 
-async def test_step_returns_decision_trace(app_under_test: FastAPI, client: AsyncClient) -> None:
+async def test_create_session_without_auth_is_401(client: AsyncClient) -> None:
+    response = await client.post(
+        "/api/v1/simulation/sessions",
+        json={
+            "algorithm_config": "urgency_adaptive",
+            "occupancy_scenario": 0.75,
+            "events_planned": 6,
+            "random_seed": 1,
+        },
+    )
+    assert response.status_code == 401
+
+
+async def test_step_returns_decision_trace(
+    app_under_test: FastAPI,
+    client: AsyncClient,
+    system_admin_headers: dict[str, str],
+    make_user: MakeUser,
+) -> None:
     """Interactive step returns the full decision trace: candidates, scores, selection (RB-5)."""
     _use_stub_travel(app_under_test)
-    facility_id = await _seed_facility(client)
-    session_id = await _create_session(client)
+    facility_id = await _seed_facility(client, system_admin_headers, make_user)
+    session_id = await _create_session(client, system_admin_headers)
 
-    response = await client.post(f"/api/v1/simulation/sessions/{session_id}/step")
+    response = await client.post(
+        f"/api/v1/simulation/sessions/{session_id}/step", headers=system_admin_headers
+    )
     assert response.status_code == 200, response.text
     trace = response.json()
     assert trace["event_index"] == 0
@@ -105,25 +148,36 @@ async def test_step_returns_decision_trace(app_under_test: FastAPI, client: Asyn
         "score",
     }
     # Stepping advances progress by exactly one event.
-    session = (await client.get(f"/api/v1/simulation/sessions/{session_id}")).json()
+    session = (
+        await client.get(f"/api/v1/simulation/sessions/{session_id}", headers=system_admin_headers)
+    ).json()
     assert session["events_processed"] == 1
     assert session["status"] == "in_progress"
 
 
-async def test_run_then_results(app_under_test: FastAPI, client: AsyncClient) -> None:
+async def test_run_then_results(
+    app_under_test: FastAPI,
+    client: AsyncClient,
+    system_admin_headers: dict[str, str],
+    make_user: MakeUser,
+) -> None:
     """Automatic run returns metrics; results returns every event + the aggregated metrics."""
     _use_stub_travel(app_under_test)
-    await _seed_facility(client)
-    session_id = await _create_session(client, events=6)
+    await _seed_facility(client, system_admin_headers, make_user)
+    session_id = await _create_session(client, system_admin_headers, events=6)
 
-    run = await client.post(f"/api/v1/simulation/sessions/{session_id}/run")
+    run = await client.post(
+        f"/api/v1/simulation/sessions/{session_id}/run", headers=system_admin_headers
+    )
     assert run.status_code == 200, run.text
     summary = run.json()
     assert summary["status"] == "completed"
     assert summary["events_processed"] == 6
     assert summary["metrics"]["events_total"] == 6
 
-    results = await client.get(f"/api/v1/simulation/sessions/{session_id}/results")
+    results = await client.get(
+        f"/api/v1/simulation/sessions/{session_id}/results", headers=system_admin_headers
+    )
     assert results.status_code == 200
     body = results.json()
     assert len(body["events"]) == 6
@@ -132,46 +186,76 @@ async def test_run_then_results(app_under_test: FastAPI, client: AsyncClient) ->
 
 
 async def test_rerunning_a_completed_session_conflicts(
-    app_under_test: FastAPI, client: AsyncClient
+    app_under_test: FastAPI,
+    client: AsyncClient,
+    system_admin_headers: dict[str, str],
+    make_user: MakeUser,
 ) -> None:
     """A second run on a session that already has events is a 409 (docs/04 §6)."""
     _use_stub_travel(app_under_test)
-    await _seed_facility(client)
-    session_id = await _create_session(client, events=3)
+    await _seed_facility(client, system_admin_headers, make_user)
+    session_id = await _create_session(client, system_admin_headers, events=3)
 
-    assert (await client.post(f"/api/v1/simulation/sessions/{session_id}/run")).status_code == 200
-    conflict = await client.post(f"/api/v1/simulation/sessions/{session_id}/run")
+    first = await client.post(
+        f"/api/v1/simulation/sessions/{session_id}/run", headers=system_admin_headers
+    )
+    assert first.status_code == 200
+    conflict = await client.post(
+        f"/api/v1/simulation/sessions/{session_id}/run", headers=system_admin_headers
+    )
     assert conflict.status_code == 409
 
 
 async def test_stepping_past_completion_conflicts(
-    app_under_test: FastAPI, client: AsyncClient
+    app_under_test: FastAPI,
+    client: AsyncClient,
+    system_admin_headers: dict[str, str],
+    make_user: MakeUser,
 ) -> None:
     """Stepping a fully processed session is a 409 (docs/04 §6)."""
     _use_stub_travel(app_under_test)
-    await _seed_facility(client)
-    session_id = await _create_session(client, events=1)
+    await _seed_facility(client, system_admin_headers, make_user)
+    session_id = await _create_session(client, system_admin_headers, events=1)
 
-    assert (await client.post(f"/api/v1/simulation/sessions/{session_id}/step")).status_code == 200
-    conflict = await client.post(f"/api/v1/simulation/sessions/{session_id}/step")
+    first = await client.post(
+        f"/api/v1/simulation/sessions/{session_id}/step", headers=system_admin_headers
+    )
+    assert first.status_code == 200
+    conflict = await client.post(
+        f"/api/v1/simulation/sessions/{session_id}/step", headers=system_admin_headers
+    )
     assert conflict.status_code == 409
 
 
-async def test_unknown_session_returns_404(client: AsyncClient) -> None:
+async def test_unknown_session_returns_404(
+    client: AsyncClient, system_admin_headers: dict[str, str]
+) -> None:
     """Reads and actions on an unknown session id return 404."""
-    assert (await client.get(f"/api/v1/simulation/sessions/{_UNKNOWN_ID}")).status_code == 404
     assert (
-        await client.post(f"/api/v1/simulation/sessions/{_UNKNOWN_ID}/run")
+        await client.get(
+            f"/api/v1/simulation/sessions/{_UNKNOWN_ID}", headers=system_admin_headers
+        )
     ).status_code == 404
     assert (
-        await client.post(f"/api/v1/simulation/sessions/{_UNKNOWN_ID}/step")
+        await client.post(
+            f"/api/v1/simulation/sessions/{_UNKNOWN_ID}/run", headers=system_admin_headers
+        )
     ).status_code == 404
     assert (
-        await client.get(f"/api/v1/simulation/sessions/{_UNKNOWN_ID}/results")
+        await client.post(
+            f"/api/v1/simulation/sessions/{_UNKNOWN_ID}/step", headers=system_admin_headers
+        )
+    ).status_code == 404
+    assert (
+        await client.get(
+            f"/api/v1/simulation/sessions/{_UNKNOWN_ID}/results", headers=system_admin_headers
+        )
     ).status_code == 404
 
 
-async def test_invalid_occupancy_is_422(client: AsyncClient) -> None:
+async def test_invalid_occupancy_is_422(
+    client: AsyncClient, system_admin_headers: dict[str, str]
+) -> None:
     """An occupancy outside the fixed scenario set is rejected at validation (docs/09 §12.5)."""
     response = await client.post(
         "/api/v1/simulation/sessions",
@@ -181,11 +265,14 @@ async def test_invalid_occupancy_is_422(client: AsyncClient) -> None:
             "events_planned": 5,
             "random_seed": 1,
         },
+        headers=system_admin_headers,
     )
     assert response.status_code == 422
 
 
-async def test_sensitivity_override_is_rejected(client: AsyncClient) -> None:
+async def test_sensitivity_override_is_rejected(
+    client: AsyncClient, system_admin_headers: dict[str, str]
+) -> None:
     """A non-null sensitivity override is rejected (applied in Phase 5, not silently ignored)."""
     response = await client.post(
         "/api/v1/simulation/sessions",
@@ -196,5 +283,6 @@ async def test_sensitivity_override_is_rejected(client: AsyncClient) -> None:
             "random_seed": 1,
             "weight_config": {"w_t": 0.4, "w_b": 0.35, "w_c": 0.25},
         },
+        headers=system_admin_headers,
     )
     assert response.status_code == 422

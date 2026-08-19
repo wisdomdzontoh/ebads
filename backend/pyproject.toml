@@ -19,6 +19,13 @@ dependencies = [
     # as-is (app/config.py normalizes the scheme).
     "psycopg[binary]>=3.3",
     "httpx>=0.27",
+    # Spatial retrieval (docs/01 §2, docs/03 §2, FR3): PostGIS geography type + ST_DWithin.
+    "geoalchemy2>=0.15",
+    # Auth/RBAC (docs/01 §4, docs/09 §10): JWT access/refresh tokens, argon2id password
+    # hashing, and pydantic's EmailStr validation for account emails.
+    "pyjwt>=2.8",
+    "argon2-cffi>=23.1",
+    "email-validator>=2.1",
     # Simulation (Phase 4): numeric arrays for the distance matrix + nearest-node lookup,
     # and Parquet I/O for the distance matrix and per-run metrics datasets (docs/07).
     "numpy>=1.26",

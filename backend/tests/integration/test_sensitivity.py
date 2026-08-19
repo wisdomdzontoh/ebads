@@ -18,7 +18,7 @@ from app.analysis.sensitivity import Variant, run_sensitivity
 from app.db.models.bed_count import BedCount
 from app.db.models.facility import Facility
 from app.domain.travel.live import LiveTravelTimeService
-from app.parameters import AlgorithmName, BedType, DataSource, Tier
+from app.parameters import AlgorithmName, BedType, Tier
 from app.simulation.distance_matrix import build_distance_matrix, save_distance_matrix
 from app.simulation.runner import GridConfig
 from tests.integration.conftest import TEST_DATABASE_URL
@@ -59,7 +59,6 @@ async def _seed(db_session: AsyncSession) -> None:
             tier=tier,
             supported_bed_types=list(_ALL_BED_TYPES),
             contact_phone="+233000000000",
-            active_data_source=DataSource.SIMULATION,
         )
         db_session.add(facility)
         await db_session.flush()

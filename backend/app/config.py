@@ -45,10 +45,12 @@ class Settings(BaseSettings):
     # below normalizes the scheme and SSL parameter to what the psycopg driver expects.
     database_url: str = "postgresql+psycopg://ebads:ebads@db:5432/ebads"
 
-    # Static API key for the prototype's X-API-Key auth (docs/04-api-spec.md §1). [IMPL]
-    # Blank disables the check (unit/integration tests, bare local dev); the deployed stack
-    # sets API_KEY in infra/.env, so /api/v1 is enforced there (app/api/security.py).
-    api_key: str = ""
+    # Secret signing key for access/refresh JWTs (docs/01 §4, docs/09 §10). [IMPL] Unlike
+    # the retired static X-API-Key scheme, a blank key does NOT disable auth — app/security
+    # /jwt.py raises at first use instead, so a misconfigured deployment fails closed rather
+    # than silently accepting any token. Tests set a fixed key via ``JWT_SECRET_KEY`` or by
+    # constructing ``Settings`` directly.
+    jwt_secret_key: str = ""
 
     # Optional Google Distance Matrix key; blank => Haversine fallback (docs/09 §7).
     google_maps_api_key: str = ""

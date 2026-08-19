@@ -17,7 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from app.db.models.bed_count import BedCount
 from app.db.models.facility import Facility
 from app.domain.travel.live import LiveTravelTimeService
-from app.parameters import AlgorithmName, BedType, DataSource, Tier
+from app.parameters import AlgorithmName, BedType, Tier
 from app.simulation.distance_matrix import (
     build_distance_matrix,
     content_hash,
@@ -56,7 +56,6 @@ async def _seed_facilities(db_session: AsyncSession) -> None:
             tier=Tier.TERTIARY,
             supported_bed_types=list(_ALL_BED_TYPES),
             contact_phone="+233000000000",
-            active_data_source=DataSource.SIMULATION,
         )
         db_session.add(facility)
         await db_session.flush()

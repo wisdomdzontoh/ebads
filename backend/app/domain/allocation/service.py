@@ -18,7 +18,9 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from decimal import Decimal
 
-from sqlalchemy import select
+from geoalchemy2 import Geography
+from geoalchemy2.elements import WKTElement
+from sqlalchemy import Select, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models.emergency_request import EmergencyRequest
@@ -30,11 +32,12 @@ from app.domain.allocation.scoring import ScoringResult, run_scoring
 from app.domain.allocation.selector import select_algorithm
 from app.domain.allocation.study_parameters import StudyParameters
 from app.domain.beds.base import BedDataSource
-from app.domain.beds.local_source import LocalBedCountSource
+from app.domain.beds.manual_adapter import ManualAdapter
 from app.domain.beds.simulation_source import SimulationDataSource
 from app.domain.travel.base import Coordinate, TravelTimeService
 from app.parameters import (
     DEFAULT_URGENCY_WHEN_MISSING,
+    HAVERSINE_SPEED_KMH,
     AlgorithmName,
     BedType,
     Status,
@@ -42,6 +45,15 @@ from app.parameters import (
     Urgency,
     WeightVector,
 )
+
+# [IMPL] Converts an urgency radius from minutes to metres for the PostGIS pre-filter, at
+# the same urban speed factor the Haversine fallback uses (docs/03 §2: "radius_metres
+# derives from R(u) at the configured urban speed factor").
+_METRES_PER_MINUTE = HAVERSINE_SPEED_KMH * 1000 / 60
+
+
+def _radius_metres(radius_minutes: float) -> float:
+    return radius_minutes * _METRES_PER_MINUTE
 
 
 class SimulationSessionNotFoundError(Exception):
@@ -57,6 +69,9 @@ class AllocationRequest:
     required_bed_type: BedType
     urgency: Urgency | None = None
     simulation_session_id: uuid.UUID | None = None
+    # The authenticated dispatcher, for live requests (NFR8). None for simulation-generated
+    # requests, which have no human submitter.
+    dispatcher_id: uuid.UUID | None = None
 
 
 @dataclass(frozen=True)
@@ -137,18 +152,29 @@ class AllocationService:
         urgency = request.urgency or DEFAULT_URGENCY_WHEN_MISSING
         radius = self._params.radius_minutes[urgency]
         weights = self._params.weight_for(algorithm_name, urgency)
+        origin = Coordinate(request.patient_lat, request.patient_lon)
 
-        facilities = await self._facilities_supporting(request.required_bed_type)
-        facility_by_id = {str(f.id): f for f in facilities}
-        candidates = await self._build_candidates(request, facilities, bed_source)
+        # Primary path: PostGIS-indexed retrieval within the urgency radius (FR3, NFR2) — the
+        # only query in this method that must scale with registry size, since this is the
+        # common case (an admissible facility is usually nearby).
+        nearby = await self._spatial_retrieve(origin, radius, request.required_bed_type)
+        facility_by_id = {str(f.id): f for f in nearby}
+        candidates = await self._build_candidates(request, nearby, bed_source)
 
         result = run_scoring(
             candidates, urgency, radius, algorithm_name, self._params.capability_matrix, weights
         )
 
         if result.selected is None:
+            # Escalation is rare by construction (it means nothing admissible was even
+            # nearby) — visibility beyond the spatial radius is required for the "nearest
+            # available outside radius" fallback (FR11), so this path alone accepts an
+            # unbounded fetch. NFR2/S3 target the common path above, not this one.
+            all_facilities = await self._facilities_supporting(request.required_bed_type)
+            all_candidates = await self._build_candidates(request, all_facilities, bed_source)
+            facility_by_id = {str(f.id): f for f in all_facilities}
             return self._escalation_outcome(
-                candidates, radius, urgency, algorithm_name, facility_by_id, request
+                all_candidates, radius, urgency, algorithm_name, facility_by_id, request
             )
         return self._recommendation_outcome(result, algorithm_name, facility_by_id, request)
 
@@ -169,15 +195,56 @@ class AllocationService:
     ) -> tuple[AlgorithmName | None, BedDataSource]:
         """Resolve the simulation algorithm (if any) and the bed source for the request."""
         if request.simulation_session_id is None:
-            return None, LocalBedCountSource(self._session)
+            return None, ManualAdapter(self._session)
         sim = await self._session.get(SimulationSession, request.simulation_session_id)
         if sim is None:
             raise SimulationSessionNotFoundError(str(request.simulation_session_id))
         return sim.algorithm_config, SimulationDataSource(self._session, sim.id)
 
     async def _facilities_supporting(self, bed_type: BedType) -> list[Facility]:
-        """Return facilities that offer the requested bed type (the candidate universe)."""
+        """Return every facility offering the requested bed type, unbounded by distance.
+
+        Used only on the (rare) escalation path — see ``evaluate``'s docstring note. The
+        common path is ``_spatial_retrieve``, which is index-backed (FR3).
+        """
         query = select(Facility).where(Facility.supported_bed_types.contains([bed_type]))
+        return list((await self._session.scalars(query)).all())
+
+    @staticmethod
+    def spatial_retrieve_query(
+        origin: Coordinate, radius_minutes: float, bed_type: BedType
+    ) -> Select[tuple[Facility]]:
+        """Build the FR3 spatial retrieval query.
+
+        Extracted so a test can ``EXPLAIN`` this exact statement, not a hand-duplicated copy.
+
+        ``ST_DWithin`` against ``facility.location`` uses the GIST index (migration 0007) —
+        the query plan showing an index scan rather than a sequential scan is FR3's accept
+        criterion. The radius here is a straight-line pre-filter at the configured urban
+        speed factor; it is deliberately generous (a road route is never shorter than the
+        straight line), and the exact cutoff on real travel time still happens afterward in
+        the hard filter (``run_scoring`` → ``filter_candidates``), so a coarse pre-filter can
+        only ever admit extra candidates, never wrongly exclude an admissible one under that
+        same speed-factor assumption.
+        """
+        origin_point = WKTElement(f"POINT({origin.longitude} {origin.latitude})", srid=4326)
+        return select(Facility).where(
+            func.ST_DWithin(
+                Facility.location,
+                func.cast(origin_point, Geography),
+                _radius_metres(radius_minutes),
+            ),
+            Facility.supported_bed_types.contains([bed_type]),
+        )
+
+    async def _spatial_retrieve(
+        self, origin: Coordinate, radius_minutes: float, bed_type: BedType
+    ) -> list[Facility]:
+        """PostGIS spatial retrieval within ``radius_minutes``, filtered by bed type.
+
+        (docs/03 §2.)
+        """
+        query = self.spatial_retrieve_query(origin, radius_minutes, bed_type)
         return list((await self._session.scalars(query)).all())
 
     async def _build_candidates(
@@ -186,14 +253,28 @@ class AllocationService:
         facilities: Sequence[Facility],
         bed_source: BedDataSource,
     ) -> list[Candidate]:
-        """Fetch travel time and available beds for each facility, building candidates."""
+        """Fetch travel time and available beds for each facility, building candidates.
+
+        ``fetch`` returns every bed type a facility tracks (docs/01 §5); only the requested
+        type's count feeds the candidate. This is the advisory read the pipeline scores
+        against — the reservation step (docs/01 §7) is what actually commits a bed, via the
+        same source's ``reserve``.
+        """
         origin = Coordinate(request.patient_lat, request.patient_lon)
         candidates: list[Candidate] = []
         for facility in facilities:
             travel = await self._travel.travel_time(
                 origin, Coordinate(float(facility.latitude), float(facility.longitude))
             )
-            beds = await bed_source.get_available_beds(facility.id, request.required_bed_type)
+            bed_states = await bed_source.fetch(facility.id)
+            beds = next(
+                (
+                    bs.available_beds
+                    for bs in bed_states
+                    if bs.bed_type == request.required_bed_type
+                ),
+                0,
+            )
             candidates.append(
                 Candidate(
                     facility_id=str(facility.id),
@@ -295,6 +376,7 @@ class AllocationService:
         """Map a request + outcome onto the persisted ``emergency_request`` row (docs/02 §2.3)."""
         recommendation = outcome.recommended
         return EmergencyRequest(
+            dispatcher_id=request.dispatcher_id,
             patient_lat=Decimal(str(request.patient_lat)),
             patient_lon=Decimal(str(request.patient_lon)),
             urgency=request.urgency,
