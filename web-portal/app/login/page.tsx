@@ -8,6 +8,7 @@ import { z } from "zod";
 import { LoaderCircle } from "lucide-react";
 
 import { useAuth } from "@/components/auth-provider";
+import { EbadsLogo } from "@/components/ebads-logo";
 import { ApiError } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,10 +54,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-muted/40 px-4 py-16">
+    <div className="flex flex-1 flex-col items-center justify-center gap-8 bg-muted/40 px-4 py-16">
+      <EbadsLogo size="lg" />
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-xl">EBADS Portal</CardTitle>
+          <CardTitle className="text-xl">Portal sign in</CardTitle>
           <CardDescription>
             Sign in with your facility or system administrator account.
           </CardDescription>

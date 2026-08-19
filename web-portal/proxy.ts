@@ -33,5 +33,10 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  // icon.png (and any sibling apple-icon/opengraph-image/robots.txt/sitemap.xml Next.js
+  // file-convention metadata routes) are always public — browsers request them
+  // unauthenticated, so gating them behind login would just serve a broken favicon.
+  matcher: [
+    "/((?!_next/static|_next/image|favicon\\.ico|icon\\.png|apple-icon\\.png|opengraph-image|robots\\.txt|sitemap\\.xml).*)",
+  ],
 };

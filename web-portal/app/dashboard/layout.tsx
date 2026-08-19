@@ -3,9 +3,21 @@
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { LogOut } from "lucide-react";
+import {
+  BedDouble,
+  Building2,
+  ClipboardList,
+  Inbox,
+  KeyRound,
+  LayoutDashboard,
+  LogOut,
+  ScrollText,
+  Users as UsersIcon,
+  type LucideIcon,
+} from "lucide-react";
 
 import { useAuth } from "@/components/auth-provider";
+import { EbadsLogo } from "@/components/ebads-logo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,29 +40,36 @@ import type { Role } from "@/lib/types";
 
 interface NavItem {
   title: string;
+  icon: LucideIcon;
   /** Omitted while the view for this role hasn't been built yet (later increments). */
   href?: string;
 }
 
 const NAV_BY_ROLE: Record<Role, NavItem[]> = {
   system_administrator: [
-    { title: "Overview", href: "/dashboard" },
-    { title: "Facility registrations", href: "/dashboard/registrations" },
-    { title: "Users", href: "/dashboard/users" },
-    { title: "Audit log", href: "/dashboard/audit-log" },
+    { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
+    { title: "Facility registrations", href: "/dashboard/registrations", icon: ClipboardList },
+    { title: "Users", href: "/dashboard/users", icon: UsersIcon },
+    { title: "Audit log", href: "/dashboard/audit-log", icon: ScrollText },
+    { title: "Account", href: "/dashboard/account", icon: KeyRound },
   ],
   facility_administrator: [
-    { title: "Overview", href: "/dashboard" },
-    { title: "Facility profile", href: "/dashboard/facility" },
-    { title: "Users", href: "/dashboard/users" },
-    { title: "Beds", href: "/dashboard/beds" },
+    { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
+    { title: "Facility profile", href: "/dashboard/facility", icon: Building2 },
+    { title: "Users", href: "/dashboard/users", icon: UsersIcon },
+    { title: "Beds", href: "/dashboard/beds", icon: BedDouble },
+    { title: "Account", href: "/dashboard/account", icon: KeyRound },
   ],
   facility_staff: [
-    { title: "Overview", href: "/dashboard" },
-    { title: "Bed availability" },
-    { title: "Incoming allocations" },
+    { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
+    { title: "Bed availability", icon: BedDouble },
+    { title: "Incoming allocations", icon: Inbox },
+    { title: "Account", href: "/dashboard/account", icon: KeyRound },
   ],
-  dispatcher: [{ title: "Overview", href: "/dashboard" }],
+  dispatcher: [
+    { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
+    { title: "Account", href: "/dashboard/account", icon: KeyRound },
+  ],
 };
 
 export default function DashboardLayout({
@@ -80,10 +99,8 @@ export default function DashboardLayout({
     <SidebarProvider>
       <Sidebar collapsible="icon">
         <SidebarHeader>
-          <div className="flex items-center gap-2 px-2 py-1.5">
-            <span className="text-sm font-semibold text-sidebar-foreground">
-              EBADS
-            </span>
+          <div className="px-2 py-1.5">
+            <EbadsLogo size="sm" />
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -98,10 +115,12 @@ export default function DashboardLayout({
                         render={<Link href={item.href} />}
                         isActive={pathname === item.href}
                       >
+                        <item.icon />
                         <span>{item.title}</span>
                       </SidebarMenuButton>
                     ) : (
                       <SidebarMenuButton disabled>
+                        <item.icon />
                         <span>{item.title}</span>
                         <Badge variant="outline" className="ml-auto">
                           Soon

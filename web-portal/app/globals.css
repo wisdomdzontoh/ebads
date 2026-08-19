@@ -12,11 +12,18 @@
  */
 
 :root {
-  --radius: 0.5rem; /* DESIGN.md rounded.DEFAULT */
-  --radius-sm: 0.25rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
+  /* Radius is deliberately NOT overridden here. The design system's actual screen code
+     (artifacts/.../settings_config/code.html etc., not just DESIGN.md's prose table) uses a
+     plain 3-tier scale — DEFAULT 4px, lg 8px, xl 12px, full pill — which is exactly
+     Tailwind's own v4 default radius scale (node_modules/tailwindcss/theme.css). Every
+     shadcn primitive here already assumes those stock values (several read var(--radius-md)
+     directly in calc()/min() expressions), so leaving them untouched is the correct match,
+     not an oversight.
+
+     Card shadow and the primary-button teal glow below are real, named tokens from that
+     same code (`.custom-shadow` and the Settings screen's CTA `shadow-[...]`), not guesses. */
+  --shadow-card: 0 2px 8px rgba(16, 24, 38, 0.08);
+  --shadow-primary: 0 4px 12px rgba(10, 97, 107, 0.3);
 
   --background: #f7f9fd;
   --foreground: #191c1f;
@@ -186,10 +193,8 @@
   --color-standard: var(--standard);
   --color-standard-tint: var(--standard-tint);
 
-  --radius-sm: var(--radius-sm);
-  --radius-md: var(--radius-md);
-  --radius-lg: var(--radius-lg);
-  --radius-xl: var(--radius-xl);
+  --shadow-card: var(--shadow-card);
+  --shadow-primary: var(--shadow-primary);
 
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
