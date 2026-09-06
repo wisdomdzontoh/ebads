@@ -256,6 +256,17 @@ ALGORITHM_3_WEIGHTS: Mapping[Urgency, WeightVector] = {
     Urgency.STANDARD: WeightVector(w_t=0.25, w_b=0.50, w_c=0.25),
 }
 
+# The scenario-testing robustness check's sole alternative weight table (thesis §3.8.4,
+# docs/09-parameters.md §12): the contrast between urgency tiers is deliberately reduced
+# relative to ALGORITHM_3_WEIGHTS. Used only by app/scenario/report.py to re-run the full
+# case set once under a different degree of urgency conditioning — one variant, not a
+# family (docs/07 §8: "not a sensitivity analysis").
+ROBUSTNESS_CHECK_WEIGHTS: Mapping[Urgency, WeightVector] = {
+    Urgency.CRITICAL: WeightVector(w_t=0.40, w_b=0.20, w_c=0.40),
+    Urgency.URGENT: WeightVector(w_t=0.35, w_b=0.30, w_c=0.35),
+    Urgency.STANDARD: WeightVector(w_t=0.30, w_b=0.40, w_c=0.30),
+}
+
 
 # ---------------------------------------------------------------------------
 # 6. Normalization (docs/09 §6, thesis §3.5.2)

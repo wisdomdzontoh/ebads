@@ -1,0 +1,590 @@
+[
+  {
+    "name": "37 Military Hospital",
+    "latitude": 5.5826,
+    "longitude": -0.188,
+    "tier": "tertiary",
+    "supported_bed_types": [
+      "general",
+      "icu",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233302776111",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 45,
+        "capacity": 300
+      },
+      {
+        "bed_type": "icu",
+        "available": 5,
+        "capacity": 30
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 11,
+        "capacity": 70
+      }
+    ]
+  },
+  {
+    "name": "Achimota Hospital",
+    "latitude": 5.615,
+    "longitude": -0.227,
+    "tier": "secondary",
+    "supported_bed_types": [
+      "general",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233302402560",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 15,
+        "capacity": 100
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 5,
+        "capacity": 35
+      }
+    ]
+  },
+  {
+    "name": "Adabraka Polyclinic",
+    "latitude": 5.561,
+    "longitude": -0.212,
+    "tier": "primary",
+    "supported_bed_types": [
+      "general",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233302228899",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 3,
+        "capacity": 22
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 2,
+        "capacity": 10
+      }
+    ]
+  },
+  {
+    "name": "Adenta Polyclinic",
+    "latitude": 5.708,
+    "longitude": -0.159,
+    "tier": "primary",
+    "supported_bed_types": [
+      "general",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233302501555",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 4,
+        "capacity": 24
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 2,
+        "capacity": 12
+      }
+    ]
+  },
+  {
+    "name": "Amasaman Hospital",
+    "latitude": 5.704,
+    "longitude": -0.303,
+    "tier": "secondary",
+    "supported_bed_types": [
+      "general",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233302912345",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 12,
+        "capacity": 80
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 4,
+        "capacity": 25
+      }
+    ]
+  },
+  {
+    "name": "Ashaiman Municipal Hospital",
+    "latitude": 5.689,
+    "longitude": -0.034,
+    "tier": "secondary",
+    "supported_bed_types": [
+      "general",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233303305678",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 14,
+        "capacity": 90
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 5,
+        "capacity": 30
+      }
+    ]
+  },
+  {
+    "name": "Dansoman Polyclinic",
+    "latitude": 5.543,
+    "longitude": -0.263,
+    "tier": "primary",
+    "supported_bed_types": [
+      "general",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233302311223",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 5,
+        "capacity": 30
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 2,
+        "capacity": 15
+      }
+    ]
+  },
+  {
+    "name": "Ga East Municipal Hospital",
+    "latitude": 5.69,
+    "longitude": -0.21,
+    "tier": "secondary",
+    "supported_bed_types": [
+      "general",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233302501234",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 14,
+        "capacity": 90
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 5,
+        "capacity": 30
+      }
+    ]
+  },
+  {
+    "name": "Greater Accra Regional Hospital (Ridge)",
+    "latitude": 5.5641,
+    "longitude": -0.1969,
+    "tier": "tertiary",
+    "supported_bed_types": [
+      "general",
+      "icu",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233302228382",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 38,
+        "capacity": 250
+      },
+      {
+        "bed_type": "icu",
+        "available": 4,
+        "capacity": 25
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 12,
+        "capacity": 80
+      }
+    ]
+  },
+  {
+    "name": "Kaneshie Polyclinic",
+    "latitude": 5.565,
+    "longitude": -0.236,
+    "tier": "primary",
+    "supported_bed_types": [
+      "general",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233302224567",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 4,
+        "capacity": 28
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 2,
+        "capacity": 14
+      }
+    ]
+  },
+  {
+    "name": "Korle Bu Teaching Hospital",
+    "latitude": 5.5366,
+    "longitude": -0.2261,
+    "tier": "tertiary",
+    "supported_bed_types": [
+      "general",
+      "icu",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233302739401",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 53,
+        "capacity": 350
+      },
+      {
+        "bed_type": "icu",
+        "available": 6,
+        "capacity": 40
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 14,
+        "capacity": 90
+      }
+    ]
+  },
+  {
+    "name": "La General Hospital",
+    "latitude": 5.5589,
+    "longitude": -0.162,
+    "tier": "secondary",
+    "supported_bed_types": [
+      "general",
+      "icu",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233302774301",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 18,
+        "capacity": 120
+      },
+      {
+        "bed_type": "icu",
+        "available": 1,
+        "capacity": 8
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 6,
+        "capacity": 40
+      }
+    ]
+  },
+  {
+    "name": "LEKMA Hospital",
+    "latitude": 5.597,
+    "longitude": -0.101,
+    "tier": "secondary",
+    "supported_bed_types": [
+      "general",
+      "icu",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233302717890",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 17,
+        "capacity": 110
+      },
+      {
+        "bed_type": "icu",
+        "available": 1,
+        "capacity": 6
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 5,
+        "capacity": 30
+      }
+    ]
+  },
+  {
+    "name": "Maamobi General Hospital",
+    "latitude": 5.59,
+    "longitude": -0.198,
+    "tier": "secondary",
+    "supported_bed_types": [
+      "general",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233302223451",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 12,
+        "capacity": 80
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 4,
+        "capacity": 25
+      }
+    ]
+  },
+  {
+    "name": "Madina Polyclinic",
+    "latitude": 5.683,
+    "longitude": -0.166,
+    "tier": "primary",
+    "supported_bed_types": [
+      "general",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233302520011",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 4,
+        "capacity": 26
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 2,
+        "capacity": 12
+      }
+    ]
+  },
+  {
+    "name": "Mamprobi Polyclinic",
+    "latitude": 5.538,
+    "longitude": -0.236,
+    "tier": "primary",
+    "supported_bed_types": [
+      "general",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233302315678",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 5,
+        "capacity": 30
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 2,
+        "capacity": 15
+      }
+    ]
+  },
+  {
+    "name": "Pantang Hospital",
+    "latitude": 5.714,
+    "longitude": -0.166,
+    "tier": "secondary",
+    "supported_bed_types": [
+      "general",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233302501987",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 11,
+        "capacity": 70
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 3,
+        "capacity": 20
+      }
+    ]
+  },
+  {
+    "name": "Princess Marie Louise Children's Hospital",
+    "latitude": 5.547,
+    "longitude": -0.22,
+    "tier": "primary",
+    "supported_bed_types": [
+      "general"
+    ],
+    "contact_phone": "+233302664778",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 6,
+        "capacity": 40
+      }
+    ]
+  },
+  {
+    "name": "Shai Osudoku District Hospital",
+    "latitude": 5.883,
+    "longitude": 0.096,
+    "tier": "secondary",
+    "supported_bed_types": [
+      "general",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233303091234",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 9,
+        "capacity": 60
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 3,
+        "capacity": 20
+      }
+    ]
+  },
+  {
+    "name": "Tema General Hospital",
+    "latitude": 5.669,
+    "longitude": -0.017,
+    "tier": "secondary",
+    "supported_bed_types": [
+      "general",
+      "icu",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233303202103",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 23,
+        "capacity": 150
+      },
+      {
+        "bed_type": "icu",
+        "available": 2,
+        "capacity": 10
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 7,
+        "capacity": 45
+      }
+    ]
+  },
+  {
+    "name": "Tema Polyclinic",
+    "latitude": 5.679,
+    "longitude": -0.004,
+    "tier": "primary",
+    "supported_bed_types": [
+      "general",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233303202244",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 4,
+        "capacity": 24
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 2,
+        "capacity": 12
+      }
+    ]
+  },
+  {
+    "name": "University of Ghana Medical Centre",
+    "latitude": 5.6505,
+    "longitude": -0.1869,
+    "tier": "tertiary",
+    "supported_bed_types": [
+      "general",
+      "icu",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233302550000",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 30,
+        "capacity": 200
+      },
+      {
+        "bed_type": "icu",
+        "available": 3,
+        "capacity": 20
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 8,
+        "capacity": 50
+      }
+    ]
+  },
+  {
+    "name": "Ussher Polyclinic",
+    "latitude": 5.533,
+    "longitude": -0.211,
+    "tier": "primary",
+    "supported_bed_types": [
+      "general",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233302664321",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 4,
+        "capacity": 25
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 2,
+        "capacity": 12
+      }
+    ]
+  },
+  {
+    "name": "Weija-Gbawe Polyclinic",
+    "latitude": 5.556,
+    "longitude": -0.334,
+    "tier": "primary",
+    "supported_bed_types": [
+      "general",
+      "maternity_specialist"
+    ],
+    "contact_phone": "+233302851122",
+    "bed_counts": [
+      {
+        "bed_type": "general",
+        "available": 4,
+        "capacity": 26
+      },
+      {
+        "bed_type": "maternity_specialist",
+        "available": 2,
+        "capacity": 13
+      }
+    ]
+  }
+]

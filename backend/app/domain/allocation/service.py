@@ -89,6 +89,12 @@ class AllocationRequest:
     # The authenticated dispatcher, for live requests (NFR8). None for simulation-generated
     # requests, which have no human submitter.
     dispatcher_id: uuid.UUID | None = None
+    # Bypasses select_algorithm's urgency-based choice regardless of simulation_session_id —
+    # the scenario runner (app/scenario/) replays an identical case set against each of the
+    # three strategies in turn (docs/07 §7) and needs the same live ManualAdapter bed source
+    # every other request uses, not the isolated simulation_bed_state a SimulationSession
+    # would pull in. None (every existing call site) preserves select_algorithm exactly.
+    forced_algorithm: AlgorithmName | None = None
 
 
 @dataclass(frozen=True)
@@ -177,7 +183,9 @@ class AllocationService:
     async def evaluate(self, request: AllocationRequest) -> AllocationOutcome:
         """Run the pipeline and return the decision, WITHOUT reserving or persisting anything."""
         algorithm_config, bed_source = await self._resolve_context(request)
-        algorithm_name = select_algorithm(algorithm_config, request.urgency)
+        algorithm_name = request.forced_algorithm or select_algorithm(
+            algorithm_config, request.urgency
+        )
         urgency = request.urgency or DEFAULT_URGENCY_WHEN_MISSING
         radius = self._params.radius_minutes[urgency]
         weights = self._params.weight_for(algorithm_name, urgency)

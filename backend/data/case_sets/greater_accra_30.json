@@ -1,0 +1,242 @@
+[
+  {
+    "case_id": "C001",
+    "origin_lat": 5.556,
+    "origin_lon": -0.176,
+    "urgency": "critical",
+    "required_bed_type": "general",
+    "_note": "Osu (dense)"
+  },
+  {
+    "case_id": "C002",
+    "origin_lat": 5.704,
+    "origin_lon": -0.303,
+    "urgency": "critical",
+    "required_bed_type": "icu",
+    "_note": "Amasaman (admissible boundary, ~28 min)"
+  },
+  {
+    "case_id": "C003",
+    "origin_lat": 5.53,
+    "origin_lon": -0.42,
+    "urgency": "critical",
+    "required_bed_type": "icu",
+    "_note": "Kasoa fringe (peripheral, no admissible ICU candidate)"
+  },
+  {
+    "case_id": "C004",
+    "origin_lat": 5.7,
+    "origin_lon": 0.15,
+    "urgency": "critical",
+    "required_bed_type": "icu",
+    "_note": "Prampram (peripheral, no admissible ICU candidate)"
+  },
+  {
+    "case_id": "C005",
+    "origin_lat": 5.8,
+    "origin_lon": -0.35,
+    "urgency": "critical",
+    "required_bed_type": "icu",
+    "_note": "Nsawam road (peripheral, no admissible ICU candidate)"
+  },
+  {
+    "case_id": "C006",
+    "origin_lat": 5.79,
+    "origin_lon": 0.63,
+    "urgency": "critical",
+    "required_bed_type": "icu",
+    "_note": "Ada (far peripheral, no admissible ICU candidate)"
+  },
+  {
+    "case_id": "C007",
+    "origin_lat": 5.48,
+    "origin_lon": -0.5,
+    "urgency": "critical",
+    "required_bed_type": "icu",
+    "_note": "Kasoa deep (peripheral, no admissible ICU candidate)"
+  },
+  {
+    "case_id": "C008",
+    "origin_lat": 5.85,
+    "origin_lon": -0.2,
+    "urgency": "critical",
+    "required_bed_type": "icu",
+    "_note": "Aburi road (peripheral, no admissible ICU candidate)"
+  },
+  {
+    "case_id": "C009",
+    "origin_lat": 5.571,
+    "origin_lon": -0.204,
+    "urgency": "critical",
+    "required_bed_type": "maternity_specialist",
+    "_note": "Circle (dense)"
+  },
+  {
+    "case_id": "C010",
+    "origin_lat": 5.79,
+    "origin_lon": 0.63,
+    "urgency": "urgent",
+    "required_bed_type": "icu",
+    "_note": "Ada (far peripheral, no admissible ICU candidate)"
+  },
+  {
+    "case_id": "C011",
+    "origin_lat": 5.48,
+    "origin_lon": -0.5,
+    "urgency": "urgent",
+    "required_bed_type": "icu",
+    "_note": "Kasoa deep (peripheral, no admissible ICU candidate)"
+  },
+  {
+    "case_id": "C012",
+    "origin_lat": 5.683,
+    "origin_lon": -0.166,
+    "urgency": "urgent",
+    "required_bed_type": "general",
+    "_note": "Madina (dense)"
+  },
+  {
+    "case_id": "C013",
+    "origin_lat": 5.561,
+    "origin_lon": -0.212,
+    "urgency": "urgent",
+    "required_bed_type": "general",
+    "_note": "Adabraka (dense)"
+  },
+  {
+    "case_id": "C014",
+    "origin_lat": 5.669,
+    "origin_lon": -0.017,
+    "urgency": "urgent",
+    "required_bed_type": "general",
+    "_note": "Tema (dense cluster)"
+  },
+  {
+    "case_id": "C015",
+    "origin_lat": 5.615,
+    "origin_lon": -0.227,
+    "urgency": "urgent",
+    "required_bed_type": "maternity_specialist",
+    "_note": "Achimota (dense)"
+  },
+  {
+    "case_id": "C016",
+    "origin_lat": 5.543,
+    "origin_lon": -0.263,
+    "urgency": "urgent",
+    "required_bed_type": "maternity_specialist",
+    "_note": "Dansoman"
+  },
+  {
+    "case_id": "C017",
+    "origin_lat": 5.689,
+    "origin_lon": -0.034,
+    "urgency": "urgent",
+    "required_bed_type": "general",
+    "_note": "Ashaiman"
+  },
+  {
+    "case_id": "C018",
+    "origin_lat": 5.5589,
+    "origin_lon": -0.162,
+    "urgency": "urgent",
+    "required_bed_type": "maternity_specialist",
+    "_note": "La General area"
+  },
+  {
+    "case_id": "C019",
+    "origin_lat": 5.565,
+    "origin_lon": -0.236,
+    "urgency": "urgent",
+    "required_bed_type": "general",
+    "_note": "Kaneshie"
+  },
+  {
+    "case_id": "C020",
+    "origin_lat": 5.679,
+    "origin_lon": -0.004,
+    "urgency": "urgent",
+    "required_bed_type": "maternity_specialist",
+    "_note": "Tema Polyclinic area"
+  },
+  {
+    "case_id": "C021",
+    "origin_lat": 5.556,
+    "origin_lon": -0.334,
+    "urgency": "standard",
+    "required_bed_type": "general",
+    "_note": "Weija"
+  },
+  {
+    "case_id": "C022",
+    "origin_lat": 5.53,
+    "origin_lon": -0.42,
+    "urgency": "standard",
+    "required_bed_type": "maternity_specialist",
+    "_note": "Kasoa fringe"
+  },
+  {
+    "case_id": "C023",
+    "origin_lat": 5.704,
+    "origin_lon": -0.303,
+    "urgency": "standard",
+    "required_bed_type": "general",
+    "_note": "Amasaman"
+  },
+  {
+    "case_id": "C024",
+    "origin_lat": 5.883,
+    "origin_lon": 0.096,
+    "urgency": "standard",
+    "required_bed_type": "maternity_specialist",
+    "_note": "Shai Osudoku area"
+  },
+  {
+    "case_id": "C025",
+    "origin_lat": 5.7,
+    "origin_lon": 0.15,
+    "urgency": "standard",
+    "required_bed_type": "general",
+    "_note": "Prampram"
+  },
+  {
+    "case_id": "C026",
+    "origin_lat": 5.714,
+    "origin_lon": -0.166,
+    "urgency": "standard",
+    "required_bed_type": "icu",
+    "_note": "Pantang area (standard radius reaches the central ICU cluster)"
+  },
+  {
+    "case_id": "C027",
+    "origin_lat": 5.683,
+    "origin_lon": -0.166,
+    "urgency": "standard",
+    "required_bed_type": "general",
+    "_note": "Madina"
+  },
+  {
+    "case_id": "C028",
+    "origin_lat": 5.533,
+    "origin_lon": -0.211,
+    "urgency": "standard",
+    "required_bed_type": "maternity_specialist",
+    "_note": "Ussher"
+  },
+  {
+    "case_id": "C029",
+    "origin_lat": 5.538,
+    "origin_lon": -0.236,
+    "urgency": "standard",
+    "required_bed_type": "general",
+    "_note": "Mamprobi"
+  },
+  {
+    "case_id": "C030",
+    "origin_lat": 5.79,
+    "origin_lon": 0.63,
+    "urgency": "standard",
+    "required_bed_type": "icu",
+    "_note": "Ada (far peripheral, no admissible ICU candidate even at the standard radius)"
+  }
+]

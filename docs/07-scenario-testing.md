@@ -1,6 +1,8 @@
 # 07 — Scenario Testing
 
-> Source of truth: thesis §3.8. **This document replaces the previous `07-simulation.md`.** Discrete-event simulation with stochastic arrivals, a virtual clock, length-of-stay sampling and a 270-run grid is **no longer part of this project**. Do not build it.
+> Source of truth: thesis §3.8. **This document replaces the previous `07-simulation.md`.** Discrete-event simulation with stochastic arrivals, a virtual clock, length-of-sampling and a 270-run grid is **not the reported evaluation methodology** — do not build any *new* work on that basis. `app/scenario/` (this document) is the reported evaluation instrument; it replays a fixed, version-controlled case set against real facility data under depleting bed state, with no randomness anywhere (§3 below).
+>
+> The pre-existing discrete-event simulation code (`app/simulation/`, `app/analysis/`) was already built before this document superseded `07-simulation.md`. It was deliberately **not deleted** — 1,750 lines with a passing test suite, and removal this close to submission was judged unnecessary risk — but it is exploratory only: no figure in the thesis results is sourced from it, and its own package docstrings say so. If you are looking for the code that produced a reported result, it is under `app/scenario/`, never `app/simulation/` or `app/analysis/`.
 
 ## 1. Why scenario testing rather than simulation
 
