@@ -37,7 +37,12 @@ from app.db.models.facility import Facility
 from app.db.session import get_engine, get_sessionmaker
 from app.domain.allocation.candidate import ScoredCandidate
 from app.domain.allocation.scoring import rank_by_score
-from app.domain.allocation.service import AllocationOutcome, AllocationRequest, AllocationService
+from app.domain.allocation.service import (
+    AllocationOutcome,
+    AllocationRequest,
+    AllocationService,
+    FacilityBrief,
+)
 from app.domain.allocation.study_parameters import StudyParameters
 from app.domain.beds.manual_adapter import ManualAdapter
 from app.domain.notify.log_gateway import LogGateway
@@ -208,6 +213,18 @@ class CandidateTrace:
 
 
 @dataclass(frozen=True)
+class FallbackTrace:
+    """One escalation fallback facility (docs/04 §4's ``FacilityBrief``, docs/01 §7 FR11):
+    either the nearest facility still within the urgency radius (but with no available bed
+    of the requested type), or the nearest facility with an available bed outside it."""
+
+    facility_id: str
+    facility_name: str
+    travel_time_minutes: float
+    available_beds: int
+
+
+@dataclass(frozen=True)
 class CaseRun:
     """Everything one case's replay produced: the raw material for both the thesis Table
     3.10 measures (docs/07 §6) and the full per-case decision trace (docs/07 §7).
@@ -223,6 +240,22 @@ class CaseRun:
     selected_travel_time_minutes: float | None
     selected_capability_match: float | None
     attempts: int
+    # Populated only on an escalation (docs/04 §4) — the two named fallbacks FR11 reports
+    # to the dispatcher. Both None on a placed case, and both None on an escalation where
+    # no facility of any kind supports the requested bed type at all.
+    nearest_within_radius: FallbackTrace | None = None
+    nearest_available_outside_radius: FallbackTrace | None = None
+
+
+def _to_fallback_trace(brief: FacilityBrief | None) -> FallbackTrace | None:
+    if brief is None:
+        return None
+    return FallbackTrace(
+        facility_id=str(brief.facility_id),
+        facility_name=brief.name,
+        travel_time_minutes=brief.travel_time_minutes,
+        available_beds=brief.available_beds,
+    )
 
 
 def _to_case_run(case: Case, outcome: AllocationOutcome) -> CaseRun:
@@ -256,6 +289,10 @@ def _to_case_run(case: Case, outcome: AllocationOutcome) -> CaseRun:
             recommended.capability_match if allocated and recommended else None
         ),
         attempts=outcome.attempts,
+        nearest_within_radius=_to_fallback_trace(outcome.nearest_within_radius),
+        nearest_available_outside_radius=_to_fallback_trace(
+            outcome.nearest_available_outside_radius
+        ),
     )
 
 

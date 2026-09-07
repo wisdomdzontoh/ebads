@@ -95,6 +95,11 @@ class AllocationRequest:
     # every other request uses, not the isolated simulation_bed_state a SimulationSession
     # would pull in. None (every existing call site) preserves select_algorithm exactly.
     forced_algorithm: AlgorithmName | None = None
+    # Facilities to drop from the candidate set before scoring (FR24-27): re-allocation
+    # (domain/reservation/lifecycle.py::reallocate) excludes the facility that just revoked
+    # the original reservation, so the engine can never send the vehicle right back to the
+    # bed that was withdrawn. Empty for every other call site.
+    excluded_facility_ids: frozenset[uuid.UUID] = frozenset()
 
 
 @dataclass(frozen=True)
@@ -195,6 +200,7 @@ class AllocationService:
         # only query in this method that must scale with registry size, since this is the
         # common case (an admissible facility is usually nearby).
         nearby = await self._spatial_retrieve(origin, radius, request.required_bed_type)
+        nearby = self._excluding(nearby, request.excluded_facility_ids)
         facility_by_id = {str(f.id): f for f in nearby}
         candidates = await self._build_candidates(request, nearby, bed_source)
 
@@ -208,6 +214,7 @@ class AllocationService:
             # available outside radius" fallback (FR11), so this path alone accepts an
             # unbounded fetch. NFR2/S3 target the common path above, not this one.
             all_facilities = await self._facilities_supporting(request.required_bed_type)
+            all_facilities = self._excluding(all_facilities, request.excluded_facility_ids)
             all_candidates = await self._build_candidates(request, all_facilities, bed_source)
             facility_by_id = {str(f.id): f for f in all_facilities}
             return self._escalation_outcome(
@@ -466,6 +473,15 @@ class AllocationService:
         """
         query = select(Facility).where(Facility.supported_bed_types.contains([bed_type]))
         return list((await self._session.scalars(query)).all())
+
+    @staticmethod
+    def _excluding(
+        facilities: Sequence[Facility], excluded_ids: frozenset[uuid.UUID]
+    ) -> list[Facility]:
+        """Drop excluded facilities before candidates are built (FR24-27 re-allocation)."""
+        if not excluded_ids:
+            return list(facilities)
+        return [f for f in facilities if f.id not in excluded_ids]
 
     @staticmethod
     def spatial_retrieve_query(

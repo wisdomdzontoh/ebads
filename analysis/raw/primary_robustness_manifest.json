@@ -1,0 +1,69 @@
+{
+  "case_count": 30,
+  "case_set_sha256": "9ee2dc02de568ab1a3d350812868be010d51a967444c20c8985e0d62057c9888",
+  "code_commit": "c3ff1ed7a47ad057722956b1828aee82802de92f",
+  "parameters": {
+    "capability_matrix": {
+      "critical": {
+        "primary": 0.2,
+        "secondary": 0.6,
+        "tertiary": 1.0
+      },
+      "standard": {
+        "primary": 1.0,
+        "secondary": 0.8,
+        "tertiary": 0.5
+      },
+      "urgent": {
+        "primary": 0.5,
+        "secondary": 1.0,
+        "tertiary": 0.8
+      }
+    },
+    "radius_minutes": {
+      "critical": 30,
+      "standard": 90,
+      "urgent": 60
+    },
+    "robustness_weights_urgency_adaptive": {
+      "critical": {
+        "w_b": 0.2,
+        "w_c": 0.4,
+        "w_t": 0.4
+      },
+      "standard": {
+        "w_b": 0.4,
+        "w_c": 0.3,
+        "w_t": 0.3
+      },
+      "urgent": {
+        "w_b": 0.3,
+        "w_c": 0.35,
+        "w_t": 0.35
+      }
+    },
+    "weights_urgency_adaptive": {
+      "critical": {
+        "w_b": 0.1,
+        "w_c": 0.4,
+        "w_t": 0.5
+      },
+      "standard": {
+        "w_b": 0.5,
+        "w_c": 0.25,
+        "w_t": 0.25
+      },
+      "urgent": {
+        "w_b": 0.25,
+        "w_c": 0.35,
+        "w_t": 0.4
+      }
+    },
+    "weights_weighted": {
+      "w_b": 0.3,
+      "w_c": 0.3,
+      "w_t": 0.4
+    }
+  },
+  "starting_state_sha256": "feaba59414efd3d6dacf699527adab2b64a1da3374a31d0a33d87f1ab5ecd916"
+}

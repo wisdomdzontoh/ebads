@@ -117,6 +117,10 @@ class AllocationAuditRead(BaseModel):
     candidates_evaluated: int
     attempts: int
     status: AllocationStatus
+    # Set on the allocation POST .../reallocate creates — the one it replaced (FR24-27).
+    # Traversing this chain across successive reallocations recovers the full redirect
+    # history for one incident, allocation by allocation.
+    supersedes_allocation_id: uuid.UUID | None
 
 
 class ReservationRead(BaseModel):
@@ -134,3 +138,17 @@ class ReservationRead(BaseModel):
 
 class RefuseRequest(BaseModel):
     reason: str = Field(min_length=1)
+
+
+class RevokeRequest(BaseModel):
+    """Body of ``POST /allocations/{id}/revoke`` (FR24-27)."""
+
+    reason: str = Field(min_length=1)
+
+
+class ReallocateRequest(BaseModel):
+    """Body of ``POST /allocations/{id}/reallocate`` (FR24-27) — the dispatcher's current
+    position, not the original incident location (docs/01 §7)."""
+
+    current_lat: float = Field(ge=_LAT_MIN, le=_LAT_MAX)
+    current_lon: float = Field(ge=_LON_MIN, le=_LON_MAX)

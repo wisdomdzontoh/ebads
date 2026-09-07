@@ -159,6 +159,11 @@ class AllocationStatus(StrEnum):
     EXPIRED = "expired"
     REFUSED = "refused"
     ESCALATED = "escalated"
+    # The facility withdrew the reservation before arrival (FR24-27) — distinct from
+    # REFUSED (declined at or after arrival, docs/01 §7). Only REVOKED triggers
+    # re-allocation; a facility revoking a reservation is not the same event as one it
+    # never should have been offered in the first place.
+    REVOKED = "revoked"
 
 
 class NotificationChannel(StrEnum):

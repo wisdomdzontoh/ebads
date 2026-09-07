@@ -24,9 +24,11 @@ from app.api.schemas.allocation import (
     AllocationResponse,
     EscalatedResponse,
     FacilityBrief,
+    ReallocateRequest,
     RecommendedFacility,
     RefuseRequest,
     ReservationRead,
+    RevokeRequest,
 )
 from app.config import get_settings
 from app.db.models.allocation import Allocation
@@ -43,6 +45,8 @@ from app.domain.allocation.service import (
     FacilityBrief as DomainFacilityBrief,
 )
 from app.domain.beds.manual_adapter import ManualAdapter
+from app.domain.notify.log_gateway import LogGateway
+from app.domain.notify.log_push_gateway import LogPushGateway
 from app.domain.reservation import lifecycle
 from app.domain.travel.base import TravelTimeService
 from app.domain.travel.live import LiveTravelTimeService
@@ -165,6 +169,7 @@ def _to_audit_read(allocation: Allocation) -> AllocationAuditRead:
         candidates_evaluated=allocation.candidates_evaluated,
         attempts=allocation.attempts,
         status=allocation.status,
+        supersedes_allocation_id=allocation.supersedes_allocation_id,
     )
 
 
@@ -297,3 +302,61 @@ async def refuse_allocation(
         raise HTTPException(status.HTTP_404_NOT_FOUND, "no reservation on this allocation") from exc
     await session.refresh(updated, attribute_names=["request"])
     return _to_audit_read(updated)
+
+
+@router.post("/{allocation_id}/revoke", response_model=AllocationAuditRead)
+async def revoke_allocation(
+    allocation_id: uuid.UUID,
+    payload: RevokeRequest,
+    session: SessionDep,
+    actor: FacilityStaffDep,
+) -> AllocationAuditRead:
+    """FR24-27: the facility withdraws the reservation before arrival — releases the held
+    bed and notifies the dispatcher on two channels so they can request a new placement."""
+    await _load_for_facility_actor(session, allocation_id, actor)
+    try:
+        updated = await lifecycle.revoke(
+            session,
+            allocation_id,
+            payload.reason,
+            actor.id,
+            ManualAdapter(session),
+            LogGateway(),
+            LogPushGateway(),
+        )
+    except lifecycle.AllocationAlreadyArrivedError as exc:
+        raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
+    except lifecycle.AllocationNotConfirmedError as exc:
+        raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
+    except lifecycle.ReservationNotFoundError as exc:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "no reservation on this allocation") from exc
+    await session.refresh(updated, attribute_names=["request"])
+    return _to_audit_read(updated)
+
+
+@router.post("/{allocation_id}/reallocate", response_model=AllocationResponse)
+async def reallocate_allocation(
+    allocation_id: uuid.UUID,
+    payload: ReallocateRequest,
+    service: ServiceDep,
+    session: SessionDep,
+    actor: DispatcherDep,
+) -> AllocatedResponse | EscalatedResponse:
+    """FR24-27: re-run the allocation engine from the dispatcher's current position, after
+    the original reservation was revoked or the original request escalated. Same engine,
+    a different origin — the revoking facility (if any) is excluded from the new candidates.
+    """
+    original = await _get_own_allocation(session, allocation_id, actor.id)
+    if original is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="allocation not found")
+    try:
+        outcome = await lifecycle.reallocate(
+            session, allocation_id, payload.current_lat, payload.current_lon, actor.id, service
+        )
+    except lifecycle.AllocationNotReallocatableError as exc:
+        raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
+    except SimulationSessionNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="simulation session not found"
+        ) from exc
+    return _to_response(outcome)

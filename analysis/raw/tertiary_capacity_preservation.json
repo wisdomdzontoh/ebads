@@ -1,0 +1,23 @@
+{
+  "greedy": {
+    "case_ids": [
+      "C026"
+    ],
+    "non_critical_icu_case_count": 4,
+    "placed_at_tertiary_icu": 1
+  },
+  "urgency_adaptive": {
+    "case_ids": [
+      "C026"
+    ],
+    "non_critical_icu_case_count": 4,
+    "placed_at_tertiary_icu": 1
+  },
+  "weighted": {
+    "case_ids": [
+      "C026"
+    ],
+    "non_critical_icu_case_count": 4,
+    "placed_at_tertiary_icu": 1
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "algorithm": "urgency_adaptive",
+  "cases": [
+    {
+      "attempts": 1,
+      "case_id": "C001",
+      "reserved_facility_name": "Greater Accra Regional Hospital (Ridge)"
+    },
+    {
+      "attempts": 1,
+      "case_id": "C002",
+      "reserved_facility_name": "University of Ghana Medical Centre"
+    },
+    {
+      "attempts": 0,
+      "case_id": "C003",
+      "reserved_facility_name": null
+    },
+    {
+      "attempts": 0,
+      "case_id": "C004",
+      "reserved_facility_name": null
+    },
+    {
+      "attempts": 0,
+      "case_id": "C005",
+      "reserved_facility_name": null
+    },
+    {
+      "attempts": 0,
+      "case_id": "C006",
+      "reserved_facility_name": null
+    },
+    {
+      "attempts": 0,
+      "case_id": "C007",
+      "reserved_facility_name": null
+    },
+    {
+      "attempts": 0,
+      "case_id": "C008",
+      "reserved_facility_name": null
+    },
+    {
+      "attempts": 1,
+      "case_id": "C009",
+      "reserved_facility_name": "Greater Accra Regional Hospital (Ridge)"
+    },
+    {
+      "attempts": 0,
+      "case_id": "C010",
+      "reserved_facility_name": null
+    },
+    {
+      "attempts": 0,
+      "case_id": "C011",
+      "reserved_facility_name": null
+    },
+    {
+      "attempts": 1,
+      "case_id": "C012",
+      "reserved_facility_name": "University of Ghana Medical Centre"
+    },
+    {
+      "attempts": 1,
+      "case_id": "C013",
+      "reserved_facility_name": "Korle Bu Teaching Hospital"
+    },
+    {
+      "attempts": 1,
+      "case_id": "C014",
+      "reserved_facility_name": "Tema General Hospital"
+    },
+    {
+      "attempts": 1,
+      "case_id": "C015",
+      "reserved_facility_name": "Achimota Hospital"
+    },
+    {
+      "attempts": 1,
+      "case_id": "C016",
+      "reserved_facility_name": "Korle Bu Teaching Hospital"
+    },
+    {
+      "attempts": 2,
+      "case_id": "C017",
+      "reserved_facility_name": "Ashaiman Municipal Hospital"
+    },
+    {
+      "attempts": 1,
+      "case_id": "C018",
+      "reserved_facility_name": "La General Hospital"
+    },
+    {
+      "attempts": 2,
+      "case_id": "C019",
+      "reserved_facility_name": "37 Military Hospital"
+    },
+    {
+      "attempts": 1,
+      "case_id": "C020",
+      "reserved_facility_name": "Tema General Hospital"
+    },
+    {
+      "attempts": 5,
+      "case_id": "C021",
+      "reserved_facility_name": "Weija-Gbawe Polyclinic"
+    },
+    {
+      "attempts": 3,
+      "case_id": "C022",
+      "reserved_facility_name": "37 Military Hospital"
+    },
+    {
+      "attempts": 4,
+      "case_id": "C023",
+      "reserved_facility_name": "Amasaman Hospital"
+    },
+    {
+      "attempts": 2,
+      "case_id": "C024",
+      "reserved_facility_name": "University of Ghana Medical Centre"
+    },
+    {
+      "attempts": 5,
+      "case_id": "C025",
+      "reserved_facility_name": "Tema Polyclinic"
+    },
+    {
+      "attempts": 1,
+      "case_id": "C026",
+      "reserved_facility_name": "37 Military Hospital"
+    },
+    {
+      "attempts": 6,
+      "case_id": "C027",
+      "reserved_facility_name": "Ga East Municipal Hospital"
+    },
+    {
+      "attempts": 6,
+      "case_id": "C028",
+      "reserved_facility_name": "Ussher Polyclinic"
+    },
+    {
+      "attempts": 5,
+      "case_id": "C029",
+      "reserved_facility_name": "La General Hospital"
+    },
+    {
+      "attempts": 0,
+      "case_id": "C030",
+      "reserved_facility_name": null
+    }
+  ],
+  "double_bookings": 0
+}

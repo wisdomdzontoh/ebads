@@ -1,0 +1,982 @@
+[
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "overall",
+    "measure": "case_count",
+    "value": "30"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "overall",
+    "measure": "placement_success",
+    "value": "0.7"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "overall",
+    "measure": "escalation_rate",
+    "value": "0.3"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "overall",
+    "measure": "mean_facility_attempts",
+    "value": "0.7"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "overall",
+    "measure": "mean_travel_time_minutes",
+    "value": "4.896586908961713"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "overall",
+    "measure": "mean_capability_match",
+    "value": "0.819047619047619"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "overall",
+    "measure": "critical_at_tertiary_rate",
+    "value": "0.2222222222222222"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "critical",
+    "measure": "case_count",
+    "value": "9"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "critical",
+    "measure": "placement_success",
+    "value": "0.3333333333333333"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "critical",
+    "measure": "escalation_rate",
+    "value": "0.6666666666666666"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "critical",
+    "measure": "mean_facility_attempts",
+    "value": "0.3333333333333333"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "critical",
+    "measure": "mean_travel_time_minutes",
+    "value": "11.225218654506797"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "critical",
+    "measure": "mean_capability_match",
+    "value": "0.8666666666666667"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "critical",
+    "measure": "critical_at_tertiary_rate",
+    "value": "0.2222222222222222"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "urgent",
+    "measure": "case_count",
+    "value": "11"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "urgent",
+    "measure": "placement_success",
+    "value": "0.8181818181818182"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "urgent",
+    "measure": "escalation_rate",
+    "value": "0.18181818181818182"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "urgent",
+    "measure": "mean_facility_attempts",
+    "value": "0.8181818181818182"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "urgent",
+    "measure": "mean_travel_time_minutes",
+    "value": "0.0"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "urgent",
+    "measure": "mean_capability_match",
+    "value": "0.7222222222222222"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "urgent",
+    "measure": "critical_at_tertiary_rate",
+    "value": ""
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "standard",
+    "measure": "case_count",
+    "value": "10"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "standard",
+    "measure": "placement_success",
+    "value": "0.9"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "standard",
+    "measure": "escalation_rate",
+    "value": "0.1"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "standard",
+    "measure": "mean_facility_attempts",
+    "value": "0.9"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "standard",
+    "measure": "mean_travel_time_minutes",
+    "value": "7.683629902741732"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "standard",
+    "measure": "mean_capability_match",
+    "value": "0.8999999999999999"
+  },
+  {
+    "run": "primary",
+    "strategy": "greedy",
+    "urgency_tier": "standard",
+    "measure": "critical_at_tertiary_rate",
+    "value": ""
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "overall",
+    "measure": "case_count",
+    "value": "30"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "overall",
+    "measure": "placement_success",
+    "value": "0.7"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "overall",
+    "measure": "escalation_rate",
+    "value": "0.3"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "overall",
+    "measure": "mean_facility_attempts",
+    "value": "0.7"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "overall",
+    "measure": "mean_travel_time_minutes",
+    "value": "9.703960735294487"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "overall",
+    "measure": "mean_capability_match",
+    "value": "0.819047619047619"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "overall",
+    "measure": "critical_at_tertiary_rate",
+    "value": "0.3333333333333333"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "critical",
+    "measure": "case_count",
+    "value": "9"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "critical",
+    "measure": "placement_success",
+    "value": "0.3333333333333333"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "critical",
+    "measure": "escalation_rate",
+    "value": "0.6666666666666666"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "critical",
+    "measure": "mean_facility_attempts",
+    "value": "0.3333333333333333"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "critical",
+    "measure": "mean_travel_time_minutes",
+    "value": "12.331645426740415"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "critical",
+    "measure": "mean_capability_match",
+    "value": "1.0"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "critical",
+    "measure": "critical_at_tertiary_rate",
+    "value": "0.3333333333333333"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "urgent",
+    "measure": "case_count",
+    "value": "11"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "urgent",
+    "measure": "placement_success",
+    "value": "0.8181818181818182"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "urgent",
+    "measure": "escalation_rate",
+    "value": "0.18181818181818182"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "urgent",
+    "measure": "mean_facility_attempts",
+    "value": "0.8181818181818182"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "urgent",
+    "measure": "mean_travel_time_minutes",
+    "value": "7.168767649941161"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "urgent",
+    "measure": "mean_capability_match",
+    "value": "0.8666666666666667"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "urgent",
+    "measure": "critical_at_tertiary_rate",
+    "value": ""
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "standard",
+    "measure": "case_count",
+    "value": "10"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "standard",
+    "measure": "placement_success",
+    "value": "0.9"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "standard",
+    "measure": "escalation_rate",
+    "value": "0.1"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "standard",
+    "measure": "mean_facility_attempts",
+    "value": "0.9"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "standard",
+    "measure": "mean_travel_time_minutes",
+    "value": "11.363258923499169"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "standard",
+    "measure": "mean_capability_match",
+    "value": "0.7111111111111111"
+  },
+  {
+    "run": "primary",
+    "strategy": "weighted",
+    "urgency_tier": "standard",
+    "measure": "critical_at_tertiary_rate",
+    "value": ""
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "overall",
+    "measure": "case_count",
+    "value": "30"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "overall",
+    "measure": "placement_success",
+    "value": "0.7"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "overall",
+    "measure": "escalation_rate",
+    "value": "0.3"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "overall",
+    "measure": "mean_facility_attempts",
+    "value": "0.7"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "overall",
+    "measure": "mean_travel_time_minutes",
+    "value": "19.703212919624757"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "overall",
+    "measure": "mean_capability_match",
+    "value": "0.7476190476190476"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "overall",
+    "measure": "critical_at_tertiary_rate",
+    "value": "0.3333333333333333"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "critical",
+    "measure": "case_count",
+    "value": "9"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "critical",
+    "measure": "placement_success",
+    "value": "0.3333333333333333"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "critical",
+    "measure": "escalation_rate",
+    "value": "0.6666666666666666"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "critical",
+    "measure": "mean_facility_attempts",
+    "value": "0.3333333333333333"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "critical",
+    "measure": "mean_travel_time_minutes",
+    "value": "11.824952958372878"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "critical",
+    "measure": "mean_capability_match",
+    "value": "1.0"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "critical",
+    "measure": "critical_at_tertiary_rate",
+    "value": "0.3333333333333333"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "urgent",
+    "measure": "case_count",
+    "value": "11"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "urgent",
+    "measure": "placement_success",
+    "value": "0.8181818181818182"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "urgent",
+    "measure": "escalation_rate",
+    "value": "0.18181818181818182"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "urgent",
+    "measure": "mean_facility_attempts",
+    "value": "0.8181818181818182"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "urgent",
+    "measure": "mean_travel_time_minutes",
+    "value": "4.364297207200217"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "urgent",
+    "measure": "mean_capability_match",
+    "value": "0.911111111111111"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "urgent",
+    "measure": "critical_at_tertiary_rate",
+    "value": ""
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "standard",
+    "measure": "case_count",
+    "value": "10"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "standard",
+    "measure": "placement_success",
+    "value": "0.9"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "standard",
+    "measure": "escalation_rate",
+    "value": "0.1"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "standard",
+    "measure": "mean_facility_attempts",
+    "value": "0.9"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "standard",
+    "measure": "mean_travel_time_minutes",
+    "value": "37.668215285799924"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "standard",
+    "measure": "mean_capability_match",
+    "value": "0.5"
+  },
+  {
+    "run": "primary",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "standard",
+    "measure": "critical_at_tertiary_rate",
+    "value": ""
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "overall",
+    "measure": "case_count",
+    "value": "30"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "overall",
+    "measure": "placement_success",
+    "value": "0.7"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "overall",
+    "measure": "escalation_rate",
+    "value": "0.3"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "overall",
+    "measure": "mean_facility_attempts",
+    "value": "0.7"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "overall",
+    "measure": "mean_travel_time_minutes",
+    "value": "9.703960735294487"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "overall",
+    "measure": "mean_capability_match",
+    "value": "0.819047619047619"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "overall",
+    "measure": "critical_at_tertiary_rate",
+    "value": "0.3333333333333333"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "critical",
+    "measure": "case_count",
+    "value": "9"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "critical",
+    "measure": "placement_success",
+    "value": "0.3333333333333333"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "critical",
+    "measure": "escalation_rate",
+    "value": "0.6666666666666666"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "critical",
+    "measure": "mean_facility_attempts",
+    "value": "0.3333333333333333"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "critical",
+    "measure": "mean_travel_time_minutes",
+    "value": "12.331645426740415"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "critical",
+    "measure": "mean_capability_match",
+    "value": "1.0"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "critical",
+    "measure": "critical_at_tertiary_rate",
+    "value": "0.3333333333333333"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "urgent",
+    "measure": "case_count",
+    "value": "11"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "urgent",
+    "measure": "placement_success",
+    "value": "0.8181818181818182"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "urgent",
+    "measure": "escalation_rate",
+    "value": "0.18181818181818182"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "urgent",
+    "measure": "mean_facility_attempts",
+    "value": "0.8181818181818182"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "urgent",
+    "measure": "mean_travel_time_minutes",
+    "value": "7.168767649941161"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "urgent",
+    "measure": "mean_capability_match",
+    "value": "0.8666666666666667"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "urgent",
+    "measure": "critical_at_tertiary_rate",
+    "value": ""
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "standard",
+    "measure": "case_count",
+    "value": "10"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "standard",
+    "measure": "placement_success",
+    "value": "0.9"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "standard",
+    "measure": "escalation_rate",
+    "value": "0.1"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "standard",
+    "measure": "mean_facility_attempts",
+    "value": "0.9"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "standard",
+    "measure": "mean_travel_time_minutes",
+    "value": "11.363258923499169"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "standard",
+    "measure": "mean_capability_match",
+    "value": "0.7111111111111111"
+  },
+  {
+    "run": "robustness",
+    "strategy": "weighted",
+    "urgency_tier": "standard",
+    "measure": "critical_at_tertiary_rate",
+    "value": ""
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "overall",
+    "measure": "case_count",
+    "value": "30"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "overall",
+    "measure": "placement_success",
+    "value": "0.7"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "overall",
+    "measure": "escalation_rate",
+    "value": "0.3"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "overall",
+    "measure": "mean_facility_attempts",
+    "value": "0.7"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "overall",
+    "measure": "mean_travel_time_minutes",
+    "value": "17.102146192846856"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "overall",
+    "measure": "mean_capability_match",
+    "value": "0.7571428571428571"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "overall",
+    "measure": "critical_at_tertiary_rate",
+    "value": "0.3333333333333333"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "critical",
+    "measure": "case_count",
+    "value": "9"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "critical",
+    "measure": "placement_success",
+    "value": "0.3333333333333333"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "critical",
+    "measure": "escalation_rate",
+    "value": "0.6666666666666666"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "critical",
+    "measure": "mean_facility_attempts",
+    "value": "0.3333333333333333"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "critical",
+    "measure": "mean_travel_time_minutes",
+    "value": "12.331645426740415"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "critical",
+    "measure": "mean_capability_match",
+    "value": "1.0"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "critical",
+    "measure": "critical_at_tertiary_rate",
+    "value": "0.3333333333333333"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "urgent",
+    "measure": "case_count",
+    "value": "11"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "urgent",
+    "measure": "placement_success",
+    "value": "0.8181818181818182"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "urgent",
+    "measure": "escalation_rate",
+    "value": "0.18181818181818182"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "urgent",
+    "measure": "mean_facility_attempts",
+    "value": "0.8181818181818182"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "urgent",
+    "measure": "mean_travel_time_minutes",
+    "value": "7.168767649941161"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "urgent",
+    "measure": "mean_capability_match",
+    "value": "0.8666666666666667"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "urgent",
+    "measure": "critical_at_tertiary_rate",
+    "value": ""
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "standard",
+    "measure": "case_count",
+    "value": "10"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "standard",
+    "measure": "placement_success",
+    "value": "0.9"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "standard",
+    "measure": "escalation_rate",
+    "value": "0.1"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "standard",
+    "measure": "mean_facility_attempts",
+    "value": "0.9"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "standard",
+    "measure": "mean_travel_time_minutes",
+    "value": "28.62569165778804"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "standard",
+    "measure": "mean_capability_match",
+    "value": "0.5666666666666667"
+  },
+  {
+    "run": "robustness",
+    "strategy": "urgency_adaptive",
+    "urgency_tier": "standard",
+    "measure": "critical_at_tertiary_rate",
+    "value": ""
+  }
+]

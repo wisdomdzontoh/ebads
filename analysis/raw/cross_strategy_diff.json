@@ -1,0 +1,614 @@
+[
+  {
+    "by_strategy": {
+      "greedy": {
+        "b_hat": 0.3,
+        "c_hat": 0.6,
+        "facility_id": "7d201ef1-2e9c-5c18-9d6c-51dcc68f15ac",
+        "score": 3.165228234000996,
+        "t_hat": 0.0,
+        "tier": "secondary",
+        "travel_time_min": 3.165228234000996
+      },
+      "urgency_adaptive": {
+        "b_hat": 0.7,
+        "c_hat": 1.0,
+        "facility_id": "a4740b4b-b8a4-54ef-baf1-0851df762036",
+        "score": 0.06574825552968117,
+        "t_hat": 0.0714965110593623,
+        "tier": "tertiary",
+        "travel_time_min": 4.96443114559924
+      },
+      "weighted": {
+        "b_hat": 0.84,
+        "c_hat": 1.0,
+        "facility_id": "3c22fb9f-843c-5d6c-b030-e2cc15a2eedf",
+        "score": 0.10076046639149028,
+        "t_hat": 0.13190116597872564,
+        "tier": "tertiary",
+        "travel_time_min": 6.484508550701852
+      }
+    },
+    "case_id": "C001",
+    "required_bed_type": "general",
+    "urgency": "critical"
+  },
+  {
+    "by_strategy": {
+      "greedy": {
+        "b_hat": 0.02,
+        "c_hat": 0.5,
+        "facility_id": "1e82a55d-d1e2-5e47-9c3d-b3b193fe5a46",
+        "score": 0.0,
+        "t_hat": 0.0,
+        "tier": "primary",
+        "travel_time_min": 0.0
+      },
+      "urgency_adaptive": {
+        "b_hat": 0.54,
+        "c_hat": 0.8,
+        "facility_id": "b07c4d50-4cb9-5e4c-b972-f8ec2bf948f8",
+        "score": 0.2585099146273536,
+        "t_hat": 0.1837747865683841,
+        "tier": "tertiary",
+        "travel_time_min": 8.58092102446486
+      },
+      "weighted": {
+        "b_hat": 0.54,
+        "c_hat": 0.8,
+        "facility_id": "b07c4d50-4cb9-5e4c-b972-f8ec2bf948f8",
+        "score": 0.27150991462735363,
+        "t_hat": 0.1837747865683841,
+        "tier": "tertiary",
+        "travel_time_min": 8.58092102446486
+      }
+    },
+    "case_id": "C012",
+    "required_bed_type": "general",
+    "urgency": "urgent"
+  },
+  {
+    "by_strategy": {
+      "greedy": {
+        "b_hat": 0.0,
+        "c_hat": 0.5,
+        "facility_id": "576a3172-b7ac-577e-bb07-91c8058950b2",
+        "score": 0.0,
+        "t_hat": 0.0,
+        "tier": "primary",
+        "travel_time_min": 0.0
+      },
+      "urgency_adaptive": {
+        "b_hat": 1.0,
+        "c_hat": 0.8,
+        "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+        "score": 0.11725379665059657,
+        "t_hat": 0.11813449162649149,
+        "tier": "tertiary",
+        "travel_time_min": 6.259843339695763
+      },
+      "weighted": {
+        "b_hat": 1.0,
+        "c_hat": 0.8,
+        "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+        "score": 0.10725379665059659,
+        "t_hat": 0.11813449162649149,
+        "tier": "tertiary",
+        "travel_time_min": 6.259843339695763
+      }
+    },
+    "case_id": "C013",
+    "required_bed_type": "general",
+    "urgency": "urgent"
+  },
+  {
+    "by_strategy": {
+      "greedy": {
+        "b_hat": 0.25,
+        "c_hat": 1.0,
+        "facility_id": "1a267b18-6291-57c7-a5fa-e66d5cc47054",
+        "score": 0.0,
+        "t_hat": 0.0,
+        "tier": "secondary",
+        "travel_time_min": 0.0
+      },
+      "urgency_adaptive": {
+        "b_hat": 0.25,
+        "c_hat": 1.0,
+        "facility_id": "1a267b18-6291-57c7-a5fa-e66d5cc47054",
+        "score": 0.1875,
+        "t_hat": 0.0,
+        "tier": "secondary",
+        "travel_time_min": 0.0
+      },
+      "weighted": {
+        "b_hat": 1.0,
+        "c_hat": 0.8,
+        "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+        "score": 0.19578870760513417,
+        "t_hat": 0.33947176901283543,
+        "tier": "tertiary",
+        "travel_time_min": 17.436526524456458
+      }
+    },
+    "case_id": "C015",
+    "required_bed_type": "maternity_specialist",
+    "urgency": "urgent"
+  },
+  {
+    "by_strategy": {
+      "greedy": {
+        "b_hat": 0.0,
+        "c_hat": 0.5,
+        "facility_id": "66898450-5eb3-5ba8-a31a-17c365c2c7c3",
+        "score": 0.0,
+        "t_hat": 0.0,
+        "tier": "primary",
+        "travel_time_min": 0.0
+      },
+      "urgency_adaptive": {
+        "b_hat": 1.0,
+        "c_hat": 0.8,
+        "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+        "score": 0.14594219073773335,
+        "t_hat": 0.18985547684433343,
+        "tier": "tertiary",
+        "travel_time_min": 8.29095028189296
+      },
+      "weighted": {
+        "b_hat": 1.0,
+        "c_hat": 0.8,
+        "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+        "score": 0.13594219073773336,
+        "t_hat": 0.18985547684433343,
+        "tier": "tertiary",
+        "travel_time_min": 8.29095028189296
+      }
+    },
+    "case_id": "C016",
+    "required_bed_type": "maternity_specialist",
+    "urgency": "urgent"
+  },
+  {
+    "by_strategy": {
+      "greedy": {
+        "b_hat": 0.23529411764705882,
+        "c_hat": 1.0,
+        "facility_id": "c1d4b75f-9f3f-57f1-b9ca-9cc8f238ef8a",
+        "score": 0.0,
+        "t_hat": 0.0,
+        "tier": "secondary",
+        "travel_time_min": 0.0
+      },
+      "urgency_adaptive": {
+        "b_hat": 0.3877551020408163,
+        "c_hat": 1.0,
+        "facility_id": "87cb878e-3497-566d-ac6c-825beb40f7e9",
+        "score": 0.192144663695371,
+        "t_hat": 0.09770859801393772,
+        "tier": "secondary",
+        "travel_time_min": 5.825476529003695
+      },
+      "weighted": {
+        "b_hat": 0.3877551020408163,
+        "c_hat": 1.0,
+        "facility_id": "87cb878e-3497-566d-ac6c-825beb40f7e9",
+        "score": 0.2227569085933302,
+        "t_hat": 0.09770859801393772,
+        "tier": "secondary",
+        "travel_time_min": 5.825476529003695
+      }
+    },
+    "case_id": "C017",
+    "required_bed_type": "general",
+    "urgency": "urgent"
+  },
+  {
+    "by_strategy": {
+      "greedy": {
+        "b_hat": 0.38461538461538464,
+        "c_hat": 1.0,
+        "facility_id": "7d201ef1-2e9c-5c18-9d6c-51dcc68f15ac",
+        "score": 0.0,
+        "t_hat": 0.0,
+        "tier": "secondary",
+        "travel_time_min": 0.0
+      },
+      "urgency_adaptive": {
+        "b_hat": 0.36363636363636365,
+        "c_hat": 1.0,
+        "facility_id": "7d201ef1-2e9c-5c18-9d6c-51dcc68f15ac",
+        "score": 0.1590909090909091,
+        "t_hat": 0.0,
+        "tier": "secondary",
+        "travel_time_min": 0.0
+      },
+      "weighted": {
+        "b_hat": 0.9,
+        "c_hat": 0.8,
+        "facility_id": "3c22fb9f-843c-5d6c-b030-e2cc15a2eedf",
+        "score": 0.15953699616120248,
+        "t_hat": 0.17384249040300628,
+        "tier": "tertiary",
+        "travel_time_min": 7.803707460212039
+      }
+    },
+    "case_id": "C018",
+    "required_bed_type": "maternity_specialist",
+    "urgency": "urgent"
+  },
+  {
+    "by_strategy": {
+      "greedy": {
+        "b_hat": 0.0392156862745098,
+        "c_hat": 0.5,
+        "facility_id": "9cb71bf9-1e87-5484-ace8-a33ebb450d4d",
+        "score": 0.0,
+        "t_hat": 0.0,
+        "tier": "primary",
+        "travel_time_min": 0.0
+      },
+      "urgency_adaptive": {
+        "b_hat": 1.0,
+        "c_hat": 0.8,
+        "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+        "score": 0.11669741657179125,
+        "t_hat": 0.11674354142947817,
+        "tier": "tertiary",
+        "travel_time_min": 6.68523088836677
+      },
+      "weighted": {
+        "b_hat": 1.0,
+        "c_hat": 0.8,
+        "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+        "score": 0.10669741657179126,
+        "t_hat": 0.11674354142947817,
+        "tier": "tertiary",
+        "travel_time_min": 6.68523088836677
+      }
+    },
+    "case_id": "C019",
+    "required_bed_type": "general",
+    "urgency": "urgent"
+  },
+  {
+    "by_strategy": {
+      "greedy": {
+        "b_hat": 0.0,
+        "c_hat": 0.5,
+        "facility_id": "7e2f35f1-ff2f-5653-a521-5deb9545050d",
+        "score": 0.0,
+        "t_hat": 0.0,
+        "tier": "primary",
+        "travel_time_min": 0.0
+      },
+      "urgency_adaptive": {
+        "b_hat": 0.45454545454545453,
+        "c_hat": 1.0,
+        "facility_id": "87cb878e-3497-566d-ac6c-825beb40f7e9",
+        "score": 0.16123783828757615,
+        "t_hat": 0.062185504809849475,
+        "tier": "secondary",
+        "travel_time_min": 3.6362528013779016
+      },
+      "weighted": {
+        "b_hat": 0.5,
+        "c_hat": 1.0,
+        "facility_id": "87cb878e-3497-566d-ac6c-825beb40f7e9",
+        "score": 0.1748742019239398,
+        "t_hat": 0.062185504809849475,
+        "tier": "secondary",
+        "travel_time_min": 3.6362528013779016
+      }
+    },
+    "case_id": "C020",
+    "required_bed_type": "maternity_specialist",
+    "urgency": "urgent"
+  },
+  {
+    "by_strategy": {
+      "greedy": {
+        "b_hat": 0.0392156862745098,
+        "c_hat": 1.0,
+        "facility_id": "fde1a019-9163-5eb2-8e6a-cfcea67c76f2",
+        "score": 0.0,
+        "t_hat": 0.0,
+        "tier": "primary",
+        "travel_time_min": 0.0
+      },
+      "urgency_adaptive": {
+        "b_hat": 1.0,
+        "c_hat": 0.5,
+        "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+        "score": 0.20279814229742182,
+        "t_hat": 0.31119256918968724,
+        "tier": "tertiary",
+        "travel_time_min": 24.27010907561381
+      },
+      "weighted": {
+        "b_hat": 1.0,
+        "c_hat": 0.5,
+        "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+        "score": 0.2744770276758749,
+        "t_hat": 0.31119256918968724,
+        "tier": "tertiary",
+        "travel_time_min": 24.27010907561381
+      }
+    },
+    "case_id": "C021",
+    "required_bed_type": "general",
+    "urgency": "standard"
+  },
+  {
+    "by_strategy": {
+      "greedy": {
+        "b_hat": 0.07692307692307693,
+        "c_hat": 1.0,
+        "facility_id": "fde1a019-9163-5eb2-8e6a-cfcea67c76f2",
+        "score": 19.894902420218536,
+        "t_hat": 0.0,
+        "tier": "primary",
+        "travel_time_min": 19.894902420218536
+      },
+      "urgency_adaptive": {
+        "b_hat": 1.0,
+        "c_hat": 0.5,
+        "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+        "score": 0.23525163948194555,
+        "t_hat": 0.44100655792778226,
+        "tier": "tertiary",
+        "travel_time_min": 42.9456097520665
+      },
+      "weighted": {
+        "b_hat": 0.0,
+        "c_hat": 1.0,
+        "facility_id": "fde1a019-9163-5eb2-8e6a-cfcea67c76f2",
+        "score": 0.3,
+        "t_hat": 0.0,
+        "tier": "primary",
+        "travel_time_min": 19.894902420218536
+      }
+    },
+    "case_id": "C022",
+    "required_bed_type": "maternity_specialist",
+    "urgency": "standard"
+  },
+  {
+    "by_strategy": {
+      "greedy": {
+        "b_hat": 0.19607843137254902,
+        "c_hat": 0.8,
+        "facility_id": "d538b519-63a9-5b99-b05d-49d225448296",
+        "score": 0.0,
+        "t_hat": 0.0,
+        "tier": "secondary",
+        "travel_time_min": 0.0
+      },
+      "urgency_adaptive": {
+        "b_hat": 1.0,
+        "c_hat": 0.5,
+        "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+        "score": 0.2791191971705898,
+        "t_hat": 0.6164767886823592,
+        "tier": "tertiary",
+        "travel_time_min": 40.93407688294845
+      },
+      "weighted": {
+        "b_hat": 0.19148936170212766,
+        "c_hat": 0.8,
+        "facility_id": "d538b519-63a9-5b99-b05d-49d225448296",
+        "score": 0.3025531914893617,
+        "t_hat": 0.0,
+        "tier": "secondary",
+        "travel_time_min": 0.0
+      }
+    },
+    "case_id": "C023",
+    "required_bed_type": "general",
+    "urgency": "standard"
+  },
+  {
+    "by_strategy": {
+      "greedy": {
+        "b_hat": 0.2857142857142857,
+        "c_hat": 0.8,
+        "facility_id": "a478eaf1-5e62-57b6-b2c2-eb69fe60987f",
+        "score": 0.0,
+        "t_hat": 0.0,
+        "tier": "secondary",
+        "travel_time_min": 0.0
+      },
+      "urgency_adaptive": {
+        "b_hat": 1.0,
+        "c_hat": 0.5,
+        "facility_id": "b07c4d50-4cb9-5e4c-b972-f8ec2bf948f8",
+        "score": 0.375,
+        "t_hat": 1.0,
+        "tier": "tertiary",
+        "travel_time_min": 81.1893261016181
+      },
+      "weighted": {
+        "b_hat": 0.16666666666666666,
+        "c_hat": 0.8,
+        "facility_id": "a478eaf1-5e62-57b6-b2c2-eb69fe60987f",
+        "score": 0.31,
+        "t_hat": 0.0,
+        "tier": "secondary",
+        "travel_time_min": 0.0
+      }
+    },
+    "case_id": "C024",
+    "required_bed_type": "maternity_specialist",
+    "urgency": "standard"
+  },
+  {
+    "by_strategy": {
+      "greedy": {
+        "b_hat": 0.046511627906976744,
+        "c_hat": 1.0,
+        "facility_id": "7e2f35f1-ff2f-5653-a521-5deb9545050d",
+        "score": 34.39788019382747,
+        "t_hat": 0.0,
+        "tier": "primary",
+        "travel_time_min": 34.39788019382747
+      },
+      "urgency_adaptive": {
+        "b_hat": 1.0,
+        "c_hat": 0.5,
+        "facility_id": "3c22fb9f-843c-5d6c-b030-e2cc15a2eedf",
+        "score": 0.3314887261822228,
+        "t_hat": 0.8259549047288911,
+        "tier": "tertiary",
+        "travel_time_min": 79.22921656611146
+      },
+      "weighted": {
+        "b_hat": 0.43902439024390244,
+        "c_hat": 0.8,
+        "facility_id": "87cb878e-3497-566d-ac6c-825beb40f7e9",
+        "score": 0.2518467099649384,
+        "t_hat": 0.058885067595272796,
+        "tier": "secondary",
+        "travel_time_min": 37.59405501832938
+      }
+    },
+    "case_id": "C025",
+    "required_bed_type": "general",
+    "urgency": "standard"
+  },
+  {
+    "by_strategy": {
+      "greedy": {
+        "b_hat": 0.2,
+        "c_hat": 0.5,
+        "facility_id": "b07c4d50-4cb9-5e4c-b972-f8ec2bf948f8",
+        "score": 14.859886510629577,
+        "t_hat": 0.0,
+        "tier": "tertiary",
+        "travel_time_min": 14.859886510629577
+      },
+      "urgency_adaptive": {
+        "b_hat": 0.8,
+        "c_hat": 0.5,
+        "facility_id": "3c22fb9f-843c-5d6c-b030-e2cc15a2eedf",
+        "score": 0.3628667811256754,
+        "t_hat": 0.5514671245027015,
+        "tier": "tertiary",
+        "travel_time_min": 29.624899826194664
+      },
+      "weighted": {
+        "b_hat": 0.2,
+        "c_hat": 0.5,
+        "facility_id": "b07c4d50-4cb9-5e4c-b972-f8ec2bf948f8",
+        "score": 0.39,
+        "t_hat": 0.0,
+        "tier": "tertiary",
+        "travel_time_min": 14.859886510629577
+      }
+    },
+    "case_id": "C026",
+    "required_bed_type": "icu",
+    "urgency": "standard"
+  },
+  {
+    "by_strategy": {
+      "greedy": {
+        "b_hat": 0.0196078431372549,
+        "c_hat": 1.0,
+        "facility_id": "1e82a55d-d1e2-5e47-9c3d-b3b193fe5a46",
+        "score": 0.0,
+        "t_hat": 0.0,
+        "tier": "primary",
+        "travel_time_min": 0.0
+      },
+      "urgency_adaptive": {
+        "b_hat": 1.0,
+        "c_hat": 0.5,
+        "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+        "score": 0.24533598014609848,
+        "t_hat": 0.48134392058439385,
+        "tier": "tertiary",
+        "travel_time_min": 35.17032208094512
+      },
+      "weighted": {
+        "b_hat": 0.02127659574468085,
+        "c_hat": 1.0,
+        "facility_id": "1e82a55d-d1e2-5e47-9c3d-b3b193fe5a46",
+        "score": 0.2936170212765957,
+        "t_hat": 0.0,
+        "tier": "primary",
+        "travel_time_min": 0.0
+      }
+    },
+    "case_id": "C027",
+    "required_bed_type": "general",
+    "urgency": "standard"
+  },
+  {
+    "by_strategy": {
+      "greedy": {
+        "b_hat": 0.07692307692307693,
+        "c_hat": 1.0,
+        "facility_id": "edc290fc-fbc2-5434-874c-4f1cb2bc7c97",
+        "score": 0.0,
+        "t_hat": 0.0,
+        "tier": "primary",
+        "travel_time_min": 0.0
+      },
+      "urgency_adaptive": {
+        "b_hat": 1.0,
+        "c_hat": 0.5,
+        "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+        "score": 0.14030174061373657,
+        "t_hat": 0.06120696245494631,
+        "tier": "tertiary",
+        "travel_time_min": 3.436981470206134
+      },
+      "weighted": {
+        "b_hat": 1.0,
+        "c_hat": 0.5,
+        "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+        "score": 0.17448278498197853,
+        "t_hat": 0.06120696245494631,
+        "tier": "tertiary",
+        "travel_time_min": 3.436981470206134
+      }
+    },
+    "case_id": "C028",
+    "required_bed_type": "maternity_specialist",
+    "urgency": "standard"
+  },
+  {
+    "by_strategy": {
+      "greedy": {
+        "b_hat": 0.058823529411764705,
+        "c_hat": 1.0,
+        "facility_id": "685909f6-63bb-5381-a051-3eb69767afd4",
+        "score": 0.0,
+        "t_hat": 0.0,
+        "tier": "primary",
+        "travel_time_min": 0.0
+      },
+      "urgency_adaptive": {
+        "b_hat": 1.0,
+        "c_hat": 0.5,
+        "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+        "score": 0.13419718721628573,
+        "t_hat": 0.03678874886514298,
+        "tier": "tertiary",
+        "travel_time_min": 2.2133958164950935
+      },
+      "weighted": {
+        "b_hat": 1.0,
+        "c_hat": 0.5,
+        "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+        "score": 0.1647154995460572,
+        "t_hat": 0.03678874886514298,
+        "tier": "tertiary",
+        "travel_time_min": 2.2133958164950935
+      }
+    },
+    "case_id": "C029",
+    "required_bed_type": "general",
+    "urgency": "standard"
+  }
+]

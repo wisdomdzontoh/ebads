@@ -61,6 +61,16 @@ class Allocation(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False, index=True
     )
+    # Set when this allocation was created by POST .../reallocate (FR24-27): the allocation
+    # it replaces, after that one was revoked or escalated. Self-FK, SET NULL so deleting an
+    # old superseded row (there is no such delete path today, but nothing should ever break
+    # if one is added later) never cascades into deleting the chain built on top of it.
+    supersedes_allocation_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("allocation.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
 
     # joined: every read of an allocation needs its request's facts (patient location,
     # urgency, dispatcher) in the same query — see api/routes/allocations.py.

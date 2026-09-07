@@ -149,6 +149,17 @@ def write_measures_csv(report: ScenarioReport, path: Path) -> None:
                     writer.writerow(row)
 
 
+def _fallback_dict(trace: Any) -> dict[str, Any] | None:
+    if trace is None:
+        return None
+    return {
+        "facility_id": trace.facility_id,
+        "facility_name": trace.facility_name,
+        "travel_time_minutes": trace.travel_time_minutes,
+        "available_beds": trace.available_beds,
+    }
+
+
 def _decision_line(run_label: str, algorithm: AlgorithmName, case_run: CaseRun) -> dict[str, Any]:
     return {
         "run": run_label,
@@ -160,6 +171,12 @@ def _decision_line(run_label: str, algorithm: AlgorithmName, case_run: CaseRun) 
         "selection_reason": case_run.selection_reason,
         "selected_facility_id": case_run.selected_facility_id,
         "attempts": case_run.attempts,
+        # Only ever non-null on an escalation (FR11) — the two fallbacks named in the
+        # escalation response, not one of docs/07 §7's original three decision-line fields.
+        "nearest_within_radius": _fallback_dict(case_run.nearest_within_radius),
+        "nearest_available_outside_radius": _fallback_dict(
+            case_run.nearest_available_outside_radius
+        ),
         "candidates": [
             {
                 "facility_id": c.facility_id,

@@ -1,0 +1,470 @@
+[
+  {
+    "case_id": "C003",
+    "detail_by_strategy": {
+      "greedy": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 6,
+          "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 42.9456097520665
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(critical)=30 min had an available ICU bed."
+      },
+      "urgency_adaptive": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 6,
+          "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 42.9456097520665
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(critical)=30 min had an available ICU bed."
+      },
+      "weighted": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 6,
+          "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 42.9456097520665
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(critical)=30 min had an available ICU bed."
+      }
+    },
+    "escalated_by_strategies": [
+      "greedy",
+      "urgency_adaptive",
+      "weighted"
+    ],
+    "not_escalated_by_strategies": [],
+    "note": "Kasoa fringe (peripheral, no admissible ICU candidate)",
+    "origin_lat": 5.53,
+    "origin_lon": -0.42,
+    "required_bed_type": "icu",
+    "urgency": "critical"
+  },
+  {
+    "case_id": "C004",
+    "detail_by_strategy": {
+      "greedy": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 2,
+          "facility_id": "87cb878e-3497-566d-ac6c-825beb40f7e9",
+          "facility_name": "Tema General Hospital",
+          "travel_time_minutes": 37.59405501832938
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(critical)=30 min had an available ICU bed."
+      },
+      "urgency_adaptive": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 2,
+          "facility_id": "87cb878e-3497-566d-ac6c-825beb40f7e9",
+          "facility_name": "Tema General Hospital",
+          "travel_time_minutes": 37.59405501832938
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(critical)=30 min had an available ICU bed."
+      },
+      "weighted": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 2,
+          "facility_id": "87cb878e-3497-566d-ac6c-825beb40f7e9",
+          "facility_name": "Tema General Hospital",
+          "travel_time_minutes": 37.59405501832938
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(critical)=30 min had an available ICU bed."
+      }
+    },
+    "escalated_by_strategies": [
+      "greedy",
+      "urgency_adaptive",
+      "weighted"
+    ],
+    "not_escalated_by_strategies": [],
+    "note": "Prampram (peripheral, no admissible ICU candidate)",
+    "origin_lat": 5.7,
+    "origin_lon": 0.15,
+    "required_bed_type": "icu",
+    "urgency": "critical"
+  },
+  {
+    "case_id": "C005",
+    "detail_by_strategy": {
+      "greedy": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 2,
+          "facility_id": "b07c4d50-4cb9-5e4c-b972-f8ec2bf948f8",
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 49.070736842087086
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(critical)=30 min had an available ICU bed."
+      },
+      "urgency_adaptive": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 2,
+          "facility_id": "b07c4d50-4cb9-5e4c-b972-f8ec2bf948f8",
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 49.070736842087086
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(critical)=30 min had an available ICU bed."
+      },
+      "weighted": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 2,
+          "facility_id": "b07c4d50-4cb9-5e4c-b972-f8ec2bf948f8",
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 49.070736842087086
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(critical)=30 min had an available ICU bed."
+      }
+    },
+    "escalated_by_strategies": [
+      "greedy",
+      "urgency_adaptive",
+      "weighted"
+    ],
+    "not_escalated_by_strategies": [],
+    "note": "Nsawam road (peripheral, no admissible ICU candidate)",
+    "origin_lat": 5.8,
+    "origin_lon": -0.35,
+    "required_bed_type": "icu",
+    "urgency": "critical"
+  },
+  {
+    "case_id": "C006",
+    "detail_by_strategy": {
+      "greedy": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 2,
+          "facility_id": "87cb878e-3497-566d-ac6c-825beb40f7e9",
+          "facility_name": "Tema General Hospital",
+          "travel_time_minutes": 145.67451080731703
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(critical)=30 min had an available ICU bed."
+      },
+      "urgency_adaptive": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 2,
+          "facility_id": "87cb878e-3497-566d-ac6c-825beb40f7e9",
+          "facility_name": "Tema General Hospital",
+          "travel_time_minutes": 145.67451080731703
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(critical)=30 min had an available ICU bed."
+      },
+      "weighted": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 2,
+          "facility_id": "87cb878e-3497-566d-ac6c-825beb40f7e9",
+          "facility_name": "Tema General Hospital",
+          "travel_time_minutes": 145.67451080731703
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(critical)=30 min had an available ICU bed."
+      }
+    },
+    "escalated_by_strategies": [
+      "greedy",
+      "urgency_adaptive",
+      "weighted"
+    ],
+    "not_escalated_by_strategies": [],
+    "note": "Ada (far peripheral, no admissible ICU candidate)",
+    "origin_lat": 5.79,
+    "origin_lon": 0.63,
+    "required_bed_type": "icu",
+    "urgency": "critical"
+  },
+  {
+    "case_id": "C007",
+    "detail_by_strategy": {
+      "greedy": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 6,
+          "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 61.92418449603012
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(critical)=30 min had an available ICU bed."
+      },
+      "urgency_adaptive": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 6,
+          "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 61.92418449603012
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(critical)=30 min had an available ICU bed."
+      },
+      "weighted": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 6,
+          "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 61.92418449603012
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(critical)=30 min had an available ICU bed."
+      }
+    },
+    "escalated_by_strategies": [
+      "greedy",
+      "urgency_adaptive",
+      "weighted"
+    ],
+    "not_escalated_by_strategies": [],
+    "note": "Kasoa deep (peripheral, no admissible ICU candidate)",
+    "origin_lat": 5.48,
+    "origin_lon": -0.5,
+    "required_bed_type": "icu",
+    "urgency": "critical"
+  },
+  {
+    "case_id": "C008",
+    "detail_by_strategy": {
+      "greedy": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 2,
+          "facility_id": "b07c4d50-4cb9-5e4c-b972-f8ec2bf948f8",
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 44.46142596290382
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(critical)=30 min had an available ICU bed."
+      },
+      "urgency_adaptive": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 2,
+          "facility_id": "b07c4d50-4cb9-5e4c-b972-f8ec2bf948f8",
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 44.46142596290382
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(critical)=30 min had an available ICU bed."
+      },
+      "weighted": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 2,
+          "facility_id": "b07c4d50-4cb9-5e4c-b972-f8ec2bf948f8",
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 44.46142596290382
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(critical)=30 min had an available ICU bed."
+      }
+    },
+    "escalated_by_strategies": [
+      "greedy",
+      "urgency_adaptive",
+      "weighted"
+    ],
+    "not_escalated_by_strategies": [],
+    "note": "Aburi road (peripheral, no admissible ICU candidate)",
+    "origin_lat": 5.85,
+    "origin_lon": -0.2,
+    "required_bed_type": "icu",
+    "urgency": "critical"
+  },
+  {
+    "case_id": "C010",
+    "detail_by_strategy": {
+      "greedy": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 2,
+          "facility_id": "87cb878e-3497-566d-ac6c-825beb40f7e9",
+          "facility_name": "Tema General Hospital",
+          "travel_time_minutes": 145.67451080731703
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(urgent)=60 min had an available ICU bed."
+      },
+      "urgency_adaptive": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 2,
+          "facility_id": "87cb878e-3497-566d-ac6c-825beb40f7e9",
+          "facility_name": "Tema General Hospital",
+          "travel_time_minutes": 145.67451080731703
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(urgent)=60 min had an available ICU bed."
+      },
+      "weighted": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 2,
+          "facility_id": "87cb878e-3497-566d-ac6c-825beb40f7e9",
+          "facility_name": "Tema General Hospital",
+          "travel_time_minutes": 145.67451080731703
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(urgent)=60 min had an available ICU bed."
+      }
+    },
+    "escalated_by_strategies": [
+      "greedy",
+      "urgency_adaptive",
+      "weighted"
+    ],
+    "not_escalated_by_strategies": [],
+    "note": "Ada (far peripheral, no admissible ICU candidate)",
+    "origin_lat": 5.79,
+    "origin_lon": 0.63,
+    "required_bed_type": "icu",
+    "urgency": "urgent"
+  },
+  {
+    "case_id": "C011",
+    "detail_by_strategy": {
+      "greedy": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 6,
+          "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 61.92418449603012
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(urgent)=60 min had an available ICU bed."
+      },
+      "urgency_adaptive": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 6,
+          "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 61.92418449603012
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(urgent)=60 min had an available ICU bed."
+      },
+      "weighted": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 6,
+          "facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 61.92418449603012
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(urgent)=60 min had an available ICU bed."
+      }
+    },
+    "escalated_by_strategies": [
+      "greedy",
+      "urgency_adaptive",
+      "weighted"
+    ],
+    "not_escalated_by_strategies": [],
+    "note": "Kasoa deep (peripheral, no admissible ICU candidate)",
+    "origin_lat": 5.48,
+    "origin_lon": -0.5,
+    "required_bed_type": "icu",
+    "urgency": "urgent"
+  },
+  {
+    "case_id": "C030",
+    "detail_by_strategy": {
+      "greedy": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 2,
+          "facility_id": "87cb878e-3497-566d-ac6c-825beb40f7e9",
+          "facility_name": "Tema General Hospital",
+          "travel_time_minutes": 145.67451080731703
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(standard)=90 min had an available ICU bed."
+      },
+      "urgency_adaptive": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 2,
+          "facility_id": "87cb878e-3497-566d-ac6c-825beb40f7e9",
+          "facility_name": "Tema General Hospital",
+          "travel_time_minutes": 145.67451080731703
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(standard)=90 min had an available ICU bed."
+      },
+      "weighted": {
+        "candidates_evaluated": 0,
+        "nearest_available_outside_radius": {
+          "available_beds": 2,
+          "facility_id": "87cb878e-3497-566d-ac6c-825beb40f7e9",
+          "facility_name": "Tema General Hospital",
+          "travel_time_minutes": 145.67451080731703
+        },
+        "nearest_within_radius": null,
+        "reservation_attempts": 0,
+        "selection_reason": "No reachable facility within R(standard)=90 min had an available ICU bed."
+      }
+    },
+    "escalated_by_strategies": [
+      "greedy",
+      "urgency_adaptive",
+      "weighted"
+    ],
+    "not_escalated_by_strategies": [],
+    "note": "Ada (far peripheral, no admissible ICU candidate even at the standard radius)",
+    "origin_lat": 5.79,
+    "origin_lon": 0.63,
+    "required_bed_type": "icu",
+    "urgency": "standard"
+  }
+]

@@ -12,7 +12,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey
+from sqlalchemy import Boolean, DateTime, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -46,3 +46,8 @@ class Reservation(Base):
     confirmed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     # Set by the expiry sweeper; also the sweeper's WHERE-clause guard against re-processing.
     released_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Set by domain/reservation/lifecycle.py::revoke (FR24-27) — the facility withdrew the
+    # reservation before arrival. Distinct from released_at (the sweeper's expiry path) so
+    # "why did this bed become available again" is always answerable from this row alone.
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    revocation_reason: Mapped[str | None] = mapped_column(Text, nullable=True)

@@ -1,0 +1,821 @@
+{
+  "cases": [
+    {
+      "case_id": "C001",
+      "note": "Osu (dense)",
+      "origin_key": "5.556,-0.176"
+    },
+    {
+      "case_id": "C002",
+      "note": "Amasaman (admissible boundary, ~28 min)",
+      "origin_key": "5.704,-0.303"
+    },
+    {
+      "case_id": "C003",
+      "note": "Kasoa fringe (peripheral, no admissible ICU candidate)",
+      "origin_key": "5.53,-0.42"
+    },
+    {
+      "case_id": "C004",
+      "note": "Prampram (peripheral, no admissible ICU candidate)",
+      "origin_key": "5.7,0.15"
+    },
+    {
+      "case_id": "C005",
+      "note": "Nsawam road (peripheral, no admissible ICU candidate)",
+      "origin_key": "5.8,-0.35"
+    },
+    {
+      "case_id": "C006",
+      "note": "Ada (far peripheral, no admissible ICU candidate)",
+      "origin_key": "5.79,0.63"
+    },
+    {
+      "case_id": "C007",
+      "note": "Kasoa deep (peripheral, no admissible ICU candidate)",
+      "origin_key": "5.48,-0.5"
+    },
+    {
+      "case_id": "C008",
+      "note": "Aburi road (peripheral, no admissible ICU candidate)",
+      "origin_key": "5.85,-0.2"
+    },
+    {
+      "case_id": "C009",
+      "note": "Circle (dense)",
+      "origin_key": "5.571,-0.204"
+    },
+    {
+      "case_id": "C010",
+      "note": "Ada (far peripheral, no admissible ICU candidate)",
+      "origin_key": "5.79,0.63"
+    },
+    {
+      "case_id": "C011",
+      "note": "Kasoa deep (peripheral, no admissible ICU candidate)",
+      "origin_key": "5.48,-0.5"
+    },
+    {
+      "case_id": "C012",
+      "note": "Madina (dense)",
+      "origin_key": "5.683,-0.166"
+    },
+    {
+      "case_id": "C013",
+      "note": "Adabraka (dense)",
+      "origin_key": "5.561,-0.212"
+    },
+    {
+      "case_id": "C014",
+      "note": "Tema (dense cluster)",
+      "origin_key": "5.669,-0.017"
+    },
+    {
+      "case_id": "C015",
+      "note": "Achimota (dense)",
+      "origin_key": "5.615,-0.227"
+    },
+    {
+      "case_id": "C016",
+      "note": "Dansoman",
+      "origin_key": "5.543,-0.263"
+    },
+    {
+      "case_id": "C017",
+      "note": "Ashaiman",
+      "origin_key": "5.689,-0.034"
+    },
+    {
+      "case_id": "C018",
+      "note": "La General area",
+      "origin_key": "5.5589,-0.162"
+    },
+    {
+      "case_id": "C019",
+      "note": "Kaneshie",
+      "origin_key": "5.565,-0.236"
+    },
+    {
+      "case_id": "C020",
+      "note": "Tema Polyclinic area",
+      "origin_key": "5.679,-0.004"
+    },
+    {
+      "case_id": "C021",
+      "note": "Weija",
+      "origin_key": "5.556,-0.334"
+    },
+    {
+      "case_id": "C022",
+      "note": "Kasoa fringe",
+      "origin_key": "5.53,-0.42"
+    },
+    {
+      "case_id": "C023",
+      "note": "Amasaman",
+      "origin_key": "5.704,-0.303"
+    },
+    {
+      "case_id": "C024",
+      "note": "Shai Osudoku area",
+      "origin_key": "5.883,0.096"
+    },
+    {
+      "case_id": "C025",
+      "note": "Prampram",
+      "origin_key": "5.7,0.15"
+    },
+    {
+      "case_id": "C026",
+      "note": "Pantang area (standard radius reaches the central ICU cluster)",
+      "origin_key": "5.714,-0.166"
+    },
+    {
+      "case_id": "C027",
+      "note": "Madina",
+      "origin_key": "5.683,-0.166"
+    },
+    {
+      "case_id": "C028",
+      "note": "Ussher",
+      "origin_key": "5.533,-0.211"
+    },
+    {
+      "case_id": "C029",
+      "note": "Mamprobi",
+      "origin_key": "5.538,-0.236"
+    },
+    {
+      "case_id": "C030",
+      "note": "Ada (far peripheral, no admissible ICU candidate even at the standard radius)",
+      "origin_key": "5.79,0.63"
+    }
+  ],
+  "origins": {
+    "5.48,-0.5": {
+      "any_tertiary_within_radius": false,
+      "origin_lat": 5.48,
+      "origin_lon": -0.5,
+      "tertiary_facilities": [
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 61.9,
+          "within_radius": false
+        },
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 69.7,
+          "within_radius": false
+        },
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 72.7,
+          "within_radius": false
+        },
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 79.0,
+          "within_radius": false
+        }
+      ]
+    },
+    "5.53,-0.42": {
+      "any_tertiary_within_radius": false,
+      "origin_lat": 5.53,
+      "origin_lon": -0.42,
+      "tertiary_facilities": [
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 42.9,
+          "within_radius": false
+        },
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 50.0,
+          "within_radius": false
+        },
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 52.7,
+          "within_radius": false
+        },
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 58.1,
+          "within_radius": false
+        }
+      ]
+    },
+    "5.533,-0.211": {
+      "any_tertiary_within_radius": true,
+      "origin_lat": 5.533,
+      "origin_lon": -0.211,
+      "tertiary_facilities": [
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 3.4,
+          "within_radius": true
+        },
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 7.6,
+          "within_radius": true
+        },
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 12.1,
+          "within_radius": true
+        },
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 26.7,
+          "within_radius": true
+        }
+      ]
+    },
+    "5.538,-0.236": {
+      "any_tertiary_within_radius": true,
+      "origin_lat": 5.538,
+      "origin_lon": -0.236,
+      "tertiary_facilities": [
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 2.2,
+          "within_radius": true
+        },
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 10.4,
+          "within_radius": true
+        },
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 14.5,
+          "within_radius": true
+        },
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 27.3,
+          "within_radius": true
+        }
+      ]
+    },
+    "5.543,-0.263": {
+      "any_tertiary_within_radius": true,
+      "origin_lat": 5.543,
+      "origin_lon": -0.263,
+      "tertiary_facilities": [
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 8.3,
+          "within_radius": true
+        },
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 15.4,
+          "within_radius": true
+        },
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 18.8,
+          "within_radius": true
+        },
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 29.2,
+          "within_radius": true
+        }
+      ]
+    },
+    "5.556,-0.176": {
+      "any_tertiary_within_radius": true,
+      "origin_lat": 5.556,
+      "origin_lon": -0.176,
+      "tertiary_facilities": [
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 5.0,
+          "within_radius": true
+        },
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 6.5,
+          "within_radius": true
+        },
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 11.9,
+          "within_radius": true
+        },
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 21.2,
+          "within_radius": true
+        }
+      ]
+    },
+    "5.556,-0.334": {
+      "any_tertiary_within_radius": true,
+      "origin_lat": 5.556,
+      "origin_lon": -0.334,
+      "tertiary_facilities": [
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 24.3,
+          "within_radius": true
+        },
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 30.4,
+          "within_radius": false
+        },
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 32.9,
+          "within_radius": false
+        },
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 38.8,
+          "within_radius": false
+        }
+      ]
+    },
+    "5.5589,-0.162": {
+      "any_tertiary_within_radius": true,
+      "origin_lat": 5.5589,
+      "origin_lon": -0.162,
+      "tertiary_facilities": [
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 7.8,
+          "within_radius": true
+        },
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 7.8,
+          "within_radius": true
+        },
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 15.0,
+          "within_radius": true
+        },
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 21.1,
+          "within_radius": true
+        }
+      ]
+    },
+    "5.561,-0.212": {
+      "any_tertiary_within_radius": true,
+      "origin_lat": 5.561,
+      "origin_lon": -0.212,
+      "tertiary_facilities": [
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 3.4,
+          "within_radius": true
+        },
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 6.3,
+          "within_radius": true
+        },
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 7.2,
+          "within_radius": true
+        },
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 20.7,
+          "within_radius": true
+        }
+      ]
+    },
+    "5.565,-0.236": {
+      "any_tertiary_within_radius": true,
+      "origin_lat": 5.565,
+      "origin_lon": -0.236,
+      "tertiary_facilities": [
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 6.7,
+          "within_radius": true
+        },
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 8.7,
+          "within_radius": true
+        },
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 11.3,
+          "within_radius": true
+        },
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 21.9,
+          "within_radius": true
+        }
+      ]
+    },
+    "5.571,-0.204": {
+      "any_tertiary_within_radius": true,
+      "origin_lat": 5.571,
+      "origin_lon": -0.204,
+      "tertiary_facilities": [
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 2.2,
+          "within_radius": true
+        },
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 4.4,
+          "within_radius": true
+        },
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 9.1,
+          "within_radius": true
+        },
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 18.1,
+          "within_radius": true
+        }
+      ]
+    },
+    "5.615,-0.227": {
+      "any_tertiary_within_radius": true,
+      "origin_lat": 5.615,
+      "origin_lon": -0.227,
+      "tertiary_facilities": [
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 11.2,
+          "within_radius": true
+        },
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 11.9,
+          "within_radius": true
+        },
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 13.1,
+          "within_radius": true
+        },
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 17.4,
+          "within_radius": true
+        }
+      ]
+    },
+    "5.669,-0.017": {
+      "any_tertiary_within_radius": false,
+      "origin_lat": 5.669,
+      "origin_lon": -0.017,
+      "tertiary_facilities": [
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 37.8,
+          "within_radius": false
+        },
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 42.4,
+          "within_radius": false
+        },
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 46.1,
+          "within_radius": false
+        },
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 54.9,
+          "within_radius": false
+        }
+      ]
+    },
+    "5.679,-0.004": {
+      "any_tertiary_within_radius": false,
+      "origin_lat": 5.679,
+      "origin_lon": -0.004,
+      "tertiary_facilities": [
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 41.0,
+          "within_radius": false
+        },
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 46.0,
+          "within_radius": false
+        },
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 49.8,
+          "within_radius": false
+        },
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 58.5,
+          "within_radius": false
+        }
+      ]
+    },
+    "5.683,-0.166": {
+      "any_tertiary_within_radius": true,
+      "origin_lat": 5.683,
+      "origin_lon": -0.166,
+      "tertiary_facilities": [
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 8.6,
+          "within_radius": true
+        },
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 22.9,
+          "within_radius": true
+        },
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 27.3,
+          "within_radius": true
+        },
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 35.2,
+          "within_radius": false
+        }
+      ]
+    },
+    "5.689,-0.034": {
+      "any_tertiary_within_radius": false,
+      "origin_lat": 5.689,
+      "origin_lon": -0.034,
+      "tertiary_facilities": [
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 34.9,
+          "within_radius": false
+        },
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 41.5,
+          "within_radius": false
+        },
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 45.5,
+          "within_radius": false
+        },
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 54.4,
+          "within_radius": false
+        }
+      ]
+    },
+    "5.7,0.15": {
+      "any_tertiary_within_radius": false,
+      "origin_lat": 5.7,
+      "origin_lon": 0.15,
+      "tertiary_facilities": [
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 75.4,
+          "within_radius": false
+        },
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 79.2,
+          "within_radius": false
+        },
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 82.5,
+          "within_radius": false
+        },
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 90.8,
+          "within_radius": false
+        }
+      ]
+    },
+    "5.704,-0.303": {
+      "any_tertiary_within_radius": true,
+      "origin_lat": 5.704,
+      "origin_lon": -0.303,
+      "tertiary_facilities": [
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 28.3,
+          "within_radius": true
+        },
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 37.1,
+          "within_radius": false
+        },
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 39.0,
+          "within_radius": false
+        },
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 40.9,
+          "within_radius": false
+        }
+      ]
+    },
+    "5.714,-0.166": {
+      "any_tertiary_within_radius": true,
+      "origin_lat": 5.714,
+      "origin_lon": -0.166,
+      "tertiary_facilities": [
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 14.9,
+          "within_radius": true
+        },
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 29.6,
+          "within_radius": true
+        },
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 34.0,
+          "within_radius": false
+        },
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 41.6,
+          "within_radius": false
+        }
+      ]
+    },
+    "5.79,0.63": {
+      "any_tertiary_within_radius": false,
+      "origin_lat": 5.79,
+      "origin_lon": 0.63,
+      "tertiary_facilities": [
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 183.4,
+          "within_radius": false
+        },
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 186.8,
+          "within_radius": false
+        },
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 189.8,
+          "within_radius": false
+        },
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 197.7,
+          "within_radius": false
+        }
+      ]
+    },
+    "5.8,-0.35": {
+      "any_tertiary_within_radius": false,
+      "origin_lat": 5.8,
+      "origin_lon": -0.35,
+      "tertiary_facilities": [
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 49.1,
+          "within_radius": false
+        },
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 60.2,
+          "within_radius": false
+        },
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 62.5,
+          "within_radius": false
+        },
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 64.7,
+          "within_radius": false
+        }
+      ]
+    },
+    "5.85,-0.2": {
+      "any_tertiary_within_radius": false,
+      "origin_lat": 5.85,
+      "origin_lon": -0.2,
+      "tertiary_facilities": [
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 44.5,
+          "within_radius": false
+        },
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 59.5,
+          "within_radius": false
+        },
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 63.6,
+          "within_radius": false
+        },
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 69.9,
+          "within_radius": false
+        }
+      ]
+    },
+    "5.883,0.096": {
+      "any_tertiary_within_radius": false,
+      "origin_lat": 5.883,
+      "origin_lon": 0.096,
+      "tertiary_facilities": [
+        {
+          "facility_name": "University of Ghana Medical Centre",
+          "travel_time_minutes": 81.2,
+          "within_radius": false
+        },
+        {
+          "facility_name": "37 Military Hospital",
+          "travel_time_minutes": 91.7,
+          "within_radius": false
+        },
+        {
+          "facility_name": "Greater Accra Regional Hospital (Ridge)",
+          "travel_time_minutes": 96.1,
+          "within_radius": false
+        },
+        {
+          "facility_name": "Korle Bu Teaching Hospital",
+          "travel_time_minutes": 105.0,
+          "within_radius": false
+        }
+      ]
+    }
+  },
+  "origins_with_no_tertiary_within_radius": [
+    {
+      "note": "Kasoa fringe (peripheral, no admissible ICU candidate)",
+      "origin_key": "5.53,-0.42"
+    },
+    {
+      "note": "Prampram (peripheral, no admissible ICU candidate)",
+      "origin_key": "5.7,0.15"
+    },
+    {
+      "note": "Nsawam road (peripheral, no admissible ICU candidate)",
+      "origin_key": "5.8,-0.35"
+    },
+    {
+      "note": "Ada (far peripheral, no admissible ICU candidate)",
+      "origin_key": "5.79,0.63"
+    },
+    {
+      "note": "Kasoa deep (peripheral, no admissible ICU candidate)",
+      "origin_key": "5.48,-0.5"
+    },
+    {
+      "note": "Aburi road (peripheral, no admissible ICU candidate)",
+      "origin_key": "5.85,-0.2"
+    },
+    {
+      "note": "Tema (dense cluster)",
+      "origin_key": "5.669,-0.017"
+    },
+    {
+      "note": "Ashaiman",
+      "origin_key": "5.689,-0.034"
+    },
+    {
+      "note": "Tema Polyclinic area",
+      "origin_key": "5.679,-0.004"
+    },
+    {
+      "note": "Shai Osudoku area",
+      "origin_key": "5.883,0.096"
+    }
+  ],
+  "radius_minutes_critical": 30,
+  "tertiary_facility_count": 4
+}
