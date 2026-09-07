@@ -13,6 +13,8 @@
  * session `state/AuthContext.tsx` reads/writes — and refreshes the access token itself on a
  * 401, persisting the new one so the next run (and the next foreground launch) picks it up. No
  * session at all (never signed in, or signed out) is a normal, silent no-op, not a failure.
+ * The engine URL is the same build-time `ENGINE_BASE_URL` constant every other client uses
+ * (services/env.ts) — nothing to read from settings storage for that half anymore.
  *
  * expo-background-task is native-only; the `.web` sibling is a no-op so the web build works.
  */
@@ -22,22 +24,21 @@ import * as TaskManager from 'expo-task-manager';
 
 import { ApiClient } from './api';
 import { readSession, storeRefreshedAccessToken } from './auth';
+import { ENGINE_BASE_URL } from './env';
 import { runSync } from './sync';
 
 export const BACKGROUND_SYNC_TASK = 'ebads-background-sync';
 
 // Defined once, at module load, so TaskManager can resolve it when the OS wakes the app.
-// The base URL / session are read fresh from storage each run (the task has no React context).
+// The session is read fresh from storage each run (the task has no React context).
 TaskManager.defineTask(BACKGROUND_SYNC_TASK, async () => {
   try {
-    const { getItem } = await import('./storage');
-    const [stored, session] = await Promise.all([getItem('settings'), readSession()]);
-    const settings = stored ? (JSON.parse(stored) as { baseUrl?: string }) : {};
-    if (!settings.baseUrl || !session) return BackgroundTask.BackgroundTaskResult.Success;
+    const session = await readSession();
+    if (!session) return BackgroundTask.BackgroundTaskResult.Success;
 
     let current = session;
     const api: ApiClient = new ApiClient({
-      baseUrl: settings.baseUrl,
+      baseUrl: ENGINE_BASE_URL,
       getAccessToken: () => current.accessToken,
       onUnauthorized: async (): Promise<string | null> => {
         try {

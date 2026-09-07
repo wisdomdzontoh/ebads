@@ -2,10 +2,10 @@
  * Auth state (EBADS_PRD.md §10) — the signed-in dispatcher, the bearer-token session, and the
  * one `ApiClient` instance every screen calls the engine through.
  *
- * Owns the `ApiClient` (not `SettingsContext`, which only owns the connection's base URL) —
- * the client fundamentally needs both, and only this provider has the token half. A 401 from
- * any request triggers exactly one refresh attempt (single-flight: concurrent 401s share it);
- * a failed refresh clears the session, which `App.tsx` reads to fall back to `LoginScreen`.
+ * Owns the `ApiClient`, pointed at the fixed `ENGINE_BASE_URL` (services/env.ts) plus this
+ * provider's own token half. A 401 from any request triggers exactly one refresh attempt
+ * (single-flight: concurrent 401s share it); a failed refresh clears the session, which
+ * `App.tsx` reads to fall back to `LoginScreen`.
  */
 
 import React, {
@@ -20,7 +20,7 @@ import React, {
 
 import { ApiClient } from '../services/api';
 import { clearSession, readSession, storeSession, type Session } from '../services/auth';
-import { useSettings } from './SettingsContext';
+import { ENGINE_BASE_URL } from '../services/env';
 
 interface AuthContextValue {
   session: Session | null;
@@ -34,7 +34,6 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }): React.ReactElement {
-  const { settings } = useSettings();
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
 
@@ -95,17 +94,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
     [logout, setAndPersist],
   );
 
-  // Recreated only when the engine URL changes — the callbacks below always read the CURRENT
-  // token/refresh via the ref/closure, so the client itself never goes stale.
+  // Built once (ENGINE_BASE_URL is a build-time constant, services/env.ts, not a setting that
+  // changes at runtime) — the callbacks below always read the CURRENT token/refresh via the
+  // ref/closure, so the client itself never goes stale across logins/logouts.
   const api = useMemo(() => {
     const client: ApiClient = new ApiClient({
-      baseUrl: settings.baseUrl,
+      baseUrl: ENGINE_BASE_URL,
       getAccessToken: () => sessionRef.current?.accessToken ?? null,
       onUnauthorized: () => refreshOnce(client),
     });
     return client;
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `client` self-reference is intentional (see above)
-  }, [settings.baseUrl, refreshOnce]);
+  }, [refreshOnce]);
 
   const login = useCallback(
     async (email: string, password: string): Promise<void> => {

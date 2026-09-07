@@ -103,15 +103,24 @@ export interface FacilityBrief {
   available_beds: number;
 }
 
-/** Allocated allocation response (docs/04 §4). */
+/** Allocated allocation response (docs/04 §4).
+ *
+ * `status` is `'confirmed'` — the reservation-protocol lifecycle value
+ * (backend/app/parameters.py::AllocationStatus.CONFIRMED), NOT the pure scoring verdict's own
+ * `'allocated'` (a separate, internal-only `Status` enum the API never actually sends). This
+ * previously read `'allocated'` here, so `result.status === 'allocated'` was always false and
+ * EVERY successful placement rendered as an escalation instead — fixed; see git history if
+ * this regresses again. */
 export interface AllocatedResponse {
   id: string;
-  status: 'allocated';
+  status: 'confirmed';
   recommended_facility: RecommendedFacility;
   algorithm_used: AlgorithmName;
   weight_vector: WeightVector | null;
   capability_match: number;
   candidates_evaluated: number;
+  attempts: number;
+  eta_minutes: number;
   selection_reason: string;
 }
 

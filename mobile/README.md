@@ -87,7 +87,8 @@ Notes:
 - **Google Maps key restrictions** (Google Cloud console → the key → Application restrictions):
   restrict to Android app `com.ebads.dispatcher` with the SHA-1 shown by
   `eas credentials -p android`, and to iOS bundle id `com.ebads.dispatcher`. Enable
-  **Maps SDK for Android**, **Maps SDK for iOS**, and **Maps Static API** (web).
+  **Maps SDK for Android**, **Maps SDK for iOS**, **Maps Static API** (web), and
+  **Directions API** (live in-app navigation route, `services/directions.ts`).
 - **Cleartext HTTP:** the engine is plain `http://` on a LAN, and Android release builds block
   cleartext by default — `expo-build-properties` sets `usesCleartextTraffic: true` in
   `app.json`. Remove that once the engine is served over HTTPS.
@@ -99,20 +100,30 @@ Notes:
 
 ## Connect to the engine
 
-The app talks to the FastAPI engine (docs/04). Configure the base URL in **Settings**
-(default `http://localhost:8000/api/v1`).
+The app talks to the FastAPI engine (docs/04) over a signed-in, bearer-token session
+(EBADS_PRD.md §10) — dispatcher accounts are created by a system_administrator (web portal or
+`scripts/create_system_admin.py`), then sign in from **`LoginScreen`**, the app's first
+screen once onboarding is done. There is no "API key" anymore (retired, Increment 1) and no
+editable base-URL field in Settings — the engine address is a **build-time** env var, set
+once per build/environment, not typed by the dispatcher:
 
-- **API key:** Settings → "API key" must hold the exact `API_KEY` value from `infra/.env`
-  (any static string works — e.g. `openssl rand -hex 32`; it is a shared secret, not a
-  format). The engine rejects `/api/v1` requests without it (401). If `API_KEY` is blank
-  the engine skips the check, and the app field can stay empty too.
-
-- **Web / iOS simulator:** `localhost` works.
-- **Physical device / Android emulator:** use your machine's LAN IP, e.g.
-  `http://192.168.x.x:8000/api/v1`, and start the engine so it listens on all interfaces
-  (`docker compose -f infra/docker-compose.yml up`).
-- **Android maps** need the Google Maps API key from `.env` — `app.config.js` injects
-  `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY` into the native config at build time.
+- **`EXPO_PUBLIC_ENGINE_BASE_URL`** in `.env` (copy from `.env.example`), including the
+  `/api/v1` prefix — e.g. `https://ebads-engine-vyun.onrender.com/api/v1` for production, or
+  `http://192.168.x.x:8000/api/v1` (your machine's LAN IP) for a local engine on a physical
+  device/Android emulator (`localhost` works for web/iOS simulator only). Start the local
+  engine so it listens on all interfaces (`docker compose -f infra/docker-compose.yml up`).
+- For an **EAS cloud build**, set the same variable in the EAS project's per-environment
+  variables (dashboard, or `eas env:create`) — a local `.env` is read for `expo start`/local
+  builds but not automatically picked up by `eas build`, the same way
+  `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY` already works.
+- Settings still has a **"Test connection"** button — it re-probes the fixed URL's
+  `/healthz` and shows the verdict, useful for "is the engine actually up right now", not for
+  reconfiguring anything.
+- **Android maps + live navigation** need the Google Maps API key from `.env` —
+  `app.config.js` injects `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY` into the native config at build
+  time. Enable **Directions API** alongside Maps SDK/Maps Static API for the in-app
+  turn-by-turn route (`services/directions.ts`) to work; without it, navigation falls back to
+  a straight line and Haversine-estimated distance/ETA.
 
 ## Layout (docs/05 §7)
 

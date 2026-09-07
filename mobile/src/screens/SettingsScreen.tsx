@@ -1,14 +1,14 @@
 /**
  * Settings screen (docs/05 §2.4).
  *
- * Configures the engine connection (base URL only — auth is a signed-in session now, not a
- * shared API key, Increment 1) with an EXPLICIT "Save & test" flow: the URL is committed and
- * immediately verified reachable, and the persistent verdict (connected / failed / untested)
- * is shown right here — so a misconfiguration is caught once, in Settings, with a precise
- * message, instead of leaking as fetch errors on other screens (docs/05 §5). Also: background
- * sync interval (default 15 min, docs/09 §11), a manual "Sync now" trigger with last-sync
- * status, the push preference, and the signed-in dispatcher's account (change password, sign
- * out).
+ * The engine's location is a fixed, build-time constant now (`ENGINE_BASE_URL`,
+ * services/env.ts) — there is no URL field here to type or mistype. "Test connection" re-runs
+ * the reachability probe against that fixed URL on demand, and the persistent verdict
+ * (connected / failed / untested) is shown right here — so a misconfiguration is caught once,
+ * in Settings, with a precise message, instead of leaking as fetch errors on other screens
+ * (docs/05 §5). Also: background sync interval (default 15 min, docs/09 §11), a manual "Sync
+ * now" trigger with last-sync status, the push preference, and the signed-in dispatcher's
+ * account (change password, sign out).
  */
 
 import { MaterialIcons } from '@expo/vector-icons';
@@ -19,13 +19,14 @@ import { Pressable, StyleSheet, Switch, View } from 'react-native';
 import { AppText, Button, Card, InlineNotice, SectionLabel } from '../components';
 import { Screen } from '../components/Screen';
 import { ApiError } from '../services/api';
-import { normalizeBaseUrl, testConnection } from '../services/connection';
+import { testConnection } from '../services/connection';
+import { ENGINE_BASE_URL } from '../services/env';
 import { useAuth } from '../state/AuthContext';
 import { DEFAULT_SYNC_INTERVAL_MINUTES, useSettings } from '../state/SettingsContext';
 import { useSync } from '../state/SyncContext';
 import { colors, radius, spacing } from '../theme';
 import { formatClock } from '../utils/time';
-import { LabeledField, SecretField } from './settings/SettingRow';
+import { SecretField } from './settings/SettingRow';
 
 const SYNC_INTERVALS = [5, 15, 30, 60];
 
@@ -40,20 +41,11 @@ export function SettingsScreen(): React.ReactElement {
   const { settings, connection, update, setConnection } = useSettings();
   const { lastSync, syncing, lastError, syncNow } = useSync();
 
-  // Local, editable copy of the URL — committed only by "Save & test", so a half-typed URL
-  // never becomes the live client configuration.
-  const [baseUrl, setBaseUrl] = useState(settings.baseUrl);
   const [testing, setTesting] = useState(false);
 
-  const dirty = baseUrl.trim() !== settings.baseUrl;
-
-  const saveAndTest = async (): Promise<void> => {
+  const runTest = async (): Promise<void> => {
     setTesting(true);
-    const normalizedUrl = normalizeBaseUrl(baseUrl);
-    setBaseUrl(normalizedUrl);
-    // Commit first (so the app uses what the dispatcher typed), then verify it live.
-    await update({ baseUrl: normalizedUrl });
-    const result = await testConnection(normalizedUrl);
+    const result = await testConnection();
     setConnection(
       result.ok
         ? { status: 'ok', message: null, checkedAt: new Date().toISOString() }
@@ -69,14 +61,12 @@ export function SettingsScreen(): React.ReactElement {
 
       <SectionLabel>Connection</SectionLabel>
       <Card style={styles.card}>
-        <LabeledField
-          label="API base URL"
-          value={baseUrl}
-          onChangeText={setBaseUrl}
-          icon="link"
-          placeholder="http://host:8000/api/v1"
-          keyboardType="url"
-        />
+        <View style={styles.urlRow}>
+          <MaterialIcons name="link" size={16} color={colors.onSurfaceVariant} />
+          <AppText variant="dataSm" color="onSurfaceVariant" style={styles.urlText}>
+            {ENGINE_BASE_URL}
+          </AppText>
+        </View>
 
         {connection.status === 'ok' ? (
           <InlineNotice
@@ -84,7 +74,7 @@ export function SettingsScreen(): React.ReactElement {
             title="Reachable"
             message={`Engine verified · checked ${
               connection.checkedAt ? formatClock(connection.checkedAt) : '—'
-            }${dirty ? ' — unsaved changes below, test again to apply.' : ''}`}
+            }`}
           />
         ) : connection.status === 'failed' ? (
           <InlineNotice
@@ -97,14 +87,14 @@ export function SettingsScreen(): React.ReactElement {
           <InlineNotice
             tone="info"
             title="Not verified yet"
-            message="Save & test to confirm the app can reach the engine."
+            message="Test connection to confirm the app can reach the engine."
           />
         )}
 
         <Button
-          label={testing ? 'Testing connection…' : dirty ? 'Save & test connection' : 'Test connection'}
+          label={testing ? 'Testing connection…' : 'Test connection'}
           icon="cloud-done"
-          onPress={() => void saveAndTest()}
+          onPress={() => void runTest()}
           loading={testing}
         />
       </Card>
@@ -353,6 +343,8 @@ function AccountCard(): React.ReactElement {
 
 const styles = StyleSheet.create({
   card: { gap: 18 },
+  urlRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  urlText: { flexShrink: 1 },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   rowText: { flex: 1, gap: 2 },
   action: { flex: 1 },

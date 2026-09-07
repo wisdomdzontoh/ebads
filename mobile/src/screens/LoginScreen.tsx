@@ -5,15 +5,19 @@
  * session can lapse long after onboarding is behind the dispatcher, so this has to be able to
  * reappear on its own. No EBADS logo here (design pref: the mark is reserved for
  * launch/onboarding); the lightweight brand chip matches Dispatch's own header treatment.
+ *
+ * The engine URL is a fixed, build-time constant (`ENGINE_BASE_URL`, services/env.ts) — shown
+ * read-only below the form for support/troubleshooting visibility only; there is nothing to
+ * edit here, on purpose (see that module's docstring).
  */
 
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppText, Button, InlineNotice } from '../components';
 import { ApiError } from '../services/api';
-import { normalizeBaseUrl, testConnection } from '../services/connection';
+import { ENGINE_BASE_URL } from '../services/env';
 import { useAuth } from '../state/AuthContext';
 import { useSettings } from '../state/SettingsContext';
 import { colors, radius, shadow, spacing } from '../theme';
@@ -21,16 +25,12 @@ import { LabeledField, SecretField } from './settings/SettingRow';
 
 export function LoginScreen(): React.ReactElement {
   const { login } = useAuth();
-  const { settings, update, connection, setConnection } = useSettings();
+  const { connection } = useSettings();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const [editingUrl, setEditingUrl] = useState(false);
-  const [baseUrl, setBaseUrl] = useState(settings.baseUrl);
-  const [testing, setTesting] = useState(false);
 
   const canSubmit = email.trim().length > 0 && password.length > 0 && !submitting;
 
@@ -45,21 +45,6 @@ export function LoginScreen(): React.ReactElement {
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const saveUrlAndTest = async (): Promise<void> => {
-    setTesting(true);
-    const normalized = normalizeBaseUrl(baseUrl);
-    setBaseUrl(normalized);
-    await update({ baseUrl: normalized });
-    const result = await testConnection(normalized);
-    setConnection(
-      result.ok
-        ? { status: 'ok', message: null, checkedAt: new Date().toISOString() }
-        : { status: 'failed', message: result.message, checkedAt: new Date().toISOString() },
-    );
-    setTesting(false);
-    if (result.ok) setEditingUrl(false);
   };
 
   return (
@@ -93,11 +78,11 @@ export function LoginScreen(): React.ReactElement {
           <SecretField label="Password" value={password} onChangeText={setPassword} />
 
           {error ? <InlineNotice title="Sign-in failed" message={error} /> : null}
-          {connection.status === 'failed' && !editingUrl ? (
+          {connection.status === 'failed' ? (
             <InlineNotice
               tone="info"
               title="Engine connection failed its last test"
-              message={`${connection.message ?? ''} Tap "Change" below if the URL needs updating.`}
+              message={`${connection.message ?? ''} If this persists, contact support — the engine address is fixed by the app build, not something to change here.`}
             />
           ) : null}
 
@@ -111,46 +96,11 @@ export function LoginScreen(): React.ReactElement {
           />
         </View>
 
-        <View style={styles.urlBlock}>
-          {editingUrl ? (
-            <View style={styles.form}>
-              <LabeledField
-                label="Engine base URL"
-                value={baseUrl}
-                onChangeText={setBaseUrl}
-                icon="link"
-                placeholder="http://host:8000/api/v1"
-                keyboardType="url"
-              />
-              <View style={styles.urlActions}>
-                <Button
-                  label="Cancel"
-                  variant="secondary"
-                  onPress={() => {
-                    setBaseUrl(settings.baseUrl);
-                    setEditingUrl(false);
-                  }}
-                  style={styles.urlAction}
-                />
-                <Button
-                  label={testing ? 'Testing…' : 'Save & test'}
-                  onPress={() => void saveUrlAndTest()}
-                  loading={testing}
-                  style={styles.urlAction}
-                />
-              </View>
-            </View>
-          ) : (
-            <Pressable onPress={() => setEditingUrl(true)} accessibilityRole="button" style={styles.urlRow}>
-              <MaterialIcons name="link" size={16} color={colors.onSurfaceVariant} />
-              <AppText variant="dataSm" color="onSurfaceVariant" style={styles.urlText}>
-                {settings.baseUrl}
-              </AppText>
-              <AppText variant="dataSm" color="clinicalTeal">
-                Change
-              </AppText>
-            </Pressable>
-          )}
+        <View style={styles.urlRow}>
+          <MaterialIcons name="link" size={14} color={colors.slate400} />
+          <AppText variant="dataSm" color="slate400" style={styles.urlText}>
+            {ENGINE_BASE_URL}
+          </AppText>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -180,14 +130,6 @@ const styles = StyleSheet.create({
   heading: { alignItems: 'center', gap: 4 },
   form: { gap: 14 },
   cta: { minHeight: 58, borderRadius: radius.card, ...shadow.primaryCta, marginTop: 4 },
-  urlBlock: { marginTop: 4 },
-  urlRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
+  urlRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 4 },
   urlText: { flexShrink: 1 },
-  urlActions: { flexDirection: 'row', gap: 12 },
-  urlAction: { flex: 1 },
 });

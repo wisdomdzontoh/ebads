@@ -1,26 +1,27 @@
 /**
  * Onboarding flow (docs/05, onboarding_* designs) — shown once before the main app.
  *
- * Four steps: welcome (official EBADS logo), engine connection (base URL, with a live
- * reachability test, so the app is verified-working before the dispatcher ever reaches a
- * screen that needs the engine), location permission, and notification permission. Signing in
- * is a SEPARATE, later gate (`LoginScreen`, shown by App.tsx once onboarding is done) — not
- * part of this one-time tour, since a session can expire and need renewing long after
- * onboarding is behind the dispatcher. Every step after welcome is skippable — the app
- * degrades gracefully; a skipped step just defers that setup (connection can be finished later
- * in Settings). Completing the flow sets `onboarded` so it never shows again.
+ * Four steps: welcome (official EBADS logo), engine connection (a live reachability test
+ * against the fixed, build-time `ENGINE_BASE_URL` — services/env.ts — so the app is verified-
+ * working before the dispatcher ever reaches a screen that needs the engine), location
+ * permission, and notification permission. Signing in is a SEPARATE, later gate (`LoginScreen`,
+ * shown by App.tsx once onboarding is done) — not part of this one-time tour, since a session
+ * can expire and need renewing long after onboarding is behind the dispatcher. Every step
+ * after welcome is skippable — the app degrades gracefully; a skipped step just defers that
+ * check (it can be re-run later in Settings). Completing the flow sets `onboarded` so it never
+ * shows again.
  */
 
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { AppText, InlineNotice } from '../components';
 import { testConnection } from '../services/connection';
+import { ENGINE_BASE_URL } from '../services/env';
 import { requestNotificationPermission } from '../services/notifications';
-import { DEFAULT_BASE_URL, useSettings } from '../state/SettingsContext';
+import { useSettings } from '../state/SettingsContext';
 import { colors } from '../theme';
 import { OnboardingStep } from './onboarding/OnboardingStep';
-import { LabeledField } from './settings/SettingRow';
 
 import * as Location from 'expo-location';
 
@@ -29,12 +30,9 @@ type Step = 'welcome' | 'connect' | 'location' | 'notifications';
 const STEP_COUNT = 4;
 
 export function OnboardingScreen(): React.ReactElement {
-  const { settings, update, setConnection } = useSettings();
+  const { update, setConnection } = useSettings();
   const [step, setStep] = useState<Step>('welcome');
   const [busy, setBusy] = useState(false);
-
-  // Connect-step field, edited locally and committed when tested/skipped.
-  const [baseUrl, setBaseUrl] = useState(settings.baseUrl || DEFAULT_BASE_URL);
   const [connectError, setConnectError] = useState<string | null>(null);
 
   const finish = (): void => {
@@ -44,9 +42,7 @@ export function OnboardingScreen(): React.ReactElement {
   const testAndContinue = async (): Promise<void> => {
     setBusy(true);
     setConnectError(null);
-    // Save what was typed either way — the dispatcher should never have to retype it.
-    await update({ baseUrl: baseUrl.trim() });
-    const result = await testConnection(baseUrl);
+    const result = await testConnection();
     if (result.ok) {
       setConnection({ status: 'ok', message: null, checkedAt: new Date().toISOString() });
       setBusy(false);
@@ -62,9 +58,7 @@ export function OnboardingScreen(): React.ReactElement {
     }
   };
 
-  const skipConnect = async (): Promise<void> => {
-    // Keep whatever was typed so Settings starts from it, but leave the verdict untested.
-    await update({ baseUrl: baseUrl.trim() || DEFAULT_BASE_URL });
+  const skipConnect = (): void => {
     setConnectError(null);
     setStep('location');
   };
@@ -111,39 +105,25 @@ export function OnboardingScreen(): React.ReactElement {
 
   if (step === 'connect') {
     return (
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView contentContainerStyle={styles.connectScroll} keyboardShouldPersistTaps="handled">
-          <OnboardingStep
-            icon="cloud-done"
-            title="Connect to the Engine"
-            body="Point the app at your EBADS allocation engine. The connection is tested right now — you'll sign in with your dispatcher account next, once setup is complete."
-            primaryLabel={busy ? 'Testing connection…' : 'Test & continue'}
-            onPrimary={() => void testAndContinue()}
-            primaryLoading={busy}
-            secondaryLabel="Skip for now (configure later in Settings)"
-            onSecondary={() => void skipConnect()}
-            progress={{ total: STEP_COUNT, index: 1 }}
-            footer={
-              <View style={styles.connectFields}>
-                <LabeledField
-                  label="Engine base URL"
-                  value={baseUrl}
-                  onChangeText={setBaseUrl}
-                  icon="link"
-                  placeholder="http://host:8000/api/v1"
-                  keyboardType="url"
-                />
-                {connectError ? (
-                  <InlineNotice title="Connection failed" message={connectError} />
-                ) : null}
-              </View>
-            }
-          />
-        </ScrollView>
-      </KeyboardAvoidingView>
+      <OnboardingStep
+        icon="cloud-done"
+        title="Connect to the Engine"
+        body="EBADS is checking it can reach the allocation engine now, so every screen works the moment you finish setup. You'll sign in with your dispatcher account next."
+        primaryLabel={busy ? 'Testing connection…' : 'Test & continue'}
+        onPrimary={() => void testAndContinue()}
+        primaryLoading={busy}
+        secondaryLabel="Skip for now (retest later in Settings)"
+        onSecondary={skipConnect}
+        progress={{ total: STEP_COUNT, index: 1 }}
+        footer={
+          <View style={styles.connectFields}>
+            <AppText variant="dataSm" color="onSurfaceVariant" style={styles.urlText}>
+              {ENGINE_BASE_URL}
+            </AppText>
+            {connectError ? <InlineNotice title="Connection failed" message={connectError} /> : null}
+          </View>
+        }
+      />
     );
   }
 
@@ -190,9 +170,8 @@ export function OnboardingScreen(): React.ReactElement {
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.surface },
-  connectScroll: { flexGrow: 1 },
-  connectFields: { gap: 14 },
+  connectFields: { gap: 10, alignItems: 'center' },
+  urlText: { textAlign: 'center' },
   badge: {
     alignSelf: 'flex-start',
     backgroundColor: colors.greenTint,

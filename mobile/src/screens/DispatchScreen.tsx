@@ -78,7 +78,7 @@ export function DispatchScreen(): React.ReactElement {
   const [gpsError, setGpsError] = useState<string | null>(null);
   const [sheetHeight, setSheetHeight] = useState(0);
 
-  // Reservation lifecycle, tracked only for a CONFIRMED allocation (result.status === 'allocated').
+  // Reservation lifecycle, tracked only for a CONFIRMED allocation (result.status === 'confirmed').
   const [allocationId, setAllocationId] = useState<string | null>(null);
   const [arrived, setArrived] = useState(false);
   const [recordingArrival, setRecordingArrival] = useState(false);
@@ -141,7 +141,7 @@ export function DispatchScreen(): React.ReactElement {
         required_bed_type: bedType,
       });
       setResult(response);
-      if (response.status === 'allocated') {
+      if (response.status === 'confirmed') {
         setAllocationId(response.id);
         const facility = response.recommended_facility;
         notify(
@@ -222,7 +222,7 @@ export function DispatchScreen(): React.ReactElement {
       });
       setResult(response);
       setRevoked(null);
-      if (response.status === 'allocated') {
+      if (response.status === 'confirmed') {
         setAllocationId(response.id); // resume polling against the NEW allocation
         setArrived(false);
         const facility = response.recommended_facility;
@@ -253,7 +253,7 @@ export function DispatchScreen(): React.ReactElement {
 
   // Live in-app navigation takes over the whole screen — no external Google Maps hand-off
   // (docs/05's own ride-hailing framing: the map IS the app, not a launcher for another one).
-  if (navigating && result?.status === 'allocated') {
+  if (navigating && result?.status === 'confirmed') {
     const facility = result.recommended_facility;
     return (
       <LiveNavigationMap
@@ -272,7 +272,7 @@ export function DispatchScreen(): React.ReactElement {
   }
 
   const resultFacility: MapFacility | null =
-    result?.status === 'allocated'
+    result?.status === 'confirmed'
       ? {
           latitude: result.recommended_facility.latitude,
           longitude: result.recommended_facility.longitude,
@@ -345,7 +345,7 @@ export function DispatchScreen(): React.ReactElement {
                   redirectError={redirectError}
                   onGetNewRecommendation={() => void getNewRecommendation()}
                 />
-              ) : result.status === 'allocated' ? (
+              ) : result.status === 'confirmed' ? (
                 <RecommendationCard
                   result={result}
                   arrived={arrived}

@@ -19,15 +19,27 @@ jest.mock('react-native-safe-area-context', () => {
   };
 });
 
-// react-native-maps is native-only; stub MapView/Marker as plain Views for rendering tests.
+// react-native-maps is native-only; stub MapView/Marker/Polyline as plain Views for rendering
+// tests. MapView forwards a ref exposing no-op animateToRegion/fitToCoordinates — screens call
+// these imperatively (DispatchMap, LiveNavigationMap), and a plain functional-component stub
+// with no ref would leave `mapRef.current` without them, throwing the moment either fires.
 // (require() lives inside the factory — jest.mock factories can't close over outer variables.)
 jest.mock('react-native-maps', () => {
   const React = require('react');
   const { View } = require('react-native');
+  const MapView = React.forwardRef((props, ref) => {
+    React.useImperativeHandle(ref, () => ({
+      animateToRegion: () => undefined,
+      animateCamera: () => undefined,
+      fitToCoordinates: () => undefined,
+    }));
+    return React.createElement(View, props, props.children);
+  });
   return {
     __esModule: true,
-    default: (props) => React.createElement(View, props, props.children),
+    default: MapView,
     Marker: (props) => React.createElement(View, props, props.children),
+    Polyline: (props) => React.createElement(View, props, props.children),
     PROVIDER_GOOGLE: 'google',
   };
 });

@@ -27,7 +27,7 @@ describe('ApiClient', () => {
   });
 
   it('sends the bearer token header when a session is available', async () => {
-    fetchMock.mockResolvedValueOnce(OK({ status: 'allocated' }));
+    fetchMock.mockResolvedValueOnce(OK({ status: 'confirmed' }));
     const client = new ApiClient({
       baseUrl: 'http://host/api/v1',
       getAccessToken: () => 'secret-token',

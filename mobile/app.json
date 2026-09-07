@@ -18,6 +18,7 @@
     "android": {
       "package": "com.ebads.dispatcher",
       "versionCode": 1,
+      "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "backgroundColor": "#ffffff",
         "foregroundImage": "./assets/android-icon-foreground-ebads.png",

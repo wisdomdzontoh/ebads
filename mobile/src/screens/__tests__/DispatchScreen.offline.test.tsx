@@ -37,7 +37,7 @@ jest.mock('../../state/AuthContext', () => ({
 
 jest.mock('../../state/SettingsContext', () => ({
   useSettings: () => ({
-    settings: { baseUrl: '', syncIntervalMinutes: 15, pushEnabled: true, onboarded: true },
+    settings: { syncIntervalMinutes: 15, pushEnabled: true, onboarded: true },
     ready: true,
     connection: { status: 'untested', message: null, checkedAt: null },
     update: jest.fn(),
