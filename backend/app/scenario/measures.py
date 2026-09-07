@@ -39,7 +39,14 @@ class MeasureSet:
     case_count: int
     placement_success: float
     escalation_rate: float
-    mean_facility_attempts: float
+    # Named for its denominator, not just "facility attempts" (Chapter Four evidence review,
+    # fix 2): an escalated case made no reservation attempt at all (CaseResult's own
+    # docstring — attempts is 0 "with no candidate to attempt at all"), so folding it into
+    # this average pulls the number toward placement_success instead of reporting what a
+    # reservation actually costs once a candidate exists to attempt. Averaging over placed
+    # cases only means an attempt count can never read below 1.0, which it structurally
+    # cannot be — every placement made at least one attempt.
+    mean_reservation_attempts_per_placed_case: float | None
     mean_travel_time_minutes: float | None
     mean_capability_match: float | None
     critical_at_tertiary_rate: float | None
@@ -61,7 +68,7 @@ def compute_measures(results: Sequence[CaseResult]) -> MeasureSet:
             case_count=0,
             placement_success=0.0,
             escalation_rate=0.0,
-            mean_facility_attempts=0.0,
+            mean_reservation_attempts_per_placed_case=None,
             mean_travel_time_minutes=None,
             mean_capability_match=None,
             critical_at_tertiary_rate=None,
@@ -75,7 +82,10 @@ def compute_measures(results: Sequence[CaseResult]) -> MeasureSet:
         case_count=len(results),
         placement_success=len(allocated) / len(results),
         escalation_rate=(len(results) - len(allocated)) / len(results),
-        mean_facility_attempts=_mean([float(r.attempts) for r in results]) or 0.0,
+        # Placed cases only (fix 2) — same denominator convention as travel time and
+        # capability match below, and None (not 0.0) when nothing was placed at all: there
+        # is no "attempts per placed case" to report when zero cases were placed.
+        mean_reservation_attempts_per_placed_case=_mean([float(r.attempts) for r in allocated]),
         mean_travel_time_minutes=_mean(
             [r.travel_time_minutes for r in allocated if r.travel_time_minutes is not None]
         ),

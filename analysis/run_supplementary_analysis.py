@@ -2,9 +2,11 @@
 
 Runs the two contention bursts docs/07 §7's own CLI does not produce (greedy, weighted —
 it only bursts urgency_adaptive by default) via the *same* unmodified
-``app.scenario.runner.run_contention_burst`` function the CLI itself calls, then computes
-three derived views over the canonical ``artifacts/scenario/<study_id>/`` output that the
-Chapter Four evidence brief asks for but docs/07 §7 was never scoped to produce:
+``app.scenario.runner.run_contention_burst`` function the CLI itself calls; the R6 standard-
+tier counterfactual (post-hoc diagnostic, evidence-review round 2) via the same unmodified
+``run_scenario_for_strategy``; then computes several derived views over the canonical
+``artifacts/scenario/<study_id>/`` output that the Chapter Four evidence brief asks for but
+docs/07 §7 was never scoped to produce:
 
   - geographic reachability: for every case origin, which tertiary facilities (if any) are
     within the R(critical)=30 min radius, using the identical Haversine formula
@@ -12,7 +14,10 @@ Chapter Four evidence brief asks for but docs/07 §7 was never scoped to produce
   - tertiary capacity preservation: non-critical cases placed in a tertiary ICU bed, per
     primary-run strategy;
   - a cross-strategy per-case diff: every case where greedy/weighted/urgency_adaptive (primary
-    run) chose a different facility, or a different one escalated.
+    run) chose a different facility, or a different one escalated;
+  - travel-time distribution per strategy (min/median/mean/max, count > 45 min);
+  - the standard-tier facility-size effect: every standard-urgency placement's chosen
+    facility, its raw available-bed count, and its normalised b_hat.
 
 Nothing here re-implements scoring, filtering, or reservation — every number is either read
 straight from the CLI's own written artifacts or produced by calling the runner's own
@@ -25,6 +30,7 @@ import asyncio
 import csv
 import json
 import os
+import statistics
 import sys
 from pathlib import Path
 
@@ -37,19 +43,28 @@ os.environ.setdefault(
 )
 
 from app.db.session import get_engine, get_sessionmaker  # noqa: E402
+from app.domain.allocation.study_parameters import StudyParameters  # noqa: E402
 from app.domain.travel.base import Coordinate  # noqa: E402
 from app.domain.travel.haversine import haversine_minutes  # noqa: E402
-from app.parameters import RADIUS_MINUTES, AlgorithmName, BedType, Tier, Urgency  # noqa: E402
+from app.parameters import (  # noqa: E402
+    RADIUS_MINUTES,
+    AlgorithmName,
+    Urgency,
+    WeightVector,
+)
 from app.scenario.case_set import load_cases  # noqa: E402
+from app.scenario.measures import CaseResult, compute_measures_by_tier  # noqa: E402
 from app.scenario.runner import (  # noqa: E402
     load_starting_state,
     populate_registry,
     reset_bed_state,
     run_contention_burst,
+    run_scenario_for_strategy,
     truncate_owned_tables,
 )
 
-_STUDY_DIR = Path(__file__).resolve().parents[1] / "artifacts" / "scenario" / "chapter4_2026-09-07"
+_STUDY_ID = "chapter4_2026-09-07_rev2"
+_STUDY_DIR = Path(__file__).resolve().parents[1] / "artifacts" / "scenario" / _STUDY_ID
 _CASE_SET = _BACKEND / "data" / "case_sets" / "greater_accra_30.json"
 _STARTING_STATE = _BACKEND / "data" / "case_sets" / "greater_accra_30_starting_state.json"
 _RAW_DIR = Path(__file__).resolve().parent / "raw"
@@ -140,7 +155,8 @@ def compute_geographic_reachability() -> None:
     }
     path = _RAW_DIR / "geographic_reachability.json"
     path.write_text(json.dumps(out, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(f"wrote {path} ({len(out['origins_with_no_tertiary_within_radius'])} origins with no tertiary in radius)")
+    no_tertiary = len(out["origins_with_no_tertiary_within_radius"])
+    print(f"wrote {path} ({no_tertiary} origins with no tertiary in radius)")
 
 
 def _read_decisions() -> list[dict]:
@@ -280,6 +296,148 @@ def compute_escalations_full() -> None:
     print(f"wrote {path} ({len(result)} escalated cases, union across strategies)")
 
 
+def compute_travel_time_distribution() -> None:
+    """Min/median/mean/max travel time to placement, and count exceeding 45 min, per primary-
+    run strategy — a mean alone conceals a single pathological placement (evidence review)."""
+    decisions = _read_decisions()
+    primary = [d for d in decisions if d["run"] == "primary"]
+
+    result = {}
+    for algorithm in (a.value for a in AlgorithmName):
+        placed = [d for d in primary if d["algorithm"] == algorithm and d["selected_facility_id"]]
+        times = []
+        for d in placed:
+            c = next(c for c in d["candidates"] if c["facility_id"] == d["selected_facility_id"])
+            times.append(c["travel_time_min"])
+        times.sort()
+        result[algorithm] = {
+            "n_placed": len(times),
+            "min": round(min(times), 1),
+            "median": round(statistics.median(times), 1),
+            "mean": round(statistics.mean(times), 1),
+            "max": round(max(times), 1),
+            "count_over_45_min": sum(1 for t in times if t > 45.0),
+            "all_travel_times_sorted": [round(t, 1) for t in times],
+        }
+
+    path = _RAW_DIR / "travel_time_distribution.json"
+    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(f"wrote {path}")
+
+
+def compute_standard_tier_facility_size_effect() -> None:
+    """Every standard-urgency placement (primary run): chosen facility, its raw available-bed
+    count, and its normalised b_hat — the numeric evidence for the bed-count-normalisation
+    mechanism identified in the evidence review, stated directly rather than argued."""
+    decisions = _read_decisions()
+    primary = [d for d in decisions if d["run"] == "primary"]
+
+    rows = []
+    for d in primary:
+        if d["urgency"] != "standard" or not d["selected_facility_id"]:
+            continue
+        c = next(c for c in d["candidates"] if c["facility_id"] == d["selected_facility_id"])
+        rows.append(
+            {
+                "case_id": d["case_id"],
+                "algorithm": d["algorithm"],
+                "required_bed_type": d["required_bed_type"],
+                "facility_id": d["selected_facility_id"],
+                "tier": c["tier"],
+                "available_beds": c["available_beds"],
+                "b_hat": round(c["b_hat"], 3),
+                "c_hat": round(c["c_hat"], 3),
+                "travel_time_min": round(c["travel_time_min"], 1),
+            }
+        )
+    rows.sort(key=lambda r: (r["case_id"], r["algorithm"]))
+
+    path = _RAW_DIR / "standard_tier_facility_size_effect.json"
+    path.write_text(json.dumps(rows, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(f"wrote {path} ({len(rows)} standard-tier placements)")
+
+
+async def run_standard_tier_counterfactual() -> None:
+    """R6 — POST-HOC DIAGNOSTIC, selected after observing the E2 contradiction, not an
+    independent confirmation. Re-runs urgency_adaptive with ONLY the standard-tier weight
+    vector changed to (w_t=0.40, w_b=0.35, w_c=0.25) — travel raised from 0.25, bed weight
+    reduced from 0.50 — critical and urgent vectors left at their primary-run values. Tests
+    whether the standard-tier shortfall is attributable to that one vector or to urgency
+    conditioning generally.
+    """
+    cases = load_cases(str(_CASE_SET))
+    starting_state = load_starting_state(str(_STARTING_STATE))
+    defaults = StudyParameters.defaults()
+    counterfactual_weights = dict(defaults.weights_urgency_adaptive)
+    counterfactual_weights[Urgency.STANDARD] = WeightVector(w_t=0.40, w_b=0.35, w_c=0.25)
+    counterfactual_params = StudyParameters(
+        radius_minutes=defaults.radius_minutes,
+        capability_matrix=defaults.capability_matrix,
+        weights_weighted=defaults.weights_weighted,
+        weights_urgency_adaptive=counterfactual_weights,
+    )
+
+    async with get_sessionmaker()() as session:
+        await truncate_owned_tables(session)
+        await populate_registry(session, starting_state)
+        await reset_bed_state(session, starting_state)
+        runs = await run_scenario_for_strategy(
+            session, cases, AlgorithmName.URGENCY_ADAPTIVE, study_parameters=counterfactual_params
+        )
+    await get_engine().dispose()
+
+    case_results = [
+        CaseResult(
+            case_id=r.case.case_id,
+            urgency=r.case.urgency,
+            allocated=r.selected_facility_id is not None,
+            travel_time_minutes=r.selected_travel_time_minutes,
+            capability_match=r.selected_capability_match,
+            tier=r.selected_tier,
+            attempts=r.attempts,
+        )
+        for r in runs
+    ]
+    by_tier = compute_measures_by_tier(case_results)
+    standard = by_tier[Urgency.STANDARD]
+
+    out = {
+        "label": "POST-HOC DIAGNOSTIC — selected after observing the E2 contradiction, not an "
+        "independent confirmation",
+        "weight_vector_used": {
+            "critical": defaults.weights_urgency_adaptive[Urgency.CRITICAL].model_dump(),
+            "urgent": defaults.weights_urgency_adaptive[Urgency.URGENT].model_dump(),
+            "standard_COUNTERFACTUAL": counterfactual_weights[Urgency.STANDARD].model_dump(),
+            "standard_PRIMARY_RUN_FOR_COMPARISON": defaults.weights_urgency_adaptive[
+                Urgency.STANDARD
+            ].model_dump(),
+        },
+        "standard_tier_measures": {
+            "case_count": standard.case_count,
+            "placement_success": standard.placement_success,
+            "escalation_rate": standard.escalation_rate,
+            "mean_reservation_attempts_per_placed_case": (
+                standard.mean_reservation_attempts_per_placed_case
+            ),
+            "mean_travel_time_minutes": standard.mean_travel_time_minutes,
+            "mean_capability_match": standard.mean_capability_match,
+        },
+        "per_case": [
+            {
+                "case_id": r.case.case_id,
+                "selected_facility_id": r.selected_facility_id,
+                "tier": r.selected_tier.value if r.selected_tier else None,
+                "travel_time_minutes": r.selected_travel_time_minutes,
+                "capability_match": r.selected_capability_match,
+            }
+            for r in runs
+        ],
+    }
+    path = _RAW_DIR / "r6_counterfactual_standard_weights.json"
+    path.write_text(json.dumps(out, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(f"wrote {path}")
+
+
 def copy_canonical_artifacts_as_raw() -> None:
     """Attach the CLI's own four artifacts under analysis/raw/ too, per the brief's deliverable
     #2 ("raw JSON output for R1-R5") — measures.csv converted to JSON rows for convenience,
@@ -300,10 +458,13 @@ def copy_canonical_artifacts_as_raw() -> None:
 async def _main() -> None:
     _RAW_DIR.mkdir(parents=True, exist_ok=True)
     await run_extra_contention_bursts()
+    await run_standard_tier_counterfactual()
     compute_geographic_reachability()
     compute_tertiary_capacity_preservation()
     compute_cross_strategy_diff()
     compute_escalations_full()
+    compute_travel_time_distribution()
+    compute_standard_tier_facility_size_effect()
     copy_canonical_artifacts_as_raw()
 
 

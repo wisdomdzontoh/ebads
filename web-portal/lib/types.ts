@@ -33,6 +33,8 @@ export type Tier = "tertiary" | "secondary" | "primary";
 
 export type BedType = "general" | "icu" | "maternity_specialist";
 
+export type Urgency = "critical" | "urgent" | "standard";
+
 // null on a facility/request = manual maintenance (docs/02 §3.1); MANUAL itself is only
 // ever used by the (unbuilt) emr_adapter history table, never as a live facility value.
 export type DataSource = "manual" | "ghs_data" | "fhir_r4" | "rest_polling";
@@ -142,6 +144,38 @@ export interface User {
 }
 
 // --- audit log ------------------------------------------------------------------------------
+
+// --- inbound reservations (Task 3) ---------------------------------------------------------
+
+// One active (confirmed) reservation at the signed-in facility, awaiting acknowledgement,
+// arrival, or revocation (backend/app/api/schemas/allocation.py::InboundReservationRead).
+export interface InboundReservation {
+  allocation_id: string;
+  reservation_id: string;
+  created_at: string;
+  urgency: Urgency | null;
+  required_bed_type: BedType;
+  eta_minutes: number | null;
+  expires_at: string;
+  acknowledged_at: string | null;
+  // True once the dispatcher records arrival (FR22) — read-only from this endpoint; the
+  // receiving facility sees it, but only the dispatcher's mobile app sets it.
+  confirmed: boolean;
+}
+
+export interface RevokeReservationRequest {
+  reason: string;
+}
+
+// Response of POST /allocations/{id}/acknowledge (backend/app/api/schemas/allocation.py::ReservationRead).
+export interface ReservationRead {
+  id: string;
+  allocation_id: string;
+  expires_at: string;
+  acknowledged_at: string | null;
+  confirmed: boolean;
+  released_at: string | null;
+}
 
 export interface AuditLogEntry {
   id: string;

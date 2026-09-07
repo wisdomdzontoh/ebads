@@ -47,6 +47,7 @@
       "expo-notifications",
       "expo-background-task",
       "expo-sqlite",
+      "expo-secure-store",
       [
         "expo-splash-screen",
         {

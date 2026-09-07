@@ -17,6 +17,32 @@ export type DataSource =
   | 'national_emr'
   | 'hl7_fhir';
 
+// --- auth (docs/09 §10, EBADS_PRD.md §10) ------------------------------------
+
+export type Role = 'system_administrator' | 'facility_administrator' | 'facility_staff' | 'dispatcher';
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+/** Body of `POST /auth/login` (backend/app/api/schemas/auth.py::TokenResponse). */
+export interface TokenResponse {
+  access_token: string;
+  refresh_token: string;
+  role: Role;
+  facility_id: string | null;
+}
+
+export interface AccessTokenResponse {
+  access_token: string;
+}
+
+export interface PasswordChangeRequest {
+  current_password: string;
+  new_password: string;
+}
+
 /** A single bed-type availability row embedded in a facility (docs/02 §2.2). */
 export interface BedCount {
   bed_type: BedType;
@@ -104,6 +130,58 @@ export interface EscalatedResponse {
 
 /** The allocation endpoint always returns 200 with one of these two shapes (docs/04 §4). */
 export type AllocationResponse = AllocatedResponse | EscalatedResponse;
+
+// --- allocation lifecycle (FR20, FR22, FR24-27, docs/01 §7) ------------------
+
+/** Lifecycle status of one persisted allocation, distinct from the pure ALLOCATED/ESCALATED
+ * scoring verdict above — this is what `GET /allocations/{id}` reports as it evolves after
+ * confirmation (backend/app/parameters.py::AllocationStatus). */
+export type AllocationStatus =
+  | 'pending'
+  | 'confirmed'
+  | 'arrived'
+  | 'expired'
+  | 'refused'
+  | 'escalated'
+  // The receiving facility withdrew the reservation before arrival (FR24-27) — this is the
+  // one status the app actively watches for on a confirmed allocation, to trigger the
+  // revocation-redirect flow.
+  | 'revoked';
+
+/** One persisted allocation's full record (`GET /allocations/{id}`, `GET /allocations`,
+ * backend/app/api/schemas/allocation.py::AllocationAuditRead) — used to poll a confirmed
+ * allocation for a status change (arrival recorded elsewhere, or revoked) since the app has
+ * no real push channel from the engine (FR19's SMS/push gateways are log-only, docs/01 §3.6). */
+export interface AllocationAuditRead {
+  id: string;
+  created_at: string;
+  patient_lat: number;
+  patient_lon: number;
+  urgency: Urgency | null;
+  required_bed_type: BedType;
+  simulation_session_id: string | null;
+  algorithm_used: AlgorithmName;
+  weight_vector: WeightVector | null;
+  selection_reason: string;
+  facility_id: string | null;
+  travel_time_minutes: number | null;
+  is_estimated_travel_time: boolean;
+  eta_minutes: number | null;
+  capability_match: number | null;
+  candidates_evaluated: number;
+  attempts: number;
+  status: AllocationStatus;
+  supersedes_allocation_id: string | null;
+  /** The facility's stated reason, only ever non-null when `status === 'revoked'` (FR24-27). */
+  revocation_reason: string | null;
+}
+
+/** Body of `POST /allocations/{id}/reallocate` — the dispatcher's CURRENT position, not the
+ * original incident location (docs/01 §7, FR24-27). */
+export interface ReallocateRequest {
+  current_lat: number;
+  current_lon: number;
+}
 
 // --- Simulation (docs/04 §5) ------------------------------------------------
 

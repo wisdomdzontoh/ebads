@@ -59,7 +59,7 @@
     {
       "attempts": 1,
       "case_id": "C012",
-      "reserved_facility_name": "University of Ghana Medical Centre"
+      "reserved_facility_name": "Pantang Hospital"
     },
     {
       "attempts": 1,
@@ -72,7 +72,7 @@
       "reserved_facility_name": "Tema General Hospital"
     },
     {
-      "attempts": 1,
+      "attempts": 2,
       "case_id": "C015",
       "reserved_facility_name": "Korle Bu Teaching Hospital"
     },
@@ -87,7 +87,7 @@
       "reserved_facility_name": "Ashaiman Municipal Hospital"
     },
     {
-      "attempts": 3,
+      "attempts": 4,
       "case_id": "C018",
       "reserved_facility_name": "La General Hospital"
     },
@@ -137,12 +137,12 @@
       "reserved_facility_name": "Madina Polyclinic"
     },
     {
-      "attempts": 3,
+      "attempts": 4,
       "case_id": "C028",
       "reserved_facility_name": "Ussher Polyclinic"
     },
     {
-      "attempts": 2,
+      "attempts": 4,
       "case_id": "C029",
       "reserved_facility_name": "Mamprobi Polyclinic"
     },

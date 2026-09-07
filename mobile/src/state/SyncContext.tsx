@@ -12,6 +12,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import { registerBackgroundSync } from '../services/backgroundSync';
 import { getSyncMeta, type SyncMeta } from '../services/cache';
 import { runSync } from '../services/sync';
+import { useAuth } from './AuthContext';
 import { useConnectivity } from './ConnectivityContext';
 import { useSettings } from './SettingsContext';
 
@@ -27,7 +28,8 @@ const SyncContext = createContext<SyncContextValue | null>(null);
 const MINUTE_MS = 60_000;
 
 export function SyncProvider({ children }: { children: React.ReactNode }): React.ReactElement {
-  const { api, settings, ready } = useSettings();
+  const { settings, ready } = useSettings();
+  const { api, session } = useAuth();
   const { online } = useConnectivity();
   const [lastSync, setLastSync] = useState<SyncMeta | null>(null);
   const [syncing, setSyncing] = useState(false);
@@ -50,15 +52,17 @@ export function SyncProvider({ children }: { children: React.ReactNode }): React
     void getSyncMeta().then(setLastSync);
   }, []);
 
-  // Sync when online: immediately on (re)connection, then on the configured interval.
+  // Sync when online AND signed in: `GET /facilities` requires a bearer token now (Increment
+  // 1), so a sync attempt before login would only ever produce a 401 the dispatcher can't act
+  // on from here — wait for a session instead of surfacing it as a sync failure.
   useEffect(() => {
-    if (!ready || !online) return;
+    if (!ready || !online || !session) return;
     void syncNow();
     const interval = setInterval(() => {
       void syncNow();
     }, Math.max(1, settings.syncIntervalMinutes) * MINUTE_MS);
     return () => clearInterval(interval);
-  }, [ready, online, settings.syncIntervalMinutes, syncNow]);
+  }, [ready, online, session, settings.syncIntervalMinutes, syncNow]);
 
   // Register the OS background-refresh task at the configured interval (docs/05 §5). The OS,
   // not this interval, decides when it actually runs; a no-op on web.

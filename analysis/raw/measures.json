@@ -24,29 +24,29 @@
     "run": "primary",
     "strategy": "greedy",
     "urgency_tier": "overall",
-    "measure": "mean_facility_attempts",
-    "value": "0.7"
+    "measure": "mean_reservation_attempts_per_placed_case",
+    "value": "1.0"
   },
   {
     "run": "primary",
     "strategy": "greedy",
     "urgency_tier": "overall",
     "measure": "mean_travel_time_minutes",
-    "value": "4.896586908961713"
+    "value": "7.151145869353485"
   },
   {
     "run": "primary",
     "strategy": "greedy",
     "urgency_tier": "overall",
     "measure": "mean_capability_match",
-    "value": "0.819047619047619"
+    "value": "0.8"
   },
   {
     "run": "primary",
     "strategy": "greedy",
     "urgency_tier": "overall",
     "measure": "critical_at_tertiary_rate",
-    "value": "0.2222222222222222"
+    "value": "0.1111111111111111"
   },
   {
     "run": "primary",
@@ -73,29 +73,29 @@
     "run": "primary",
     "strategy": "greedy",
     "urgency_tier": "critical",
-    "measure": "mean_facility_attempts",
-    "value": "0.3333333333333333"
+    "measure": "mean_reservation_attempts_per_placed_case",
+    "value": "1.0"
   },
   {
     "run": "primary",
     "strategy": "greedy",
     "urgency_tier": "critical",
     "measure": "mean_travel_time_minutes",
-    "value": "11.225218654506797"
+    "value": "10.863753632037202"
   },
   {
     "run": "primary",
     "strategy": "greedy",
     "urgency_tier": "critical",
     "measure": "mean_capability_match",
-    "value": "0.8666666666666667"
+    "value": "0.7333333333333334"
   },
   {
     "run": "primary",
     "strategy": "greedy",
     "urgency_tier": "critical",
     "measure": "critical_at_tertiary_rate",
-    "value": "0.2222222222222222"
+    "value": "0.1111111111111111"
   },
   {
     "run": "primary",
@@ -122,15 +122,15 @@
     "run": "primary",
     "strategy": "greedy",
     "urgency_tier": "urgent",
-    "measure": "mean_facility_attempts",
-    "value": "0.8181818181818182"
+    "measure": "mean_reservation_attempts_per_placed_case",
+    "value": "1.0"
   },
   {
     "run": "primary",
     "strategy": "greedy",
     "urgency_tier": "urgent",
     "measure": "mean_travel_time_minutes",
-    "value": "0.0"
+    "value": "3.11573848523028"
   },
   {
     "run": "primary",
@@ -171,15 +171,15 @@
     "run": "primary",
     "strategy": "greedy",
     "urgency_tier": "standard",
-    "measure": "mean_facility_attempts",
-    "value": "0.9"
+    "measure": "mean_reservation_attempts_per_placed_case",
+    "value": "1.0"
   },
   {
     "run": "primary",
     "strategy": "greedy",
     "urgency_tier": "standard",
     "measure": "mean_travel_time_minutes",
-    "value": "7.683629902741732"
+    "value": "9.949017332582118"
   },
   {
     "run": "primary",
@@ -220,22 +220,22 @@
     "run": "primary",
     "strategy": "weighted",
     "urgency_tier": "overall",
-    "measure": "mean_facility_attempts",
-    "value": "0.7"
+    "measure": "mean_reservation_attempts_per_placed_case",
+    "value": "1.0"
   },
   {
     "run": "primary",
     "strategy": "weighted",
     "urgency_tier": "overall",
     "measure": "mean_travel_time_minutes",
-    "value": "9.703960735294487"
+    "value": "10.753391675485663"
   },
   {
     "run": "primary",
     "strategy": "weighted",
     "urgency_tier": "overall",
     "measure": "mean_capability_match",
-    "value": "0.819047619047619"
+    "value": "0.8285714285714285"
   },
   {
     "run": "primary",
@@ -269,15 +269,15 @@
     "run": "primary",
     "strategy": "weighted",
     "urgency_tier": "critical",
-    "measure": "mean_facility_attempts",
-    "value": "0.3333333333333333"
+    "measure": "mean_reservation_attempts_per_placed_case",
+    "value": "1.0"
   },
   {
     "run": "primary",
     "strategy": "weighted",
     "urgency_tier": "critical",
     "measure": "mean_travel_time_minutes",
-    "value": "12.331645426740415"
+    "value": "12.592216149693897"
   },
   {
     "run": "primary",
@@ -318,22 +318,22 @@
     "run": "primary",
     "strategy": "weighted",
     "urgency_tier": "urgent",
-    "measure": "mean_facility_attempts",
-    "value": "0.8181818181818182"
+    "measure": "mean_reservation_attempts_per_placed_case",
+    "value": "1.0"
   },
   {
     "run": "primary",
     "strategy": "weighted",
     "urgency_tier": "urgent",
     "measure": "mean_travel_time_minutes",
-    "value": "7.168767649941161"
+    "value": "8.03628466228599"
   },
   {
     "run": "primary",
     "strategy": "weighted",
     "urgency_tier": "urgent",
     "measure": "mean_capability_match",
-    "value": "0.8666666666666667"
+    "value": "0.8888888888888888"
   },
   {
     "run": "primary",
@@ -367,15 +367,15 @@
     "run": "primary",
     "strategy": "weighted",
     "urgency_tier": "standard",
-    "measure": "mean_facility_attempts",
-    "value": "0.9"
+    "measure": "mean_reservation_attempts_per_placed_case",
+    "value": "1.0"
   },
   {
     "run": "primary",
     "strategy": "weighted",
     "urgency_tier": "standard",
     "measure": "mean_travel_time_minutes",
-    "value": "11.363258923499169"
+    "value": "12.857557197282587"
   },
   {
     "run": "primary",
@@ -416,15 +416,15 @@
     "run": "primary",
     "strategy": "urgency_adaptive",
     "urgency_tier": "overall",
-    "measure": "mean_facility_attempts",
-    "value": "0.7"
+    "measure": "mean_reservation_attempts_per_placed_case",
+    "value": "1.0"
   },
   {
     "run": "primary",
     "strategy": "urgency_adaptive",
     "urgency_tier": "overall",
     "measure": "mean_travel_time_minutes",
-    "value": "19.703212919624757"
+    "value": "21.024140081922376"
   },
   {
     "run": "primary",
@@ -465,15 +465,15 @@
     "run": "primary",
     "strategy": "urgency_adaptive",
     "urgency_tier": "critical",
-    "measure": "mean_facility_attempts",
-    "value": "0.3333333333333333"
+    "measure": "mean_reservation_attempts_per_placed_case",
+    "value": "1.0"
   },
   {
     "run": "primary",
     "strategy": "urgency_adaptive",
     "urgency_tier": "critical",
     "measure": "mean_travel_time_minutes",
-    "value": "11.824952958372878"
+    "value": "12.08552368132636"
   },
   {
     "run": "primary",
@@ -514,15 +514,15 @@
     "run": "primary",
     "strategy": "urgency_adaptive",
     "urgency_tier": "urgent",
-    "measure": "mean_facility_attempts",
-    "value": "0.8181818181818182"
+    "measure": "mean_reservation_attempts_per_placed_case",
+    "value": "1.0"
   },
   {
     "run": "primary",
     "strategy": "urgency_adaptive",
     "urgency_tier": "urgent",
     "measure": "mean_travel_time_minutes",
-    "value": "4.364297207200217"
+    "value": "6.736490446745089"
   },
   {
     "run": "primary",
@@ -563,15 +563,15 @@
     "run": "primary",
     "strategy": "urgency_adaptive",
     "urgency_tier": "standard",
-    "measure": "mean_facility_attempts",
-    "value": "0.9"
+    "measure": "mean_reservation_attempts_per_placed_case",
+    "value": "1.0"
   },
   {
     "run": "primary",
     "strategy": "urgency_adaptive",
     "urgency_tier": "standard",
     "measure": "mean_travel_time_minutes",
-    "value": "37.668215285799924"
+    "value": "38.29132851729834"
   },
   {
     "run": "primary",
@@ -612,22 +612,22 @@
     "run": "robustness",
     "strategy": "weighted",
     "urgency_tier": "overall",
-    "measure": "mean_facility_attempts",
-    "value": "0.7"
+    "measure": "mean_reservation_attempts_per_placed_case",
+    "value": "1.0"
   },
   {
     "run": "robustness",
     "strategy": "weighted",
     "urgency_tier": "overall",
     "measure": "mean_travel_time_minutes",
-    "value": "9.703960735294487"
+    "value": "10.753391675485663"
   },
   {
     "run": "robustness",
     "strategy": "weighted",
     "urgency_tier": "overall",
     "measure": "mean_capability_match",
-    "value": "0.819047619047619"
+    "value": "0.8285714285714285"
   },
   {
     "run": "robustness",
@@ -661,15 +661,15 @@
     "run": "robustness",
     "strategy": "weighted",
     "urgency_tier": "critical",
-    "measure": "mean_facility_attempts",
-    "value": "0.3333333333333333"
+    "measure": "mean_reservation_attempts_per_placed_case",
+    "value": "1.0"
   },
   {
     "run": "robustness",
     "strategy": "weighted",
     "urgency_tier": "critical",
     "measure": "mean_travel_time_minutes",
-    "value": "12.331645426740415"
+    "value": "12.592216149693897"
   },
   {
     "run": "robustness",
@@ -710,22 +710,22 @@
     "run": "robustness",
     "strategy": "weighted",
     "urgency_tier": "urgent",
-    "measure": "mean_facility_attempts",
-    "value": "0.8181818181818182"
+    "measure": "mean_reservation_attempts_per_placed_case",
+    "value": "1.0"
   },
   {
     "run": "robustness",
     "strategy": "weighted",
     "urgency_tier": "urgent",
     "measure": "mean_travel_time_minutes",
-    "value": "7.168767649941161"
+    "value": "8.03628466228599"
   },
   {
     "run": "robustness",
     "strategy": "weighted",
     "urgency_tier": "urgent",
     "measure": "mean_capability_match",
-    "value": "0.8666666666666667"
+    "value": "0.8888888888888888"
   },
   {
     "run": "robustness",
@@ -759,15 +759,15 @@
     "run": "robustness",
     "strategy": "weighted",
     "urgency_tier": "standard",
-    "measure": "mean_facility_attempts",
-    "value": "0.9"
+    "measure": "mean_reservation_attempts_per_placed_case",
+    "value": "1.0"
   },
   {
     "run": "robustness",
     "strategy": "weighted",
     "urgency_tier": "standard",
     "measure": "mean_travel_time_minutes",
-    "value": "11.363258923499169"
+    "value": "12.857557197282587"
   },
   {
     "run": "robustness",
@@ -808,22 +808,22 @@
     "run": "robustness",
     "strategy": "urgency_adaptive",
     "urgency_tier": "overall",
-    "measure": "mean_facility_attempts",
-    "value": "0.7"
+    "measure": "mean_reservation_attempts_per_placed_case",
+    "value": "1.0"
   },
   {
     "run": "robustness",
     "strategy": "urgency_adaptive",
     "urgency_tier": "overall",
     "measure": "mean_travel_time_minutes",
-    "value": "17.102146192846856"
+    "value": "17.701181381345005"
   },
   {
     "run": "robustness",
     "strategy": "urgency_adaptive",
     "urgency_tier": "overall",
     "measure": "mean_capability_match",
-    "value": "0.7571428571428571"
+    "value": "0.7666666666666667"
   },
   {
     "run": "robustness",
@@ -857,15 +857,15 @@
     "run": "robustness",
     "strategy": "urgency_adaptive",
     "urgency_tier": "critical",
-    "measure": "mean_facility_attempts",
-    "value": "0.3333333333333333"
+    "measure": "mean_reservation_attempts_per_placed_case",
+    "value": "1.0"
   },
   {
     "run": "robustness",
     "strategy": "urgency_adaptive",
     "urgency_tier": "critical",
     "measure": "mean_travel_time_minutes",
-    "value": "12.331645426740415"
+    "value": "12.592216149693897"
   },
   {
     "run": "robustness",
@@ -906,22 +906,22 @@
     "run": "robustness",
     "strategy": "urgency_adaptive",
     "urgency_tier": "urgent",
-    "measure": "mean_facility_attempts",
-    "value": "0.8181818181818182"
+    "measure": "mean_reservation_attempts_per_placed_case",
+    "value": "1.0"
   },
   {
     "run": "robustness",
     "strategy": "urgency_adaptive",
     "urgency_tier": "urgent",
     "measure": "mean_travel_time_minutes",
-    "value": "7.168767649941161"
+    "value": "8.03628466228599"
   },
   {
     "run": "robustness",
     "strategy": "urgency_adaptive",
     "urgency_tier": "urgent",
     "measure": "mean_capability_match",
-    "value": "0.8666666666666667"
+    "value": "0.8888888888888888"
   },
   {
     "run": "robustness",
@@ -955,15 +955,15 @@
     "run": "robustness",
     "strategy": "urgency_adaptive",
     "urgency_tier": "standard",
-    "measure": "mean_facility_attempts",
-    "value": "0.9"
+    "measure": "mean_reservation_attempts_per_placed_case",
+    "value": "1.0"
   },
   {
     "run": "robustness",
     "strategy": "urgency_adaptive",
     "urgency_tier": "standard",
     "measure": "mean_travel_time_minutes",
-    "value": "28.62569165778804"
+    "value": "29.069066510954396"
   },
   {
     "run": "robustness",

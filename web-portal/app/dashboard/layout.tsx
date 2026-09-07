@@ -63,7 +63,7 @@ const NAV_BY_ROLE: Record<Role, NavItem[]> = {
   facility_staff: [
     { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
     { title: "Bed availability", icon: BedDouble },
-    { title: "Incoming allocations", icon: Inbox },
+    { title: "Incoming allocations", href: "/dashboard/inbound", icon: Inbox },
     { title: "Account", href: "/dashboard/account", icon: KeyRound },
   ],
   dispatcher: [

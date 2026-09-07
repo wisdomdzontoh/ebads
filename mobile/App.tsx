@@ -25,7 +25,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { LaunchScreen } from './src/components/LaunchScreen';
 import { RootTabs } from './src/navigation/RootTabs';
+import { LoginScreen } from './src/screens/LoginScreen';
 import { OnboardingScreen } from './src/screens/OnboardingScreen';
+import { AuthProvider, useAuth } from './src/state/AuthContext';
 import { ConnectivityProvider } from './src/state/ConnectivityContext';
 import { SettingsProvider, useSettings } from './src/state/SettingsContext';
 import { SyncProvider } from './src/state/SyncContext';
@@ -55,26 +57,32 @@ export default function App(): React.ReactElement | null {
   return (
     <SafeAreaProvider>
       <SettingsProvider>
-        <ConnectivityProvider>
-          <SyncProvider>
-            <StatusBar style="dark" />
-            <Root />
-          </SyncProvider>
-        </ConnectivityProvider>
+        <AuthProvider>
+          <ConnectivityProvider>
+            <SyncProvider>
+              <StatusBar style="dark" />
+              <Root />
+            </SyncProvider>
+          </ConnectivityProvider>
+        </AuthProvider>
       </SettingsProvider>
     </SafeAreaProvider>
   );
 }
 
 /**
- * Chooses the top surface once settings have loaded: the one-time onboarding flow until the
- * dispatcher completes it, then the main tabbed app. Rendering nothing until `ready` avoids a
- * flash of the wrong screen while the persisted `onboarded` flag is read.
+ * Chooses the top surface once settings + auth have loaded: the one-time onboarding flow
+ * until the dispatcher completes it, then `LoginScreen` until a session exists — an expired
+ * refresh token drops back here from anywhere in the app, not just on first launch — then the
+ * main tabbed app. Rendering nothing until both are `ready` avoids a flash of the wrong screen
+ * while the persisted `onboarded` flag and session are read.
  */
 function Root(): React.ReactElement | null {
-  const { settings, ready } = useSettings();
-  if (!ready) return <LaunchScreen />;
+  const { settings, ready: settingsReady } = useSettings();
+  const { session, ready: authReady } = useAuth();
+  if (!settingsReady || !authReady) return <LaunchScreen />;
   if (!settings.onboarded) return <OnboardingScreen />;
+  if (!session) return <LoginScreen />;
   return (
     <NavigationContainer>
       <RootTabs />

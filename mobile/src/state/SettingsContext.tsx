@@ -1,20 +1,19 @@
 /**
  * Settings state — engine connection + sync preferences (docs/05 §2.4, docs/09 §11).
  *
- * Holds the base URL, optional API key, background sync interval (default 15 min, docs/09
- * §11), and the push-notifications preference. Values persist across restarts via the KV
- * store, and a memoised `ApiClient` is derived from the current connection settings so every
- * screen talks to the engine the dispatcher configured.
+ * Holds the base URL, background sync interval (default 15 min, docs/09 §11), and the push-
+ * notifications preference. Values persist across restarts via the KV store. Auth (who is
+ * signed in, the bearer-token `ApiClient`) is a separate concern — `state/AuthContext.tsx` —
+ * this context only knows WHERE the engine is, not WHO the dispatcher is.
  *
  * Also holds the persisted CONNECTION VERDICT — the outcome of the last explicit "test
- * connection" run (services/connection.ts). Screens read this one shared verdict instead of
- * each discovering a misconfiguration through their own failed requests. Changing the base URL
- * or API key resets the verdict to `untested`, because the old proof no longer applies.
+ * connection" run (services/connection.ts), a plain reachability probe (`/healthz`, no auth).
+ * Screens read this one shared verdict instead of each discovering a misconfiguration through
+ * their own failed requests. Changing the base URL resets the verdict to `untested`.
  */
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
-import { ApiClient } from '../services/api';
 import { getItem, setItem } from '../services/storage';
 
 /** Default background sync interval in minutes (docs/09 §11 `BACKGROUND_SYNC_INTERVAL`). */
@@ -24,7 +23,6 @@ export const DEFAULT_BASE_URL = 'http://localhost:8000/api/v1';
 
 export interface Settings {
   baseUrl: string;
-  apiKey: string;
   syncIntervalMinutes: number;
   pushEnabled: boolean;
   /** True once the dispatcher has completed the one-time onboarding flow (docs/05). */
@@ -38,21 +36,13 @@ export interface ConnectionState {
   message: string | null;
   /** ISO timestamp of the last test run (null when untested). */
   checkedAt: string | null;
-  /** Facility count returned by the successful test (null otherwise). */
-  facilityCount: number | null;
 }
 
-const UNTESTED: ConnectionState = {
-  status: 'untested',
-  message: null,
-  checkedAt: null,
-  facilityCount: null,
-};
+const UNTESTED: ConnectionState = { status: 'untested', message: null, checkedAt: null };
 
 interface SettingsContextValue {
   settings: Settings;
   ready: boolean;
-  api: ApiClient;
   connection: ConnectionState;
   update: (patch: Partial<Settings>) => Promise<void>;
   setConnection: (state: ConnectionState) => void;
@@ -60,7 +50,6 @@ interface SettingsContextValue {
 
 const DEFAULTS: Settings = {
   baseUrl: DEFAULT_BASE_URL,
-  apiKey: '',
   syncIntervalMinutes: DEFAULT_SYNC_INTERVAL_MINUTES,
   pushEnabled: true,
   onboarded: false,
@@ -88,7 +77,11 @@ export function SettingsProvider({ children }: { children: React.ReactNode }): R
       ]);
       if (active && storedSettings) {
         try {
-          const next = { ...DEFAULTS, ...(JSON.parse(storedSettings) as Partial<Settings>) };
+          const parsed = JSON.parse(storedSettings) as Partial<Settings> & { apiKey?: string };
+          // `apiKey` is a retired field from the pre-JWT scheme (Increment 1) — dropped here
+          // rather than left in storage, so a stale persisted value can never leak anywhere.
+          delete parsed.apiKey;
+          const next = { ...DEFAULTS, ...parsed };
           settingsRef.current = next;
           setSettings(next);
         } catch {
@@ -121,7 +114,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }): R
       settingsRef.current = next;
       setSettings(next);
       // A different engine target invalidates the previous connection proof.
-      if (next.baseUrl !== current.baseUrl || next.apiKey !== current.apiKey) {
+      if (next.baseUrl !== current.baseUrl) {
         setConnection(UNTESTED);
       }
       await setItem(STORAGE_KEY, JSON.stringify(next));
@@ -129,20 +122,16 @@ export function SettingsProvider({ children }: { children: React.ReactNode }): R
     [setConnection],
   );
 
-  const api = useMemo(
-    () => new ApiClient({ baseUrl: settings.baseUrl, apiKey: settings.apiKey || undefined }),
-    [settings.baseUrl, settings.apiKey],
-  );
-
   const value = useMemo<SettingsContextValue>(
-    () => ({ settings, ready, api, connection, update, setConnection }),
-    [settings, ready, api, connection, update, setConnection],
+    () => ({ settings, ready, connection, update, setConnection }),
+    [settings, ready, connection, update, setConnection],
   );
 
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 }
 
-/** Access settings + the derived engine client. Must be used within `SettingsProvider`. */
+/** Access engine-location settings. Must be used within `SettingsProvider`. For the API
+ * client, use `useAuth()` (state/AuthContext.tsx) instead — it owns the bearer token. */
 export function useSettings(): SettingsContextValue {
   const context = useContext(SettingsContext);
   if (context === null) {

@@ -104,6 +104,7 @@ async def test_allocation_happy_path_persists_reservation(
     assert record["facility_id"] == facility_id
     assert record["weight_vector"] == {"w_t": 0.50, "w_b": 0.10, "w_c": 0.40}
     assert record["attempts"] == 1
+    assert record["revocation_reason"] is None  # never revoked
 
 
 async def test_create_allocation_without_auth_is_401(client: AsyncClient) -> None:

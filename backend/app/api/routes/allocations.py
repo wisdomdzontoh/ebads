@@ -24,6 +24,7 @@ from app.api.schemas.allocation import (
     AllocationResponse,
     EscalatedResponse,
     FacilityBrief,
+    InboundReservationRead,
     ReallocateRequest,
     RecommendedFacility,
     RefuseRequest,
@@ -33,6 +34,7 @@ from app.api.schemas.allocation import (
 from app.config import get_settings
 from app.db.models.allocation import Allocation
 from app.db.models.emergency_request import EmergencyRequest
+from app.db.models.reservation import Reservation
 from app.db.models.user_account import UserAccount
 from app.db.session import get_session
 from app.domain.allocation.service import (
@@ -50,7 +52,7 @@ from app.domain.notify.log_push_gateway import LogPushGateway
 from app.domain.reservation import lifecycle
 from app.domain.travel.base import TravelTimeService
 from app.domain.travel.live import LiveTravelTimeService
-from app.parameters import AllocationStatus, PermissionAction, Status
+from app.parameters import AllocationStatus, PermissionAction, Status, Urgency
 from app.security.dependencies import require_permission
 
 router = APIRouter(prefix="/allocations", tags=["allocations"])
@@ -71,6 +73,14 @@ FacilityStaffDep = Annotated[
     UserAccount,
     Depends(
         require_permission("allocation", PermissionAction.WRITE, trust_service_scoping=True)
+    ),
+]
+# Same shape as FacilityStaffDep but for the read grant added in 0010_facility_allocation_read
+# — the inbound-reservations query below filters by actor.facility_id itself (Task 3).
+FacilityReaderDep = Annotated[
+    UserAccount,
+    Depends(
+        require_permission("allocation", PermissionAction.READ, trust_service_scoping=True)
     ),
 ]
 
@@ -143,9 +153,20 @@ def _to_response(outcome: AllocationOutcome) -> AllocatedResponse | EscalatedRes
     )
 
 
-def _to_audit_read(allocation: Allocation) -> AllocationAuditRead:
-    """Assemble the read model from a joined ``Allocation`` (its ``request`` is eager-loaded)."""
+async def _to_audit_read(session: AsyncSession, allocation: Allocation) -> AllocationAuditRead:
+    """Assemble the read model from a joined ``Allocation`` (its ``request`` is eager-loaded)
+    plus one extra lookup for the underlying reservation's revocation reason (docs/02 §3.6) —
+    there is no ORM relationship from ``allocation`` to ``reservation`` (the FK points the
+    other way), and most allocations are never revoked, so a conditional query here beats
+    eager-loading a row this needs on the rare status.
+    """
     request = allocation.request
+    revocation_reason: str | None = None
+    if allocation.status == AllocationStatus.REVOKED:
+        reservation = await session.scalar(
+            select(Reservation).where(Reservation.allocation_id == allocation.id)
+        )
+        revocation_reason = reservation.revocation_reason if reservation else None
     return AllocationAuditRead(
         id=allocation.id,
         created_at=allocation.created_at,
@@ -170,6 +191,7 @@ def _to_audit_read(allocation: Allocation) -> AllocationAuditRead:
         attempts=allocation.attempts,
         status=allocation.status,
         supersedes_allocation_id=allocation.supersedes_allocation_id,
+        revocation_reason=revocation_reason,
     )
 
 
@@ -205,6 +227,60 @@ async def create_allocation(
     return _to_response(outcome)
 
 
+_URGENCY_PRIORITY: dict[Urgency | None, int] = {
+    Urgency.CRITICAL: 0,
+    Urgency.URGENT: 1,
+    Urgency.STANDARD: 2,
+    None: 3,
+}
+
+
+def _to_inbound_read(allocation: Allocation, reservation: Reservation) -> InboundReservationRead:
+    return InboundReservationRead(
+        allocation_id=allocation.id,
+        reservation_id=reservation.id,
+        created_at=allocation.created_at,
+        urgency=allocation.request.urgency,
+        required_bed_type=allocation.request.required_bed_type,
+        eta_minutes=float(allocation.eta_minutes) if allocation.eta_minutes else None,
+        expires_at=reservation.expires_at,
+        acknowledged_at=reservation.acknowledged_at,
+        confirmed=reservation.confirmed,
+    )
+
+
+# Registered ahead of GET /{allocation_id} — a literal path segment ("inbound") must be
+# matched before the parameterized route, or FastAPI tries (and fails) to parse it as a UUID.
+@router.get("/inbound", response_model=list[InboundReservationRead])
+async def list_inbound_reservations(
+    session: SessionDep, actor: FacilityReaderDep
+) -> list[InboundReservationRead]:
+    """Task 3: the signed-in facility's active (confirmed) reservations, awaiting
+    acknowledgement/arrival/revocation — sorted by urgency, then ETA ascending.
+
+    ``actor.facility_id`` is ``None`` for every role but facility_staff/administrator (docs/02
+    §2.3's own invariant) — the query below then matches nothing, never another facility's
+    rows, so this is safe to call under any role the permission layer admits.
+    """
+    query = (
+        select(Allocation, Reservation)
+        .join(Reservation, Reservation.allocation_id == Allocation.id)
+        .where(
+            Allocation.facility_id == actor.facility_id,
+            Allocation.status == AllocationStatus.CONFIRMED,
+        )
+    )
+    rows = (await session.execute(query)).all()
+    reads = [_to_inbound_read(allocation, reservation) for allocation, reservation in rows]
+    reads.sort(
+        key=lambda r: (
+            _URGENCY_PRIORITY[r.urgency],
+            r.eta_minutes if r.eta_minutes is not None else float("inf"),
+        )
+    )
+    return reads
+
+
 @router.get("/{allocation_id}", response_model=AllocationAuditRead)
 async def get_allocation(
     allocation_id: uuid.UUID, session: SessionDep, actor: ReaderDep
@@ -213,7 +289,7 @@ async def get_allocation(
     allocation = await _get_own_allocation(session, allocation_id, actor.id)
     if allocation is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="allocation not found")
-    return _to_audit_read(allocation)
+    return await _to_audit_read(session, allocation)
 
 
 @router.get("", response_model=list[AllocationAuditRead])
@@ -238,7 +314,7 @@ async def list_allocations(
     if to is not None:
         query = query.where(Allocation.created_at <= to)
     records = (await session.scalars(query)).all()
-    return [_to_audit_read(record) for record in records]
+    return [await _to_audit_read(session, record) for record in records]
 
 
 @router.post("/{allocation_id}/arrive", response_model=AllocationAuditRead)
@@ -256,7 +332,7 @@ async def arrive(
     except lifecycle.ReservationNotFoundError as exc:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "no reservation on this allocation") from exc
     await session.refresh(updated, attribute_names=["request"])
-    return _to_audit_read(updated)
+    return await _to_audit_read(session, updated)
 
 
 async def _load_for_facility_actor(
@@ -301,7 +377,7 @@ async def refuse_allocation(
     except lifecycle.ReservationNotFoundError as exc:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "no reservation on this allocation") from exc
     await session.refresh(updated, attribute_names=["request"])
-    return _to_audit_read(updated)
+    return await _to_audit_read(session, updated)
 
 
 @router.post("/{allocation_id}/revoke", response_model=AllocationAuditRead)
@@ -331,7 +407,7 @@ async def revoke_allocation(
     except lifecycle.ReservationNotFoundError as exc:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "no reservation on this allocation") from exc
     await session.refresh(updated, attribute_names=["request"])
-    return _to_audit_read(updated)
+    return await _to_audit_read(session, updated)
 
 
 @router.post("/{allocation_id}/reallocate", response_model=AllocationResponse)

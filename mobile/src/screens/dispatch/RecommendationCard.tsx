@@ -4,14 +4,16 @@
  * Renders exactly what the engine returned for an ALLOCATED response: facility, tier, ETA
  * (flagged when the travel time is estimated — the maps-fallback "degraded" state, docs/04 §6),
  * available beds, capability match, and the traceable audit (weights + reason + search effort).
- * Nothing is computed here; every value comes straight off `AllocatedResponse`.
+ * Nothing is computed here; every value comes straight off `AllocatedResponse` — except the
+ * "Record arrival" action (FR22), the one write this card itself triggers, since it is the
+ * natural place a dispatcher confirms the patient reached the facility.
  */
 
 import { MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 
-import { AppText, Button, Card } from '../../components';
+import { AppText, Button, Card, InlineNotice } from '../../components';
 import type { AllocatedResponse } from '../../services/types';
 import { colors, radius, spacing } from '../../theme';
 import { TIER_LABEL } from './constants';
@@ -54,18 +56,55 @@ function AuditBar({ label, weight }: { label: string; weight: number }): React.R
   );
 }
 
-export function RecommendationCard({ result }: { result: AllocatedResponse }): React.ReactElement {
+export function RecommendationCard({
+  result,
+  arrived,
+  recordingArrival,
+  arrivalError,
+  onRecordArrival,
+  onNavigate,
+}: {
+  result: AllocatedResponse;
+  /** True once arrival was recorded (locally, or observed via the status poll) — FR22. */
+  arrived: boolean;
+  recordingArrival: boolean;
+  arrivalError: string | null;
+  /** Omitted (button hidden) when there is nothing to record arrival against, e.g. mid-redirect. */
+  onRecordArrival?: () => void;
+  /** Switches the screen into live in-app navigation (`LiveNavigationMap`) — this card never
+   * hands off to an external maps app itself. */
+  onNavigate: () => void;
+}): React.ReactElement {
   const facility = result.recommended_facility;
   const weights = result.weight_vector;
 
   return (
     <View style={styles.wrapper}>
-      <View style={styles.banner}>
-        <MaterialIcons name="check-circle" size={22} color={colors.standardGreen} />
+      <View style={[styles.banner, arrived ? styles.bannerArrived : null]}>
+        <MaterialIcons
+          name={arrived ? 'task-alt' : 'check-circle'}
+          size={22}
+          color={colors.standardGreen}
+        />
         <AppText variant="bodySm" color="onSurface" style={styles.bannerText}>
-          Bed allocated · dispatch now
+          {arrived ? 'Patient arrived · admission recorded' : 'Bed allocated · dispatch now'}
         </AppText>
       </View>
+
+      {onRecordArrival && !arrived ? (
+        <View style={styles.arrivalBlock}>
+          {arrivalError ? (
+            <InlineNotice title="Could not record arrival" message={arrivalError} />
+          ) : null}
+          <Button
+            label={recordingArrival ? 'Recording arrival…' : 'Record arrival'}
+            icon="task-alt"
+            variant="secondary"
+            onPress={onRecordArrival}
+            loading={recordingArrival}
+          />
+        </View>
+      ) : null}
 
       <Card>
         <View style={styles.header}>
@@ -132,12 +171,7 @@ export function RecommendationCard({ result }: { result: AllocatedResponse }): R
           <Button
             label="Navigate"
             icon="navigation"
-            onPress={() =>
-              // Turn-by-turn in the Google Maps app (or browser) to the recommended facility.
-              void Linking.openURL(
-                `https://www.google.com/maps/dir/?api=1&destination=${facility.latitude},${facility.longitude}`,
-              )
-            }
+            onPress={onNavigate}
             style={styles.action}
           />
         </View>
@@ -191,7 +225,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.control,
     padding: 14,
   },
+  bannerArrived: { opacity: 0.85 },
   bannerText: { flex: 1 },
+  arrivalBlock: { gap: 8 },
   header: { flexDirection: 'row', justifyContent: 'space-between', gap: 10, marginBottom: 16 },
   headerText: { flex: 1, gap: 2 },
   tierTag: {

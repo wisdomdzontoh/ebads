@@ -1,0 +1,114 @@
+{
+  "5.704,-0.303": {
+    "new_lat": 5.6944,
+    "new_lon": -0.2934,
+    "nearest_facility": "Amasaman Hospital",
+    "nearest_km": 1.506,
+    "why": "Amasaman -> SE toward Accra along the Nsawam road corridor"
+  },
+  "5.571,-0.204": {
+    "new_lat": 5.5834,
+    "new_lon": -0.2144,
+    "nearest_facility": "Maamobi General Hospital",
+    "nearest_km": 1.958,
+    "why": "Circle -> NW toward Kanda/Roman Ridge, still dense-urban"
+  },
+  "5.683,-0.166": {
+    "new_lat": 5.6926,
+    "new_lon": -0.1564,
+    "nearest_facility": "Madina Polyclinic",
+    "nearest_km": 1.506,
+    "why": "Madina -> NE toward Ashongman, still dense suburb"
+  },
+  "5.561,-0.212": {
+    "new_lat": 5.5762,
+    "new_lon": -0.2176,
+    "nearest_facility": "Adabraka Polyclinic",
+    "nearest_km": 1.8,
+    "why": "Adabraka -> N toward Kokomlemle, still dense-urban central Accra"
+  },
+  "5.669,-0.017": {
+    "new_lat": 5.6823,
+    "new_lon": -0.0194,
+    "nearest_facility": "Tema General Hospital",
+    "nearest_km": 1.503,
+    "why": "Tema dense cluster -> N inland, away from the harbour"
+  },
+  "5.615,-0.227": {
+    "new_lat": 5.6101,
+    "new_lon": -0.2134,
+    "nearest_facility": "Achimota Hospital",
+    "nearest_km": 1.601,
+    "why": "Achimota -> ESE toward Alajo, avoiding Achimota Forest"
+  },
+  "5.543,-0.263": {
+    "new_lat": 5.5563,
+    "new_lon": -0.2606,
+    "nearest_facility": "Dansoman Polyclinic",
+    "nearest_km": 1.503,
+    "why": "Dansoman -> N inland, away from the coast"
+  },
+  "5.689,-0.034": {
+    "new_lat": 5.7023,
+    "new_lon": -0.0364,
+    "nearest_facility": "Ashaiman Municipal Hospital",
+    "nearest_km": 1.503,
+    "why": "Ashaiman -> N inland toward Michel Camp"
+  },
+  "5.5589,-0.162": {
+    "new_lat": 5.5724,
+    "new_lon": -0.1608,
+    "nearest_facility": "La General Hospital",
+    "nearest_km": 1.507,
+    "why": "La General area -> N inland toward Cantonments, away from the coast"
+  },
+  "5.565,-0.236": {
+    "new_lat": 5.5722,
+    "new_lon": -0.2485,
+    "nearest_facility": "Kaneshie Polyclinic",
+    "nearest_km": 1.598,
+    "why": "Kaneshie -> NW toward Odorkor, still dense-urban"
+  },
+  "5.679,-0.004": {
+    "new_lat": 5.6917,
+    "new_lon": -0.0086,
+    "nearest_facility": "Tema Polyclinic",
+    "nearest_km": 1.501,
+    "why": "Tema Polyclinic area -> NNW inland, away from the harbour"
+  },
+  "5.556,-0.334": {
+    "new_lat": 5.5664,
+    "new_lon": -0.3253,
+    "nearest_facility": "Weija-Gbawe Polyclinic",
+    "nearest_km": 1.505,
+    "why": "Weija -> NE toward Mallam, away from the reservoir"
+  },
+  "5.883,0.096": {
+    "new_lat": 5.8758,
+    "new_lon": 0.1085,
+    "nearest_facility": "Shai Osudoku District Hospital",
+    "nearest_km": 1.598,
+    "why": "Shai Osudoku area -> ESE, further from the Shai Hills reserve"
+  },
+  "5.714,-0.166": {
+    "new_lat": 5.7257,
+    "new_lon": -0.1728,
+    "nearest_facility": "Pantang Hospital",
+    "nearest_km": 1.503,
+    "why": "Pantang area -> NNW toward Dome"
+  },
+  "5.533,-0.211": {
+    "new_lat": 5.5457,
+    "new_lon": -0.2064,
+    "nearest_facility": "Ussher Polyclinic",
+    "nearest_km": 1.501,
+    "why": "Ussher -> NNE inland, away from the coast"
+  },
+  "5.538,-0.236": {
+    "new_lat": 5.5513,
+    "new_lon": -0.2384,
+    "nearest_facility": "Mamprobi Polyclinic",
+    "nearest_km": 1.503,
+    "why": "Mamprobi -> N inland, away from the coast"
+  }
+}

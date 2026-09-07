@@ -1,31 +1,29 @@
 /**
- * Engine connection test — one explicit, user-triggered probe of the configured connection.
+ * Engine reachability test — one explicit, user-triggered probe of the configured URL.
  *
- * Used by Settings ("Save & test connection") and the onboarding connect step. It verifies, in
- * order: the URL parses, the engine is reachable, the API key is accepted, and the facilities
- * endpoint answers — and returns a precise, human-actionable verdict. Misconfiguration is
- * diagnosed HERE, once, with a confirmation on success, instead of surfacing later as scattered
- * fetch errors on every screen (docs/05 §5). This probes connectivity only; it never matches.
+ * Used by Settings ("Save & test") and the onboarding connect step. It verifies, in order: the
+ * URL parses, and the engine's public health endpoint answers — and returns a precise, human-
+ * actionable verdict. This is a pure reachability probe, unauthenticated by design: it runs
+ * before a dispatcher has necessarily signed in, and every other route requires a bearer token
+ * (EBADS_PRD.md §10) that only `POST /auth/login` on `LoginScreen` can obtain. A wrong password
+ * is a login failure, not a connection failure — they are diagnosed in two different places on
+ * purpose, matching where the dispatcher can actually act on each (docs/05 §5).
  */
 
-import { ApiClient, ApiError } from './api';
+const TEST_TIMEOUT_MS = 10_000;
 
 export interface ConnectionOk {
   ok: true;
-  /** How many facilities the engine returned — shown as proof the connection really works. */
-  facilityCount: number;
 }
 
 export interface ConnectionFailed {
   ok: false;
   /** Which layer failed, so the UI can point at the exact field to fix. */
-  stage: 'url' | 'network' | 'auth' | 'endpoint' | 'server';
+  stage: 'url' | 'network' | 'endpoint' | 'server';
   message: string;
 }
 
 export type ConnectionTestResult = ConnectionOk | ConnectionFailed;
-
-const TEST_TIMEOUT_MS = 10_000;
 
 /** Trim + drop trailing slashes so `http://host:8000/api/v1/` equals `…/api/v1`. */
 export function normalizeBaseUrl(input: string): string {
@@ -42,25 +40,8 @@ function parseHttpUrl(value: string): URL | null {
   }
 }
 
-/** Probe the engine's public health endpoint (no auth) to tell "server down" from "wrong path". */
-async function healthzReachable(origin: string): Promise<boolean> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TEST_TIMEOUT_MS);
-  try {
-    const response = await fetch(`${origin}/healthz`, { signal: controller.signal });
-    return response.ok;
-  } catch {
-    return false;
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-/** Run the full probe against the given connection values (NOT the currently saved ones). */
-export async function testConnection(
-  baseUrl: string,
-  apiKey: string,
-): Promise<ConnectionTestResult> {
+/** Run the full probe against the given base URL (NOT necessarily the currently saved one). */
+export async function testConnection(baseUrl: string): Promise<ConnectionTestResult> {
   const normalized = normalizeBaseUrl(baseUrl);
   const url = parseHttpUrl(normalized);
   if (!url) {
@@ -72,32 +53,12 @@ export async function testConnection(
     };
   }
 
-  const client = new ApiClient({
-    baseUrl: normalized,
-    apiKey: apiKey || undefined,
-    timeoutMs: TEST_TIMEOUT_MS,
-  });
-
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TEST_TIMEOUT_MS);
   try {
-    const facilities = await client.getFacilities();
-    return { ok: true, facilityCount: facilities.length };
-  } catch (error) {
-    if (!(error instanceof ApiError)) {
-      return {
-        ok: false,
-        stage: 'network',
-        message: 'Could not reach the engine. Check the URL and your network.',
-      };
-    }
-    if (error.status === 401 || error.status === 403) {
-      return {
-        ok: false,
-        stage: 'auth',
-        message:
-          'The engine rejected the API key. It must match the key configured on the engine exactly.',
-      };
-    }
-    if (error.status === 404) {
+    const response = await fetch(`${url.origin}/healthz`, { signal: controller.signal });
+    if (response.ok) return { ok: true };
+    if (response.status === 404) {
       return {
         ok: false,
         stage: 'endpoint',
@@ -105,34 +66,19 @@ export async function testConnection(
           'Reached the server, but there is no EBADS API at this path — the base URL should end with /api/v1.',
       };
     }
-    if (error.status >= 500) {
-      return {
-        ok: false,
-        stage: 'server',
-        message: `The engine answered with an error (HTTP ${error.status}). Check the engine logs.`,
-      };
-    }
-    if (error.status === 0) {
-      // Transport failure — probe /healthz so the message says WHICH half is broken.
-      if (await healthzReachable(url.origin)) {
-        return {
-          ok: false,
-          stage: 'endpoint',
-          message:
-            'The server is up, but the API path did not answer — the base URL should end with /api/v1.',
-        };
-      }
-      return {
-        ok: false,
-        stage: 'network',
-        message:
-          'Could not reach the engine. Check the URL, your network, and that the engine is running.',
-      };
-    }
     return {
       ok: false,
       stage: 'server',
-      message: `Unexpected engine response (HTTP ${error.status}): ${error.message}`,
+      message: `The engine answered with an error (HTTP ${response.status}). Check the engine logs.`,
     };
+  } catch {
+    return {
+      ok: false,
+      stage: 'network',
+      message:
+        'Could not reach the engine. Check the URL, your network, and that the engine is running.',
+    };
+  } finally {
+    clearTimeout(timer);
   }
 }

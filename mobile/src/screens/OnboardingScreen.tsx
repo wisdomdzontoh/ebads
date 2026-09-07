@@ -1,12 +1,14 @@
 /**
  * Onboarding flow (docs/05, onboarding_* designs) — shown once before the main app.
  *
- * Four steps: welcome (official EBADS logo), engine connection (base URL + API key with a live
- * test, so the app is verified-working before the dispatcher ever reaches a screen that needs
- * the engine), location permission, and notification permission. Every step after welcome is
- * skippable — the app degrades gracefully; a skipped step just defers that setup (connection
- * can be finished later in Settings). Completing the flow sets `onboarded` so it never shows
- * again.
+ * Four steps: welcome (official EBADS logo), engine connection (base URL, with a live
+ * reachability test, so the app is verified-working before the dispatcher ever reaches a
+ * screen that needs the engine), location permission, and notification permission. Signing in
+ * is a SEPARATE, later gate (`LoginScreen`, shown by App.tsx once onboarding is done) — not
+ * part of this one-time tour, since a session can expire and need renewing long after
+ * onboarding is behind the dispatcher. Every step after welcome is skippable — the app
+ * degrades gracefully; a skipped step just defers that setup (connection can be finished later
+ * in Settings). Completing the flow sets `onboarded` so it never shows again.
  */
 
 import React, { useState } from 'react';
@@ -18,7 +20,7 @@ import { requestNotificationPermission } from '../services/notifications';
 import { DEFAULT_BASE_URL, useSettings } from '../state/SettingsContext';
 import { colors } from '../theme';
 import { OnboardingStep } from './onboarding/OnboardingStep';
-import { LabeledField, SecretField } from './settings/SettingRow';
+import { LabeledField } from './settings/SettingRow';
 
 import * as Location from 'expo-location';
 
@@ -31,9 +33,8 @@ export function OnboardingScreen(): React.ReactElement {
   const [step, setStep] = useState<Step>('welcome');
   const [busy, setBusy] = useState(false);
 
-  // Connect-step fields, edited locally and committed when tested/skipped.
+  // Connect-step field, edited locally and committed when tested/skipped.
   const [baseUrl, setBaseUrl] = useState(settings.baseUrl || DEFAULT_BASE_URL);
-  const [apiKey, setApiKey] = useState(settings.apiKey);
   const [connectError, setConnectError] = useState<string | null>(null);
 
   const finish = (): void => {
@@ -44,15 +45,10 @@ export function OnboardingScreen(): React.ReactElement {
     setBusy(true);
     setConnectError(null);
     // Save what was typed either way — the dispatcher should never have to retype it.
-    await update({ baseUrl: baseUrl.trim(), apiKey: apiKey.trim() });
-    const result = await testConnection(baseUrl, apiKey.trim());
+    await update({ baseUrl: baseUrl.trim() });
+    const result = await testConnection(baseUrl);
     if (result.ok) {
-      setConnection({
-        status: 'ok',
-        message: null,
-        checkedAt: new Date().toISOString(),
-        facilityCount: result.facilityCount,
-      });
+      setConnection({ status: 'ok', message: null, checkedAt: new Date().toISOString() });
       setBusy(false);
       setStep('location');
     } else {
@@ -60,7 +56,6 @@ export function OnboardingScreen(): React.ReactElement {
         status: 'failed',
         message: result.message,
         checkedAt: new Date().toISOString(),
-        facilityCount: null,
       });
       setConnectError(result.message);
       setBusy(false);
@@ -69,7 +64,7 @@ export function OnboardingScreen(): React.ReactElement {
 
   const skipConnect = async (): Promise<void> => {
     // Keep whatever was typed so Settings starts from it, but leave the verdict untested.
-    await update({ baseUrl: baseUrl.trim() || DEFAULT_BASE_URL, apiKey: apiKey.trim() });
+    await update({ baseUrl: baseUrl.trim() || DEFAULT_BASE_URL });
     setConnectError(null);
     setStep('location');
   };
@@ -124,7 +119,7 @@ export function OnboardingScreen(): React.ReactElement {
           <OnboardingStep
             icon="cloud-done"
             title="Connect to the Engine"
-            body="Point the app at your EBADS allocation engine. The connection is tested right now, so every screen works the moment you finish setup."
+            body="Point the app at your EBADS allocation engine. The connection is tested right now — you'll sign in with your dispatcher account next, once setup is complete."
             primaryLabel={busy ? 'Testing connection…' : 'Test & continue'}
             onPrimary={() => void testAndContinue()}
             primaryLoading={busy}
@@ -140,12 +135,6 @@ export function OnboardingScreen(): React.ReactElement {
                   icon="link"
                   placeholder="http://host:8000/api/v1"
                   keyboardType="url"
-                />
-                <SecretField
-                  label="API key"
-                  value={apiKey}
-                  onChangeText={setApiKey}
-                  placeholder="X-API-Key (blank if the engine has none)"
                 />
                 {connectError ? (
                   <InlineNotice title="Connection failed" message={connectError} />

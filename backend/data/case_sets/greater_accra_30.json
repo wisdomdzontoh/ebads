@@ -9,8 +9,8 @@
   },
   {
     "case_id": "C002",
-    "origin_lat": 5.704,
-    "origin_lon": -0.303,
+    "origin_lat": 5.6944,
+    "origin_lon": -0.2934,
     "urgency": "critical",
     "required_bed_type": "icu",
     "_note": "Amasaman (admissible boundary, ~28 min)"
@@ -65,8 +65,8 @@
   },
   {
     "case_id": "C009",
-    "origin_lat": 5.571,
-    "origin_lon": -0.204,
+    "origin_lat": 5.5834,
+    "origin_lon": -0.2144,
     "urgency": "critical",
     "required_bed_type": "maternity_specialist",
     "_note": "Circle (dense)"
@@ -89,80 +89,80 @@
   },
   {
     "case_id": "C012",
-    "origin_lat": 5.683,
-    "origin_lon": -0.166,
+    "origin_lat": 5.6926,
+    "origin_lon": -0.1564,
     "urgency": "urgent",
     "required_bed_type": "general",
     "_note": "Madina (dense)"
   },
   {
     "case_id": "C013",
-    "origin_lat": 5.561,
-    "origin_lon": -0.212,
+    "origin_lat": 5.5762,
+    "origin_lon": -0.2176,
     "urgency": "urgent",
     "required_bed_type": "general",
     "_note": "Adabraka (dense)"
   },
   {
     "case_id": "C014",
-    "origin_lat": 5.669,
-    "origin_lon": -0.017,
+    "origin_lat": 5.6823,
+    "origin_lon": -0.0194,
     "urgency": "urgent",
     "required_bed_type": "general",
     "_note": "Tema (dense cluster)"
   },
   {
     "case_id": "C015",
-    "origin_lat": 5.615,
-    "origin_lon": -0.227,
+    "origin_lat": 5.6101,
+    "origin_lon": -0.2134,
     "urgency": "urgent",
     "required_bed_type": "maternity_specialist",
     "_note": "Achimota (dense)"
   },
   {
     "case_id": "C016",
-    "origin_lat": 5.543,
-    "origin_lon": -0.263,
+    "origin_lat": 5.5563,
+    "origin_lon": -0.2606,
     "urgency": "urgent",
     "required_bed_type": "maternity_specialist",
     "_note": "Dansoman"
   },
   {
     "case_id": "C017",
-    "origin_lat": 5.689,
-    "origin_lon": -0.034,
+    "origin_lat": 5.7023,
+    "origin_lon": -0.0364,
     "urgency": "urgent",
     "required_bed_type": "general",
     "_note": "Ashaiman"
   },
   {
     "case_id": "C018",
-    "origin_lat": 5.5589,
-    "origin_lon": -0.162,
+    "origin_lat": 5.5724,
+    "origin_lon": -0.1608,
     "urgency": "urgent",
     "required_bed_type": "maternity_specialist",
     "_note": "La General area"
   },
   {
     "case_id": "C019",
-    "origin_lat": 5.565,
-    "origin_lon": -0.236,
+    "origin_lat": 5.5722,
+    "origin_lon": -0.2485,
     "urgency": "urgent",
     "required_bed_type": "general",
     "_note": "Kaneshie"
   },
   {
     "case_id": "C020",
-    "origin_lat": 5.679,
-    "origin_lon": -0.004,
+    "origin_lat": 5.6917,
+    "origin_lon": -0.0086,
     "urgency": "urgent",
     "required_bed_type": "maternity_specialist",
     "_note": "Tema Polyclinic area"
   },
   {
     "case_id": "C021",
-    "origin_lat": 5.556,
-    "origin_lon": -0.334,
+    "origin_lat": 5.5664,
+    "origin_lon": -0.3253,
     "urgency": "standard",
     "required_bed_type": "general",
     "_note": "Weija"
@@ -177,16 +177,16 @@
   },
   {
     "case_id": "C023",
-    "origin_lat": 5.704,
-    "origin_lon": -0.303,
+    "origin_lat": 5.6944,
+    "origin_lon": -0.2934,
     "urgency": "standard",
     "required_bed_type": "general",
     "_note": "Amasaman"
   },
   {
     "case_id": "C024",
-    "origin_lat": 5.883,
-    "origin_lon": 0.096,
+    "origin_lat": 5.8758,
+    "origin_lon": 0.1085,
     "urgency": "standard",
     "required_bed_type": "maternity_specialist",
     "_note": "Shai Osudoku area"
@@ -201,32 +201,32 @@
   },
   {
     "case_id": "C026",
-    "origin_lat": 5.714,
-    "origin_lon": -0.166,
+    "origin_lat": 5.7257,
+    "origin_lon": -0.1728,
     "urgency": "standard",
     "required_bed_type": "icu",
     "_note": "Pantang area (standard radius reaches the central ICU cluster)"
   },
   {
     "case_id": "C027",
-    "origin_lat": 5.683,
-    "origin_lon": -0.166,
+    "origin_lat": 5.6926,
+    "origin_lon": -0.1564,
     "urgency": "standard",
     "required_bed_type": "general",
     "_note": "Madina"
   },
   {
     "case_id": "C028",
-    "origin_lat": 5.533,
-    "origin_lon": -0.211,
+    "origin_lat": 5.5457,
+    "origin_lon": -0.2064,
     "urgency": "standard",
     "required_bed_type": "maternity_specialist",
     "_note": "Ussher"
   },
   {
     "case_id": "C029",
-    "origin_lat": 5.538,
-    "origin_lon": -0.236,
+    "origin_lat": 5.5513,
+    "origin_lon": -0.2384,
     "urgency": "standard",
     "required_bed_type": "general",
     "_note": "Mamprobi"

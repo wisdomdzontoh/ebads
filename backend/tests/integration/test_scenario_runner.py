@@ -143,6 +143,24 @@ async def test_decisions_jsonl_has_one_line_per_case_per_strategy_run(
         assert {"facility_id", "tier", "t_hat", "b_hat", "c_hat", "score"} <= set(candidate)
 
 
+async def test_no_placement_is_within_one_minute_of_travel(db_session: AsyncSession) -> None:
+    """Chapter Four evidence review, fix 1: every case origin was moved 1.5-4 km from the
+    nearest facility so a placement never dispatches a patient to the building they are
+    already inside. A zero-distance dispatch is not a meaningful emergency scenario."""
+    cases = load_cases(_CASE_SET)
+    starting_state = load_starting_state(_STARTING_STATE)
+
+    results = await run_all_strategies(db_session, cases, starting_state)
+
+    for algorithm, runs in results.items():
+        for run in runs:
+            if run.selected_travel_time_minutes is not None:
+                assert run.selected_travel_time_minutes >= 1.0, (
+                    f"{algorithm.value}/{run.case.case_id} placed at "
+                    f"{run.selected_travel_time_minutes} min"
+                )
+
+
 async def test_manifest_records_hashes_and_parameters(
     db_session: AsyncSession, tmp_path: Path
 ) -> None:

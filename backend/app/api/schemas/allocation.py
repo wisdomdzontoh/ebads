@@ -121,6 +121,37 @@ class AllocationAuditRead(BaseModel):
     # Traversing this chain across successive reallocations recovers the full redirect
     # history for one incident, allocation by allocation.
     supersedes_allocation_id: uuid.UUID | None
+    # From the underlying reservation, not a column on allocation itself (docs/02 §3.6) — the
+    # facility's stated reason a REVOKED allocation was withdrawn (FR24-27). Null on every
+    # other status; a client polling for a revocation (the mobile redirect flow) needs this to
+    # show the dispatcher *why*, not just that it happened.
+    revocation_reason: str | None
+
+
+class InboundReservationRead(BaseModel):
+    """One active (confirmed) reservation awaiting the receiving facility's action — the
+    inbound queue the web portal's facility-staff view lists (docs/02 §3.5-3.6, FR20).
+
+    Assembled from a joined ``Allocation`` + ``Reservation`` pair rather than either read
+    model alone: the facility needs both the incident's facts (urgency, bed type, ETA) and
+    the hold's own state (acknowledged, expiring, arrived) in one row, and neither
+    ``AllocationAuditRead`` nor ``ReservationRead`` alone carries both.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    allocation_id: uuid.UUID
+    reservation_id: uuid.UUID
+    created_at: datetime
+    urgency: Urgency | None
+    required_bed_type: BedType
+    eta_minutes: float | None
+    expires_at: datetime
+    acknowledged_at: datetime | None
+    # True once arrival is recorded — read-only here. Only the dispatcher who submitted the
+    # request sets this (``POST /allocations/{id}/arrive``, FR22); the receiving facility
+    # sees it, but does not set it, from this endpoint (docs/02 §2.2 role table).
+    confirmed: bool
 
 
 class ReservationRead(BaseModel):

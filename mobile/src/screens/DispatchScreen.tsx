@@ -8,12 +8,24 @@
  * engine's recommendation or escalation verbatim. Submission is disabled offline (docs/05 §3):
  * the tab becomes the read-only informational view and no request leaves the device. The
  * screen never scores or ranks — it collects input and displays the engine's answer.
+ *
+ * Reservation lifecycle (FR20, FR22, FR24-27, docs/01 §7): once a bed is confirmed, the sheet
+ * polls `GET /allocations/{id}` every `POLL_INTERVAL_MS` while online — there is no real push
+ * channel from the engine (FR19's SMS/push gateways are log-only, docs/01 §3.6), so this is
+ * how the app finds out the facility revoked the reservation. A revocation blocks the sheet
+ * behind `RevocationBanner` until the dispatcher gets a new recommendation from their CURRENT
+ * GPS position (not the original incident coordinates — the ambulance has likely moved).
+ * "Record arrival" is the one write `RecommendationCard` itself triggers.
+ *
+ * "Navigate" switches the whole screen into `LiveNavigationMap` — a live, in-app, GPS-tracked
+ * route to the recommended facility — instead of handing off to the external Google Maps app.
+ * The dispatcher never leaves EBADS to get there and back.
  */
 
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, type NavigationProp } from '@react-navigation/native';
 import * as Location from 'expo-location';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Platform,
@@ -31,18 +43,26 @@ import type { RootTabParamList } from '../navigation/RootTabs';
 import { ApiError } from '../services/api';
 import { notifyRecommendation } from '../services/notifications';
 import type { AllocationResponse, BedType, Urgency } from '../services/types';
+import { useAuth } from '../state/AuthContext';
 import { useConnectivity } from '../state/ConnectivityContext';
 import { useSettings } from '../state/SettingsContext';
 import { colors, radius, shadow, spacing } from '../theme';
 import { BedTypeSelector } from './dispatch/BedTypeSelector';
 import { DispatchMap, type Coord, type MapFacility } from './dispatch/DispatchMap';
 import { EscalationCard } from './dispatch/EscalationCard';
+import { LiveNavigationMap } from './dispatch/LiveNavigationMap';
 import { OfflineFacilities } from './dispatch/OfflineFacilities';
 import { RecommendationCard } from './dispatch/RecommendationCard';
+import { RevocationBanner } from './dispatch/RevocationBanner';
 import { TriageSelector } from './dispatch/TriageSelector';
 
+/** How often to poll a confirmed reservation for a revocation while it's showing (ms). There
+ * is no push channel to react to instead — see the module docstring. */
+const POLL_INTERVAL_MS = 20_000;
+
 export function DispatchScreen(): React.ReactElement {
-  const { api, settings, connection } = useSettings();
+  const { api } = useAuth();
+  const { settings, connection } = useSettings();
   const { online } = useConnectivity();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
@@ -58,32 +78,61 @@ export function DispatchScreen(): React.ReactElement {
   const [gpsError, setGpsError] = useState<string | null>(null);
   const [sheetHeight, setSheetHeight] = useState(0);
 
+  // Reservation lifecycle, tracked only for a CONFIRMED allocation (result.status === 'allocated').
+  const [allocationId, setAllocationId] = useState<string | null>(null);
+  const [arrived, setArrived] = useState(false);
+  const [recordingArrival, setRecordingArrival] = useState(false);
+  const [arrivalError, setArrivalError] = useState<string | null>(null);
+  const [revoked, setRevoked] = useState<{ reason: string | null } | null>(null);
+  const [redirecting, setRedirecting] = useState(false);
+  const [redirectError, setRedirectError] = useState<string | null>(null);
+  // Live in-app navigation (replaces handing off to the external Google Maps app) — takes
+  // over the full-screen map while active; the sheet collapses to nothing behind it.
+  const [navigating, setNavigating] = useState(false);
+
   const canSubmit = Boolean(online && coord && urgency && bedType) && !submitting;
 
-  const useGps = async (): Promise<void> => {
+  const resetLifecycle = (): void => {
+    setAllocationId(null);
+    setArrived(false);
+    setArrivalError(null);
+    setRevoked(null);
+    setRedirecting(false);
+    setRedirectError(null);
+    setNavigating(false);
+  };
+
+  const useGps = async (): Promise<Coord | null> => {
     setLocating(true);
     setGpsError(null);
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setGpsError('Location access is off — enable it in system settings, or move the map.');
-        return;
+        return null;
       }
       const position = await Location.getCurrentPositionAsync({});
       const fix = { latitude: position.coords.latitude, longitude: position.coords.longitude };
       setCoord(fix);
       setFlyTo(fix);
+      return fix;
     } catch {
       setGpsError('Could not read the device location. Move the map to set it instead.');
+      return null;
     } finally {
       setLocating(false);
     }
+  };
+
+  const notify = (title: string, body: string): void => {
+    if (settings.pushEnabled) void notifyRecommendation(title, body);
   };
 
   const submit = async (): Promise<void> => {
     if (!coord || !urgency || !bedType) return;
     setSubmitting(true);
     setSubmitError(null);
+    resetLifecycle();
     try {
       const response = await api.createAllocation({
         patient_lat: coord.latitude,
@@ -92,23 +141,103 @@ export function DispatchScreen(): React.ReactElement {
         required_bed_type: bedType,
       });
       setResult(response);
-      // Surface the engine's decision as a local notification (docs/05 §6), if enabled.
-      if (settings.pushEnabled) {
-        if (response.status === 'allocated') {
-          const facility = response.recommended_facility;
-          void notifyRecommendation(
-            'Bed allocated',
-            `${facility.name} · ${facility.travel_time_minutes.toFixed(1)} min · ${facility.available_beds} beds`,
-          );
-        } else {
-          void notifyRecommendation('Manual decision required', response.selection_reason);
-        }
+      if (response.status === 'allocated') {
+        setAllocationId(response.id);
+        const facility = response.recommended_facility;
+        notify(
+          'Bed allocated',
+          `${facility.name} · ${facility.travel_time_minutes.toFixed(1)} min · ${facility.available_beds} beds`,
+        );
+      } else {
+        notify('Manual decision required', response.selection_reason);
       }
     } catch (error) {
       // Shown inline in the sheet (Alert.alert is a silent no-op on web).
       setSubmitError(error instanceof ApiError ? error.message : 'Could not reach the engine.');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  // Poll the confirmed allocation for a status change — specifically a revocation, since that
+  // is the one thing the facility can do that needs the dispatcher's attention right now.
+  // Stops on its own once arrived or revoked (nothing left to watch for), offline (nothing to
+  // poll with), or the sheet moves on to a new dispatch (`allocationId` cleared).
+  const pollingRef = useRef(false);
+  useEffect(() => {
+    if (!allocationId || !online || arrived || revoked) return;
+    const interval = setInterval(() => {
+      if (pollingRef.current) return; // never overlap polls
+      pollingRef.current = true;
+      void api
+        .getAllocation(allocationId)
+        .then((audit) => {
+          if (audit.status === 'revoked') {
+            setRevoked({ reason: audit.revocation_reason });
+            notify('Reservation withdrawn', 'The facility withdrew this reservation. Get a new recommendation.');
+          } else if (audit.status === 'arrived') {
+            setArrived(true);
+          }
+          // refused/expired are terminal too, but no further app action applies to either —
+          // the dispatcher already knows on the ground; nothing to poll for stops on its own
+          // once neither branch above matches again next tick... (status won't change further).
+        })
+        .catch(() => {
+          // A transient poll failure must never interrupt the dispatcher — try again next tick.
+        })
+        .finally(() => {
+          pollingRef.current = false;
+        });
+    }, POLL_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [allocationId, online, arrived, revoked, api]);
+
+  const recordArrival = async (): Promise<void> => {
+    if (!allocationId) return;
+    setRecordingArrival(true);
+    setArrivalError(null);
+    try {
+      await api.recordArrival(allocationId);
+      setArrived(true);
+    } catch (error) {
+      setArrivalError(error instanceof ApiError ? error.message : 'Could not reach the engine.');
+    } finally {
+      setRecordingArrival(false);
+    }
+  };
+
+  const getNewRecommendation = async (): Promise<void> => {
+    if (!allocationId) return;
+    setRedirecting(true);
+    setRedirectError(null);
+    try {
+      const fix = await useGps();
+      if (!fix) {
+        setRedirectError('Could not read the device location — try again once GPS is available.');
+        return;
+      }
+      const response = await api.reallocate(allocationId, {
+        current_lat: fix.latitude,
+        current_lon: fix.longitude,
+      });
+      setResult(response);
+      setRevoked(null);
+      if (response.status === 'allocated') {
+        setAllocationId(response.id); // resume polling against the NEW allocation
+        setArrived(false);
+        const facility = response.recommended_facility;
+        notify(
+          'New bed allocated',
+          `${facility.name} · ${facility.travel_time_minutes.toFixed(1)} min · ${facility.available_beds} beds`,
+        );
+      } else {
+        setAllocationId(null); // escalated — nothing left to poll
+        notify('Manual decision required', response.selection_reason);
+      }
+    } catch (error) {
+      setRedirectError(error instanceof ApiError ? error.message : 'Could not reach the engine.');
+    } finally {
+      setRedirecting(false);
     }
   };
 
@@ -119,6 +248,26 @@ export function DispatchScreen(): React.ReactElement {
       <Screen>
         <OfflineFacilities />
       </Screen>
+    );
+  }
+
+  // Live in-app navigation takes over the whole screen — no external Google Maps hand-off
+  // (docs/05's own ride-hailing framing: the map IS the app, not a launcher for another one).
+  if (navigating && result?.status === 'allocated') {
+    const facility = result.recommended_facility;
+    return (
+      <LiveNavigationMap
+        destination={{
+          latitude: facility.latitude,
+          longitude: facility.longitude,
+          name: facility.name,
+          contactPhone: facility.contact_phone,
+        }}
+        arrived={arrived}
+        recordingArrival={recordingArrival}
+        onRecordArrival={() => void recordArrival()}
+        onExit={() => setNavigating(false)}
+      />
     );
   }
 
@@ -186,10 +335,25 @@ export function DispatchScreen(): React.ReactElement {
                 onPress={() => {
                   setResult(null);
                   setSubmitError(null);
+                  resetLifecycle();
                 }}
               />
-              {result.status === 'allocated' ? (
-                <RecommendationCard result={result} />
+              {revoked ? (
+                <RevocationBanner
+                  reason={revoked.reason}
+                  redirecting={redirecting}
+                  redirectError={redirectError}
+                  onGetNewRecommendation={() => void getNewRecommendation()}
+                />
+              ) : result.status === 'allocated' ? (
+                <RecommendationCard
+                  result={result}
+                  arrived={arrived}
+                  recordingArrival={recordingArrival}
+                  arrivalError={arrivalError}
+                  onRecordArrival={() => void recordArrival()}
+                  onNavigate={() => setNavigating(true)}
+                />
               ) : (
                 <EscalationCard result={result} />
               )}

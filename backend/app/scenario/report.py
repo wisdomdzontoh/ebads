@@ -55,7 +55,7 @@ _MEASURE_FIELDS: tuple[str, ...] = (
     "case_count",
     "placement_success",
     "escalation_rate",
-    "mean_facility_attempts",
+    "mean_reservation_attempts_per_placed_case",
     "mean_travel_time_minutes",
     "mean_capability_match",
     "critical_at_tertiary_rate",

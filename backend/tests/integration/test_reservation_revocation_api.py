@@ -115,6 +115,9 @@ async def test_revoke_releases_the_bed_and_writes_two_notifications(
     )
     assert response.status_code == 200
     assert response.json()["status"] == "revoked"
+    # The audit read surfaces *why*, not just that it happened (mobile revocation-redirect
+    # flow needs this) — sourced from the reservation, not a column on allocation itself.
+    assert response.json()["revocation_reason"] == "critical patient walked in, bed given to them"
 
     facility_after = (
         await client.get(f"/api/v1/facilities/{facility_a_id}", headers=system_admin_headers)

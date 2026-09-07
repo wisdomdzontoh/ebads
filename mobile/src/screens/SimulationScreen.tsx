@@ -19,6 +19,7 @@ import type {
   SimulationSessionRead,
   StepTrace,
 } from '../services/types';
+import { useAuth } from '../state/AuthContext';
 import { useConnectivity } from '../state/ConnectivityContext';
 import { useSettings } from '../state/SettingsContext';
 import { RunSummaryView } from './simulation/RunSummaryView';
@@ -28,7 +29,8 @@ import { StepTraceView } from './simulation/StepTraceView';
 type Mode = 'setup' | 'auto' | 'interactive';
 
 export function SimulationScreen(): React.ReactElement {
-  const { api, connection } = useSettings();
+  const { api } = useAuth();
+  const { connection } = useSettings();
   const { online } = useConnectivity();
   const [mode, setMode] = useState<Mode>('setup');
   const [session, setSession] = useState<SimulationSessionRead | null>(null);
@@ -143,7 +145,7 @@ export function SimulationScreen(): React.ReactElement {
         <InlineNotice
           tone="info"
           title="Engine connection failed its last test"
-          message="Verify the base URL and API key in Settings before running a simulation."
+          message="Verify the base URL in Settings before running a simulation."
         />
       ) : null}
 

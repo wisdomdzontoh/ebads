@@ -59,7 +59,7 @@
     {
       "attempts": 1,
       "case_id": "C012",
-      "reserved_facility_name": "University of Ghana Medical Centre"
+      "reserved_facility_name": "Pantang Hospital"
     },
     {
       "attempts": 1,
@@ -74,7 +74,7 @@
     {
       "attempts": 1,
       "case_id": "C015",
-      "reserved_facility_name": "Achimota Hospital"
+      "reserved_facility_name": "37 Military Hospital"
     },
     {
       "attempts": 1,
@@ -87,7 +87,7 @@
       "reserved_facility_name": "Ashaiman Municipal Hospital"
     },
     {
-      "attempts": 1,
+      "attempts": 2,
       "case_id": "C018",
       "reserved_facility_name": "La General Hospital"
     },
@@ -102,17 +102,17 @@
       "reserved_facility_name": "Tema General Hospital"
     },
     {
-      "attempts": 5,
+      "attempts": 4,
       "case_id": "C021",
-      "reserved_facility_name": "Weija-Gbawe Polyclinic"
-    },
-    {
-      "attempts": 3,
-      "case_id": "C022",
-      "reserved_facility_name": "37 Military Hospital"
+      "reserved_facility_name": "University of Ghana Medical Centre"
     },
     {
       "attempts": 4,
+      "case_id": "C022",
+      "reserved_facility_name": "Weija-Gbawe Polyclinic"
+    },
+    {
+      "attempts": 5,
       "case_id": "C023",
       "reserved_facility_name": "Amasaman Hospital"
     },
@@ -139,7 +139,7 @@
     {
       "attempts": 6,
       "case_id": "C028",
-      "reserved_facility_name": "Ussher Polyclinic"
+      "reserved_facility_name": "Achimota Hospital"
     },
     {
       "attempts": 5,

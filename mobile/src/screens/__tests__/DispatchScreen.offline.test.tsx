@@ -13,18 +13,33 @@ import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 
 // Engine client — the name is `mock*`-prefixed so the jest.mock factory may reference it.
-const mockApi = { createAllocation: jest.fn() };
+const mockApi = {
+  createAllocation: jest.fn(),
+  getAllocation: jest.fn(),
+  recordArrival: jest.fn(),
+  reallocate: jest.fn(),
+};
 
 jest.mock('../../state/ConnectivityContext', () => ({
   useConnectivity: () => ({ online: false }),
 }));
 
+jest.mock('../../state/AuthContext', () => ({
+  useAuth: () => ({
+    session: { accessToken: 't', refreshToken: 'r', role: 'dispatcher', facilityId: null, email: 'd@example.com' },
+    ready: true,
+    api: mockApi,
+    login: jest.fn(),
+    logout: jest.fn(),
+    changePassword: jest.fn(),
+  }),
+}));
+
 jest.mock('../../state/SettingsContext', () => ({
   useSettings: () => ({
-    api: mockApi,
-    settings: { baseUrl: '', apiKey: '', syncIntervalMinutes: 15, pushEnabled: true },
+    settings: { baseUrl: '', syncIntervalMinutes: 15, pushEnabled: true, onboarded: true },
     ready: true,
-    connection: { status: 'untested', message: null, checkedAt: null, facilityCount: null },
+    connection: { status: 'untested', message: null, checkedAt: null },
     update: jest.fn(),
     setConnection: jest.fn(),
   }),

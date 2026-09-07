@@ -1,0 +1,245 @@
+{
+  "label": "POST-HOC DIAGNOSTIC \u2014 selected after observing the E2 contradiction, not an independent confirmation",
+  "per_case": [
+    {
+      "capability_match": 1.0,
+      "case_id": "C001",
+      "selected_facility_id": "a4740b4b-b8a4-54ef-baf1-0851df762036",
+      "tier": "tertiary",
+      "travel_time_minutes": 4.96443114559924
+    },
+    {
+      "capability_match": 1.0,
+      "case_id": "C002",
+      "selected_facility_id": "b07c4d50-4cb9-5e4c-b972-f8ec2bf948f8",
+      "tier": "tertiary",
+      "travel_time_minutes": 25.5106332308717
+    },
+    {
+      "capability_match": null,
+      "case_id": "C003",
+      "selected_facility_id": null,
+      "tier": null,
+      "travel_time_minutes": null
+    },
+    {
+      "capability_match": null,
+      "case_id": "C004",
+      "selected_facility_id": null,
+      "tier": null,
+      "travel_time_minutes": null
+    },
+    {
+      "capability_match": null,
+      "case_id": "C005",
+      "selected_facility_id": null,
+      "tier": null,
+      "travel_time_minutes": null
+    },
+    {
+      "capability_match": null,
+      "case_id": "C006",
+      "selected_facility_id": null,
+      "tier": null,
+      "travel_time_minutes": null
+    },
+    {
+      "capability_match": null,
+      "case_id": "C007",
+      "selected_facility_id": null,
+      "tier": null,
+      "travel_time_minutes": null
+    },
+    {
+      "capability_match": null,
+      "case_id": "C008",
+      "selected_facility_id": null,
+      "tier": null,
+      "travel_time_minutes": null
+    },
+    {
+      "capability_match": 1.0,
+      "case_id": "C009",
+      "selected_facility_id": "a4740b4b-b8a4-54ef-baf1-0851df762036",
+      "tier": "tertiary",
+      "travel_time_minutes": 5.781506667508141
+    },
+    {
+      "capability_match": null,
+      "case_id": "C010",
+      "selected_facility_id": null,
+      "tier": null,
+      "travel_time_minutes": null
+    },
+    {
+      "capability_match": null,
+      "case_id": "C011",
+      "selected_facility_id": null,
+      "tier": null,
+      "travel_time_minutes": null
+    },
+    {
+      "capability_match": 1.0,
+      "case_id": "C012",
+      "selected_facility_id": "5b421016-b8f5-5795-9b66-49c6f02a9291",
+      "tier": "secondary",
+      "travel_time_minutes": 5.211763801151758
+    },
+    {
+      "capability_match": 0.8,
+      "case_id": "C013",
+      "selected_facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+      "tier": "tertiary",
+      "travel_time_minutes": 9.005380945082381
+    },
+    {
+      "capability_match": 1.0,
+      "case_id": "C014",
+      "selected_facility_id": "87cb878e-3497-566d-ac6c-825beb40f7e9",
+      "tier": "secondary",
+      "travel_time_minutes": 3.00509647925223
+    },
+    {
+      "capability_match": 0.8,
+      "case_id": "C015",
+      "selected_facility_id": "3c22fb9f-843c-5d6c-b030-e2cc15a2eedf",
+      "tier": "tertiary",
+      "travel_time_minutes": 8.307022636895551
+    },
+    {
+      "capability_match": 0.8,
+      "case_id": "C016",
+      "selected_facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+      "tier": "tertiary",
+      "travel_time_minutes": 8.804013226096812
+    },
+    {
+      "capability_match": 1.0,
+      "case_id": "C017",
+      "selected_facility_id": "87cb878e-3497-566d-ac6c-825beb40f7e9",
+      "tier": "secondary",
+      "travel_time_minutes": 8.560016621876455
+    },
+    {
+      "capability_match": 1.0,
+      "case_id": "C018",
+      "selected_facility_id": "7d201ef1-2e9c-5c18-9d6c-51dcc68f15ac",
+      "tier": "secondary",
+      "travel_time_minutes": 3.0139935076181965
+    },
+    {
+      "capability_match": 0.8,
+      "case_id": "C019",
+      "selected_facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+      "tier": "tertiary",
+      "travel_time_minutes": 9.341496680676324
+    },
+    {
+      "capability_match": 1.0,
+      "case_id": "C020",
+      "selected_facility_id": "87cb878e-3497-566d-ac6c-825beb40f7e9",
+      "tier": "secondary",
+      "travel_time_minutes": 5.37963012205609
+    },
+    {
+      "capability_match": 0.5,
+      "case_id": "C021",
+      "selected_facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+      "tier": "tertiary",
+      "travel_time_minutes": 22.935945958232555
+    },
+    {
+      "capability_match": 0.5,
+      "case_id": "C022",
+      "selected_facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+      "tier": "tertiary",
+      "travel_time_minutes": 42.9456097520665
+    },
+    {
+      "capability_match": 0.8,
+      "case_id": "C023",
+      "selected_facility_id": "d538b519-63a9-5b99-b05d-49d225448296",
+      "tier": "secondary",
+      "travel_time_minutes": 3.011815992117192
+    },
+    {
+      "capability_match": 0.8,
+      "case_id": "C024",
+      "selected_facility_id": "a478eaf1-5e62-57b6-b2c2-eb69fe60987f",
+      "tier": "secondary",
+      "travel_time_minutes": 3.1953874100917603
+    },
+    {
+      "capability_match": 0.8,
+      "case_id": "C025",
+      "selected_facility_id": "87cb878e-3497-566d-ac6c-825beb40f7e9",
+      "tier": "secondary",
+      "travel_time_minutes": 37.59405501832938
+    },
+    {
+      "capability_match": 0.5,
+      "case_id": "C026",
+      "selected_facility_id": "b07c4d50-4cb9-5e4c-b972-f8ec2bf948f8",
+      "tier": "tertiary",
+      "travel_time_minutes": 17.01233414295932
+    },
+    {
+      "capability_match": 0.5,
+      "case_id": "C027",
+      "selected_facility_id": "3c22fb9f-843c-5d6c-b030-e2cc15a2eedf",
+      "tier": "tertiary",
+      "travel_time_minutes": 25.442953790634036
+    },
+    {
+      "capability_match": 0.5,
+      "case_id": "C028",
+      "selected_facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+      "tier": "tertiary",
+      "travel_time_minutes": 4.807340079704981
+    },
+    {
+      "capability_match": 0.5,
+      "case_id": "C029",
+      "selected_facility_id": "72d18e39-0dba-5eca-bb0e-67a4ae5460dd",
+      "tier": "tertiary",
+      "travel_time_minutes": 4.2543880369537534
+    },
+    {
+      "capability_match": null,
+      "case_id": "C030",
+      "selected_facility_id": null,
+      "tier": null,
+      "travel_time_minutes": null
+    }
+  ],
+  "standard_tier_measures": {
+    "case_count": 10,
+    "escalation_rate": 0.1,
+    "mean_capability_match": 0.6000000000000001,
+    "mean_reservation_attempts_per_placed_case": 1.0,
+    "mean_travel_time_minutes": 17.911092242343276,
+    "placement_success": 0.9
+  },
+  "weight_vector_used": {
+    "critical": {
+      "w_b": 0.1,
+      "w_c": 0.4,
+      "w_t": 0.5
+    },
+    "standard_COUNTERFACTUAL": {
+      "w_b": 0.35,
+      "w_c": 0.25,
+      "w_t": 0.4
+    },
+    "standard_PRIMARY_RUN_FOR_COMPARISON": {
+      "w_b": 0.5,
+      "w_c": 0.25,
+      "w_t": 0.25
+    },
+    "urgent": {
+      "w_b": 0.25,
+      "w_c": 0.35,
+      "w_t": 0.4
+    }
+  }
+}

@@ -11,6 +11,7 @@ def test_empty_result_set_has_zeroed_measures() -> None:
     assert m.case_count == 0
     assert m.placement_success == 0.0
     assert m.escalation_rate == 0.0
+    assert m.mean_reservation_attempts_per_placed_case is None
     assert m.mean_travel_time_minutes is None
     assert m.mean_capability_match is None
     assert m.critical_at_tertiary_rate is None
@@ -42,14 +43,23 @@ def test_travel_time_and_capability_match_average_over_allocated_only() -> None:
     assert m.mean_capability_match == 0.8
 
 
-def test_mean_facility_attempts_averages_over_every_case() -> None:
+def test_mean_reservation_attempts_averages_over_placed_cases_only() -> None:
+    """Fix 2 (Chapter Four evidence review): an escalated case made no reservation attempt at
+    all, so it must not drag this denominator toward placement_success. Averaging (1 + 3) / 2
+    = 2.0, not (1 + 3 + 0) / 3 = 1.333 — the pre-fix bug this test guards against."""
     results = [
         CaseResult("C1", Urgency.URGENT, True, 5.0, 1.0, Tier.TERTIARY, 1),
         CaseResult("C2", Urgency.URGENT, True, 5.0, 1.0, Tier.TERTIARY, 3),
-        CaseResult("C3", Urgency.URGENT, False, None, None, None, 2),
+        CaseResult("C3", Urgency.URGENT, False, None, None, None, 0),
     ]
     m = compute_measures(results)
-    assert m.mean_facility_attempts == 2.0
+    assert m.mean_reservation_attempts_per_placed_case == 2.0
+
+
+def test_mean_reservation_attempts_is_none_with_no_placed_cases() -> None:
+    results = [CaseResult("C1", Urgency.URGENT, False, None, None, None, 0)]
+    m = compute_measures(results)
+    assert m.mean_reservation_attempts_per_placed_case is None
 
 
 def test_critical_at_tertiary_rate_denominator_is_critical_cases_only() -> None:
