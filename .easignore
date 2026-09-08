@@ -1,0 +1,61 @@
+# EAS Build archives from the repository root, not from mobile/ (confirmed via
+# `eas build:inspect --stage archive`) — this monorepo's other packages (web-portal, backend)
+# ride along in every mobile build's upload unless excluded here. IMPORTANT: once ANY
+# .easignore exists, EAS CLI stops respecting every .gitignore in the tree entirely (they
+# don't merge) — so this one file has to independently cover what each package's own
+# .gitignore already does, not just add to it.
+#
+# What was actually inflating the archive (found via `eas build:inspect -p android -s archive
+# -o <dir> -e preview`, du -sh on the result): NOT node_modules (already excluded by EAS's own
+# default, archive-stage behavior) — it was web-portal/.next, a Next.js build cache that
+# regrows from ordinary `next dev`/`next build` usage and reached 700+ MB. Its own
+# web-portal/.gitignore already lists `/.next/`, but that's a package-rooted pattern
+# (`/.next/` relative to web-portal/, not the git root) — the kind of nested-.gitignore rule
+# EAS's own docs (expo.fyi/eas-build-archive) call out as unreliable once files are walked
+# from the repo root, which is exactly what silently let it through.
+
+# --- Node / Expo (mobile, web-portal) ---
+node_modules/
+.next/
+.expo/
+dist/
+web-build/
+.metro-health-check*
+*.tsbuildinfo
+
+# --- mobile: generated native folders (EAS's own prebuild regenerates these) ---
+/mobile/ios
+/mobile/android
+.kotlin/
+
+# --- Python (backend) ---
+.venv/
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# --- large study/analysis outputs (docs/10-project-structure.md §6) ---
+artifacts/
+*.parquet
+*.npz
+
+# --- secrets — EXPO_PUBLIC_* values come from EAS's own environment variables for mobile
+# builds (see the build log's "Resolved ... environment" line), never a local .env file ---
+.env*.local
+.env*
+!.env.example
+
+# --- debug logs / OS / editor cruft ---
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+.DS_Store
+*.pem
+
+# --- VCS / tooling, not part of any app ---
+.git/
+.claude/
+.github/
