@@ -53,6 +53,23 @@ class FacilityBrief(BaseModel):
     available_beds: int
 
 
+class RankedAlternative(BaseModel):
+    """A runner-up from the same scoring pass as the confirmed recommendation — shown for the
+    dispatcher's situational awareness only. Never reserved, never actionable from a client
+    (docs/05 §8: the client never matches) — the reservation is already committed to
+    ``recommended_facility`` alone (docs/01 §7's atomic CAS). See
+    ``app.parameters.MAX_RANKED_ALTERNATIVES``."""
+
+    id: uuid.UUID
+    name: str
+    tier: Tier
+    available_beds: int
+    travel_time_minutes: float
+    is_estimated_travel_time: bool
+    capability_match: float
+    score: float
+
+
 class AllocatedResponse(BaseModel):
     """Confirmed-reservation payload (docs/01 §7, FR8, FR19)."""
 
@@ -66,6 +83,10 @@ class AllocatedResponse(BaseModel):
     attempts: int
     eta_minutes: float
     selection_reason: str
+    # Runners-up from the same scoring pass (docs/EBADS_PRD.md G1) — may be shorter than
+    # MAX_RANKED_ALTERNATIVES (few candidates existed) or empty (only one candidate existed,
+    # or FR9's fall-through exhausted the rest — see AllocationService.allocate).
+    ranked_alternatives: list[RankedAlternative] = []
 
 
 class EscalatedResponse(BaseModel):

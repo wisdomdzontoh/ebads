@@ -45,10 +45,16 @@ async def _create_facility_with_icu_beds(
     system_admin_headers: dict[str, str],
     make_user: MakeUser,
     available: int = 4,
+    name: str | None = None,
 ) -> str:
-    """Create a facility (system_administrator) and set its ICU beds (its own staff)."""
+    """Create a facility (system_administrator) and set its ICU beds (its own staff).
+
+    ``name`` defaults to the shared ``_FACILITY`` fixture's — override it when a test creates
+    more than one facility in the same run, since the column is unique (docs/11 §5).
+    """
+    payload = {**_FACILITY, "name": name} if name else _FACILITY
     created = await client.post(
-        "/api/v1/facilities", json=_FACILITY, headers=system_admin_headers
+        "/api/v1/facilities", json=payload, headers=system_admin_headers
     )
     facility_id = created.json()["id"]
     _, staff_headers = await make_user(Role.FACILITY_STAFF, facility_id=facility_id)
@@ -87,6 +93,8 @@ async def test_allocation_happy_path_persists_reservation(
     assert body["candidates_evaluated"] == 1
     assert body["attempts"] == 1
     assert body["eta_minutes"] == 0.0
+    # A single candidate — nothing to rank as an alternative to itself.
+    assert body["ranked_alternatives"] == []
 
     # The reservation actually decremented the bed (FR8).
     facility = (
@@ -105,6 +113,46 @@ async def test_allocation_happy_path_persists_reservation(
     assert record["weight_vector"] == {"w_t": 0.50, "w_b": 0.10, "w_c": 0.40}
     assert record["attempts"] == 1
     assert record["revocation_reason"] is None  # never revoked
+
+
+async def test_allocation_includes_ranked_alternatives(
+    client: AsyncClient,
+    system_admin_headers: dict[str, str],
+    dispatcher_headers: dict[str, str],
+    make_user: MakeUser,
+) -> None:
+    """Two co-located facilities (identical travel time) with different bed counts — the one
+    with more available beds should win (b_hat favours it), the other should appear as the
+    sole ranked alternative, never as the winner itself (docs/EBADS_PRD.md G1)."""
+    winner_id = await _create_facility_with_icu_beds(
+        client, system_admin_headers, make_user, available=8, name="Ranked Winner"
+    )
+    runner_up_id = await _create_facility_with_icu_beds(
+        client, system_admin_headers, make_user, available=2, name="Ranked Runner-up"
+    )
+
+    response = await client.post(
+        "/api/v1/allocations",
+        json={
+            "patient_lat": _LAT,
+            "patient_lon": _LON,
+            "urgency": "critical",
+            "required_bed_type": "icu",
+        },
+        headers=dispatcher_headers,
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["candidates_evaluated"] == 2
+    assert body["recommended_facility"]["id"] == winner_id
+
+    alternatives = body["ranked_alternatives"]
+    assert len(alternatives) == 1
+    assert alternatives[0]["id"] == runner_up_id
+    assert alternatives[0]["id"] != winner_id
+    assert alternatives[0]["available_beds"] == 2
+    assert 0.0 <= alternatives[0]["capability_match"] <= 1.0
+    assert isinstance(alternatives[0]["score"], float)
 
 
 async def test_create_allocation_without_auth_is_401(client: AsyncClient) -> None:

@@ -281,6 +281,15 @@ ROBUSTNESS_CHECK_WEIGHTS: Mapping[Urgency, WeightVector] = {
 # normalised value collapses to this constant rather than dividing by zero (docs/03 §3).
 NORMALIZATION_TIE_VALUE: float = 0.5
 
+# [IMPL] How many runners-up from the same scoring pass a confirmed AllocatedResponse also
+# carries as `ranked_alternatives`, for the dispatcher's own situational awareness — not part
+# of any docs/09 table (the algorithms themselves are unaffected; this is response
+# presentation only, docs/EBADS_PRD.md G1's "ranked, explicable" goal). Never acted on by a
+# client: the reservation is already committed to the winner alone (docs/01 §7's atomic CAS),
+# so these are read-only, never reservable from the mobile app (docs/05 §8: client never
+# matches).
+MAX_RANKED_ALTERNATIVES: int = 3
+
 
 # ---------------------------------------------------------------------------
 # 7. Travel-time service (docs/09 §7, thesis §3.5.7)

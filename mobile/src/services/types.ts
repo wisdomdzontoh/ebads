@@ -103,6 +103,21 @@ export interface FacilityBrief {
   available_beds: number;
 }
 
+/** A runner-up from the same scoring pass as the confirmed recommendation — shown for the
+ * dispatcher's situational awareness only. Never reserved; nothing here is tappable into a
+ * new allocation (docs/05 §8: the client never matches — this is a read-only echo of an
+ * already-completed server-side ranking, backend/app/parameters.py::MAX_RANKED_ALTERNATIVES). */
+export interface RankedAlternative {
+  id: string;
+  name: string;
+  tier: Tier;
+  available_beds: number;
+  travel_time_minutes: number;
+  is_estimated_travel_time: boolean;
+  capability_match: number;
+  score: number;
+}
+
 /** Allocated allocation response (docs/04 §4).
  *
  * `status` is `'confirmed'` — the reservation-protocol lifecycle value
@@ -122,6 +137,9 @@ export interface AllocatedResponse {
   attempts: number;
   eta_minutes: number;
   selection_reason: string;
+  /** Runners-up from the same scoring pass — may be empty (only one candidate existed, or
+   * FR9's reservation fall-through exhausted the rest). */
+  ranked_alternatives: RankedAlternative[];
 }
 
 /** Escalated allocation response (docs/04 §4). */

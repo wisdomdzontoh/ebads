@@ -34,6 +34,18 @@ const mockCreateAllocation = jest.fn(async () => ({
   attempts: 1,
   eta_minutes: 12.3,
   selection_reason: 'Lowest urgency-adaptive score among 3 reachable facilities.',
+  ranked_alternatives: [
+    {
+      id: 'f-2',
+      name: 'Ridge Hospital',
+      tier: 'tertiary',
+      available_beds: 2,
+      travel_time_minutes: 18.1,
+      is_estimated_travel_time: false,
+      capability_match: 1.0,
+      score: 0.42,
+    },
+  ],
 }));
 
 const mockApi = {
@@ -116,6 +128,9 @@ describe('DispatchScreen — confirmed allocation renders the recommendation, no
     expect(rendered).toContain('Bed allocated');
     expect(rendered).toContain('Korle Bu Teaching Hospital');
     expect(rendered).not.toContain('Manual decision required');
+    // Ranked alternatives render below the recommendation (RecommendationCard's own docstring).
+    expect(rendered).toContain('Ranked alternatives');
+    expect(rendered).toContain('Ridge Hospital');
 
     // Unmount so the revocation-poll interval's cleanup (clearInterval) actually runs — real
     // timers, otherwise a 20s-later poll would fire into a torn-down test process.

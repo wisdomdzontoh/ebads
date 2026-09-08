@@ -25,6 +25,7 @@ from app.api.schemas.allocation import (
     EscalatedResponse,
     FacilityBrief,
     InboundReservationRead,
+    RankedAlternative,
     ReallocateRequest,
     RecommendedFacility,
     RefuseRequest,
@@ -142,6 +143,19 @@ def _to_response(outcome: AllocationOutcome) -> AllocatedResponse | EscalatedRes
             attempts=outcome.attempts,
             eta_minutes=outcome.eta_minutes,
             selection_reason=outcome.selection_reason,
+            ranked_alternatives=[
+                RankedAlternative(
+                    id=alt.facility_id,
+                    name=alt.name,
+                    tier=alt.tier,
+                    available_beds=alt.available_beds,
+                    travel_time_minutes=alt.travel_time_minutes,
+                    is_estimated_travel_time=alt.is_estimated_travel_time,
+                    capability_match=alt.capability_match,
+                    score=alt.score,
+                )
+                for alt in outcome.ranked_alternatives
+            ],
         )
     return EscalatedResponse(
         id=outcome.id,

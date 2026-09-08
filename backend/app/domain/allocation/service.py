@@ -50,6 +50,7 @@ from app.domain.travel.base import Coordinate, TravelTimeService
 from app.parameters import (
     DEFAULT_URGENCY_WHEN_MISSING,
     HAVERSINE_SPEED_KMH,
+    MAX_RANKED_ALTERNATIVES,
     RESERVATION_GRACE_MIN,
     SMS_CHANNEL,
     AlgorithmName,
@@ -119,6 +120,21 @@ class FacilityRecommendation:
 
 
 @dataclass(frozen=True)
+class RankedAlternative:
+    """A runner-up from the same scoring pass — computed, never reserved (docs/EBADS_PRD.md
+    G1's "ranked, explicable" goal; see MAX_RANKED_ALTERNATIVES's own docstring)."""
+
+    facility_id: uuid.UUID
+    name: str
+    tier: Tier
+    available_beds: int
+    travel_time_minutes: float
+    is_estimated_travel_time: bool
+    capability_match: float
+    score: float
+
+
+@dataclass(frozen=True)
 class FacilityBrief:
     """A minimal facility reference for an escalation fallback (docs/04 §4)."""
 
@@ -144,6 +160,10 @@ class AllocationOutcome:
     selection_reason: str
     weight_vector: WeightVector | None = None
     recommended: FacilityRecommendation | None = None
+    # Runners-up from the same scoring pass — empty on escalation (there is no winner to rank
+    # against) and on an outcome built outside _recommendation_outcome (e.g. a reallocation
+    # that hasn't gone through it yet).
+    ranked_alternatives: list[RankedAlternative] = field(default_factory=list)
     nearest_within_radius: FacilityBrief | None = None
     nearest_available_outside_radius: FacilityBrief | None = None
     # Full scored set, for the simulation step trace (Phase 4) and the reservation loop.
@@ -316,6 +336,35 @@ class AllocationService:
             contact_phone=facility.contact_phone,
             capability_match=winner.c_hat,
         )
+        # Re-derive alternatives against the ACTUAL winner, not evaluate()'s assumed top
+        # candidate — FR9's fall-through means they can differ (the top-ranked candidate lost
+        # its own CAS race to a concurrent request). `_recommendation_outcome`'s own
+        # ranked_alternatives, built before any reservation was attempted, would otherwise
+        # list the just-reserved facility as one of its own "alternatives". The ranking is
+        # unchanged (same rank_by_score(outcome.scored)); `attempts` says how many of its
+        # leading entries just conflicted (skip those — they have no bed left either) before
+        # the winner at index attempts-1, so alternatives resume right after it. No
+        # facility_by_id map here (that's local to evaluate(), a separate call) — a handful of
+        # individual PK lookups instead, capped at MAX_RANKED_ALTERNATIVES.
+        ranking = rank_by_score(outcome.scored)
+        start = reservation_result.attempts
+        remaining = ranking[start : start + MAX_RANKED_ALTERNATIVES]
+        outcome.ranked_alternatives = []
+        for sc in remaining:
+            alt_facility = await self._session.get(Facility, uuid.UUID(sc.candidate.facility_id))
+            assert alt_facility is not None  # just scored as a candidate; cannot vanish mid-request
+            outcome.ranked_alternatives.append(
+                RankedAlternative(
+                    facility_id=alt_facility.id,
+                    name=alt_facility.name,
+                    tier=alt_facility.tier,
+                    available_beds=sc.candidate.available_beds,
+                    travel_time_minutes=sc.candidate.travel_time_min,
+                    is_estimated_travel_time=sc.candidate.is_estimated_travel_time,
+                    capability_match=sc.c_hat,
+                    score=sc.score,
+                )
+            )
         outcome.eta_minutes = eta_minutes
         outcome.attempts = reservation_result.attempts
         outcome.id = allocation.id
@@ -582,6 +631,24 @@ class AllocationService:
         reason = self._recommendation_reason(
             algorithm_name, len(result.passing), request.required_bed_type
         )
+        # rank_by_score's first element is always the winner (_argmin uses the same sort key,
+        # docs/03 §9's tie-break) — the runners-up are everything after it, capped at
+        # MAX_RANKED_ALTERNATIVES. Never re-sorts by anything else, so this is the exact same
+        # order the reservation fall-through (FR9) would try them in.
+        alternatives = rank_by_score(result.scored)[1 : 1 + MAX_RANKED_ALTERNATIVES]
+        ranked_alternatives = [
+            RankedAlternative(
+                facility_id=facility_by_id[sc.candidate.facility_id].id,
+                name=facility_by_id[sc.candidate.facility_id].name,
+                tier=facility_by_id[sc.candidate.facility_id].tier,
+                available_beds=sc.candidate.available_beds,
+                travel_time_minutes=sc.candidate.travel_time_min,
+                is_estimated_travel_time=sc.candidate.is_estimated_travel_time,
+                capability_match=sc.c_hat,
+                score=sc.score,
+            )
+            for sc in alternatives
+        ]
         return AllocationOutcome(
             status=Status.ALLOCATED,
             algorithm_used=algorithm_name,
@@ -589,6 +656,7 @@ class AllocationService:
             selection_reason=reason,
             weight_vector=result.weights,
             recommended=recommendation,
+            ranked_alternatives=ranked_alternatives,
             scored=result.scored,
         )
 

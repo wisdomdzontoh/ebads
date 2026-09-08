@@ -26,6 +26,7 @@ import { AppText, Button, Card, InlineNotice } from '../../components';
 import type { AllocatedResponse } from '../../services/types';
 import { colors, radius, spacing } from '../../theme';
 import { TIER_LABEL } from './constants';
+import { RankedAlternatives } from './RankedAlternatives';
 
 function Metric({ label, value, unit }: { label: string; value: string; unit?: string }): React.ReactElement {
   return (
@@ -230,6 +231,8 @@ export function RecommendationCard({
           </AppText>
         </View>
       </Card>
+
+      <RankedAlternatives alternatives={result.ranked_alternatives} />
     </View>
   );
 }
