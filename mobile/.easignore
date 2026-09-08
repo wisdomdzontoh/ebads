@@ -1,0 +1,45 @@
+# What EAS Build uploads as the project archive. IMPORTANT: once this file exists, EAS CLI
+# uses it INSTEAD OF .gitignore (they don't merge) — so this must independently list
+# everything .gitignore already excludes, not just add to it. That's the actual reason the
+# 503 MB archive happened: with no .easignore present, something in this monorepo/EAS CLI
+# combination wasn't picking up .gitignore's own `node_modules/` rule for archiving purposes
+# (only for git tracking) — node_modules (~470 MB) was the entire story, everything else in
+# the project directory totals a few MB.
+
+# dependencies — EAS Build reinstalls these itself on the build server; shipping the local
+# copy in the archive is pure waste (this was ~96% of the 503 MB).
+node_modules/
+
+# Expo / Metro
+.expo/
+dist/
+web-build/
+.metro-health-check*
+
+# generated native folders — EAS Build's prebuild step regenerates these; a locally
+# `expo prebuild`'d copy (e.g. from `expo run:android` testing) would otherwise ship stale
+# native config into the cloud build.
+/ios
+/android
+.kotlin/
+
+# debug logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# OS / editor cruft
+.DS_Store
+*.pem
+
+# secrets — EXPO_PUBLIC_* values are supplied by EAS's own environment variables (see the
+# build log's "Resolved ... environment" line), never read from a local .env file in the cloud.
+.env*.local
+.env*
+!.env.example
+
+# build tooling cache
+*.tsbuildinfo
+
+# not part of the app
+.claude/
