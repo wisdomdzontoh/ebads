@@ -15,6 +15,14 @@ export function formatDurationClock(seconds: number): string {
   return `${minutes}:${secs.toString().padStart(2, '0')}`;
 }
 
+/** Average-speed fallback for the live ETA before a real route has been fetched (or when
+ * Directions is unavailable) — mirrors the backend's own Haversine-degradation constant
+ * (`backend/app/parameters.py::HAVERSINE_SPEED_KMH`), so an estimated ETA is never worse than
+ * what the rest of the system already assumes when a real road route can't be measured. Without
+ * this, the ETA field showed "—" indefinitely any time Directions failed, even though a distance
+ * was still shown — which read as "live routing isn't working" even after GPS was fine. */
+export const FALLBACK_SPEED_MPS = (30 * 1000) / 3600;
+
 /** Great-circle distance in metres — used only to scale a fixed route's remaining distance as
  * the vehicle moves, never to pick or rank a facility (docs/05 §8: presentation only). */
 export function haversineMeters(

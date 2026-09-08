@@ -1,29 +1,39 @@
 /**
  * Live in-app navigation (native) — replaces the old "Navigate" hand-off to the external
  * Google Maps app. A full-screen map that tracks the vehicle's live GPS position, draws the
- * real road route to the recommended facility, and counts down a distance/ETA that is
- * DERIVED FROM that route (not a static number) — so it actually reflects progress, the way a
- * ride-hailing app's live navigation does, rather than a fire-and-forget hand-off to another
- * app the dispatcher then has to switch back from.
+ * real road route to the destination, and counts down a distance/ETA that is DERIVED FROM
+ * that route (not a static number) — so it actually reflects progress, the way a ride-hailing
+ * app's live navigation does, rather than a fire-and-forget hand-off to another app the
+ * dispatcher then has to switch back from.
  *
- * The route itself (`services/directions.ts`) is fetched once (then periodically refreshed,
- * `ROUTE_REFRESH_MS`) — remaining distance/ETA between refreshes is derived by scaling the
- * live GPS-to-destination straight-line distance by the original route's road/straight-line
- * ratio, which tracks real progress (stalled traffic shows a stalled ETA; the wrong direction
- * shows a worsening one) without calling the Directions API on every GPS tick. This is
- * presentation math only — nothing here selects or ranks a facility (docs/05 §8).
+ * GPS acquisition is `useLiveLocation` (hooks/useLiveLocation.ts) — a fast/cached/live fix
+ * chain with an optional `fallbackOrigin` seed, because a slow or failed GPS fix previously
+ * left this screen showing nothing at all: no route, no distance, no ETA, indefinitely.
+ *
+ * The route itself (`services/directions.ts`) is fetched once position is known (then
+ * periodically refreshed, `ROUTE_REFRESH_MS`) — remaining distance/ETA between refreshes is
+ * derived by scaling the live GPS-to-destination straight-line distance by the original
+ * route's road/straight-line ratio, which tracks real progress (stalled traffic shows a
+ * stalled ETA; the wrong direction shows a worsening one) without calling the Directions API
+ * on every GPS tick. This is presentation math only — nothing here selects or ranks a facility
+ * (docs/05 §8).
  */
 
 import { MaterialIcons } from '@expo/vector-icons';
-import * as Location from 'expo-location';
 import React, { useEffect, useRef, useState } from 'react';
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 
-import { AppText, Button } from '../../components';
+import { AppText, Button, InlineNotice } from '../../components';
 import { getRoute, type LatLng, type RouteResult } from '../../services/directions';
+import { useLiveLocation } from '../../hooks/useLiveLocation';
 import { colors, radius, shadow, spacing } from '../../theme';
-import { formatDistanceMeters, formatDurationClock, haversineMeters } from '../../utils/distance';
+import {
+  FALLBACK_SPEED_MPS,
+  formatDistanceMeters,
+  formatDurationClock,
+  haversineMeters,
+} from '../../utils/distance';
 
 const ROUTE_REFRESH_MS = 90_000;
 const CAMERA_ZOOM_DELTA = 0.02;
@@ -35,59 +45,49 @@ export interface NavigationDestination extends LatLng {
 
 interface LiveNavigationMapProps {
   destination: NavigationDestination;
-  arrived: boolean;
-  recordingArrival: boolean;
-  onRecordArrival: () => void;
+  /** The incident/patient location, if known — seeds the map/route immediately instead of a
+   * blank "waiting for GPS" state; swapped out the moment a real device fix arrives. Pass
+   * `null` when there is no better starting guess than "wait for GPS" (e.g. browsing a
+   * facility from the Map tab with no active dispatch). */
+  fallbackOrigin: LatLng | null;
+  /** Arrival tracking is only meaningful for an active dispatch — both omitted (button hidden)
+   * when navigating from a context with no allocation to record arrival against. */
+  arrived?: boolean;
+  recordingArrival?: boolean;
+  onRecordArrival?: () => void;
   onExit: () => void;
 }
 
 export function LiveNavigationMap({
   destination,
-  arrived,
-  recordingArrival,
+  fallbackOrigin,
+  arrived = false,
+  recordingArrival = false,
   onRecordArrival,
   onExit,
 }: LiveNavigationMapProps): React.ReactElement {
   const mapRef = useRef<MapView | null>(null);
-  const [position, setPosition] = useState<LatLng | null>(null);
+  const { position, usingFallback, error: locationError, retry } = useLiveLocation(fallbackOrigin);
   const [route, setRoute] = useState<RouteResult | null>(null);
   const [routeError, setRouteError] = useState<string | null>(null);
   // The road/straight-line ratio from the route the ETA/distance readout is scaled by between
   // Directions refreshes — captured once per fetched route, not recomputed per GPS tick.
   const circuityRef = useRef(1);
+  // The periodic refresh below fires from a `setInterval` set up once per effect run; without a
+  // ref it would keep re-fetching from the ORIGINAL position captured when the effect started
+  // (a stale closure), never picking up where the vehicle actually is by the time 90s elapse.
+  const positionRef = useRef(position);
+  positionRef.current = position;
 
-  // Live GPS track — the whole point of "in-app", not the one-shot fix Dispatch used to pick
-  // the incident location.
-  useEffect(() => {
-    let subscription: Location.LocationSubscription | null = null;
-    let active = true;
-    void (async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted' || !active) return;
-      subscription = await Location.watchPositionAsync(
-        { accuracy: Location.Accuracy.High, timeInterval: 3000, distanceInterval: 15 },
-        (update) => {
-          if (!active) return;
-          setPosition({
-            latitude: update.coords.latitude,
-            longitude: update.coords.longitude,
-          });
-        },
-      );
-    })();
-    return () => {
-      active = false;
-      subscription?.remove();
-    };
-  }, []);
-
-  // Fetch (and periodically refresh) the real road route once a position is known.
+  // Fetch (and periodically refresh) the real road route once a position is known. Re-fetches
+  // from a real GPS fix as soon as one supersedes the fallback, so the route the dispatcher is
+  // actually directed along is never permanently anchored to a rough starting guess.
   useEffect(() => {
     if (!position) return;
     let cancelled = false;
 
     const fetchRoute = async (origin: LatLng): Promise<void> => {
-      const result = await getRoute(origin, destination);
+      const { route: result, error } = await getRoute(origin, destination);
       if (cancelled) return;
       if (result) {
         setRoute(result);
@@ -95,20 +95,28 @@ export function LiveNavigationMap({
         const straightLine = Math.max(1, haversineMeters(origin, destination));
         circuityRef.current = result.distanceMeters / straightLine;
       } else {
-        setRouteError('Live route unavailable — showing straight-line distance instead.');
+        // Surface Google's actual reason (e.g. "REQUEST_DENIED: ...") rather than a generic
+        // message — a restricted API key looks identical to "no network" otherwise, see
+        // services/directions.ts's module docstring.
+        setRouteError(error ?? 'Live route unavailable — showing straight-line distance instead.');
       }
     };
 
     void fetchRoute(position);
-    const interval = setInterval(() => void fetchRoute(position), ROUTE_REFRESH_MS);
+    const interval = setInterval(() => {
+      if (positionRef.current) void fetchRoute(positionRef.current);
+    }, ROUTE_REFRESH_MS);
     return () => {
       cancelled = true;
       clearInterval(interval);
     };
-    // Deliberately NOT re-running on every `position` tick (that would re-fetch on every GPS
-    // update) — only the refresh interval re-fetches, using whatever position is current then.
+    // Deliberately NOT re-running on every `position` tick while `usingFallback` is false (that
+    // would re-fetch on every GPS update) — but DOES re-run the one time `usingFallback` flips
+    // from true to false (a real fix superseding the seed), so navigation switches onto the
+    // real route promptly instead of waiting up to 90s. The periodic in-interval refresh still
+    // uses the LATEST position via `positionRef`, not this snapshot.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [Boolean(position), destination.latitude, destination.longitude]);
+  }, [Boolean(position), usingFallback, destination.latitude, destination.longitude]);
 
   // Follow the vehicle.
   useEffect(() => {
@@ -122,7 +130,13 @@ export function LiveNavigationMap({
   const straightLineNow = position ? haversineMeters(position, destination) : null;
   const remainingMeters =
     straightLineNow !== null ? straightLineNow * circuityRef.current : null;
-  const averageSpeedMps = route ? route.distanceMeters / Math.max(1, route.durationSeconds) : null;
+  // Falls back to a fixed average speed (matching the backend's own Haversine degradation) when
+  // no real route has been fetched yet — otherwise the ETA sat at "—" indefinitely any time
+  // Directions failed, which read as "live routing isn't working" even with good GPS and a
+  // (straight-line) distance already showing.
+  const averageSpeedMps = route
+    ? route.distanceMeters / Math.max(1, route.durationSeconds)
+    : FALLBACK_SPEED_MPS;
   const remainingSeconds =
     remainingMeters !== null && averageSpeedMps ? remainingMeters / averageSpeedMps : null;
 
@@ -190,7 +204,7 @@ export function LiveNavigationMap({
           </View>
           <View style={styles.metric}>
             <AppText variant="overline" color="onSurfaceVariant">
-              ETA
+              ETA{route ? '' : ' (estimated)'}
             </AppText>
             <AppText variant="dataLg" color="clinicalTeal">
               {remainingSeconds !== null ? formatDurationClock(remainingSeconds) : '—'}
@@ -198,6 +212,19 @@ export function LiveNavigationMap({
           </View>
         </View>
 
+        {locationError ? (
+          <InlineNotice
+            title="GPS unavailable"
+            message={locationError}
+          />
+        ) : usingFallback ? (
+          <AppText variant="dataSm" color="urgentOrange">
+            Using the incident location to start — refining once live GPS locks on.
+          </AppText>
+        ) : null}
+        {locationError ? (
+          <Button label="Retry GPS" icon="my-location" variant="secondary" onPress={retry} />
+        ) : null}
         {routeError ? (
           <AppText variant="dataSm" color="urgentOrange">
             {routeError}
@@ -209,20 +236,18 @@ export function LiveNavigationMap({
           </AppText>
         ) : null}
 
-        <Button
-          label={
-            arrived
-              ? 'Arrived'
-              : recordingArrival
-                ? 'Recording arrival…'
-                : 'Record arrival'
-          }
-          icon="task-alt"
-          onPress={onRecordArrival}
-          disabled={arrived}
-          loading={recordingArrival}
-          style={styles.arriveButton}
-        />
+        {onRecordArrival ? (
+          <Button
+            label={
+              arrived ? 'Arrived' : recordingArrival ? 'Recording arrival…' : 'Record arrival'
+            }
+            icon="task-alt"
+            onPress={onRecordArrival}
+            disabled={arrived}
+            loading={recordingArrival}
+            style={styles.arriveButton}
+          />
+        ) : null}
       </View>
     </View>
   );

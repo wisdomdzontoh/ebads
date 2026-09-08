@@ -44,10 +44,16 @@ jest.mock('react-native-maps', () => {
   };
 });
 
-// expo-location is native; stub the two calls the location picker makes.
+// expo-location is native; stub every call the app makes — the location picker's two, plus
+// useLiveLocation's (hooks/useLiveLocation.ts) cached-fix lookup and continuous watch.
 jest.mock('expo-location', () => ({
   requestForegroundPermissionsAsync: jest.fn(async () => ({ status: 'granted' })),
-  getCurrentPositionAsync: jest.fn(async () => ({ coords: { latitude: 5.6, longitude: -0.18 } })),
+  getCurrentPositionAsync: jest.fn(async () => ({
+    coords: { latitude: 5.6, longitude: -0.18, accuracy: 10 },
+  })),
+  getLastKnownPositionAsync: jest.fn(async () => null),
+  watchPositionAsync: jest.fn(async () => ({ remove: jest.fn() })),
+  Accuracy: { Balanced: 3, High: 4 },
 }));
 
 // expo-notifications is native (and warns loudly under Node); stub the calls the app makes.

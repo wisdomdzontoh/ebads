@@ -5,6 +5,11 @@
  * from the LOCAL CACHE, so the screen works online and offline. It reloads when the tab gains
  * focus and whenever a sync completes. It renders cached data; it performs no matching and does
  * not re-order the list (docs/05 §8).
+ *
+ * Tapping a facility (list row, or a map marker on native) opens `FacilityDetailSheet` — full
+ * per-bed-type availability, contact, and a "Navigate" action into the same in-app live
+ * navigation (`LiveNavigationMap`) Dispatch's own "Navigate" uses; browsing here is not tied to
+ * an active allocation, so arrival tracking is simply omitted (the component supports that).
  */
 
 import { useFocusEffect } from '@react-navigation/native';
@@ -12,9 +17,12 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 
 import { AppText, Screen } from '../components';
-import { loadFacilities, type CachedFacility } from '../services/cache';
+import type { CachedFacility } from '../services/cache';
+import { loadFacilities } from '../services/cache';
 import { useSync } from '../state/SyncContext';
 import { colors, radius, shadow, spacing } from '../theme';
+import { LiveNavigationMap } from './dispatch/LiveNavigationMap';
+import { FacilityDetailSheet } from './facilityMap/FacilityDetailSheet';
 import { FacilityListItem } from './facilityMap/FacilityListItem';
 import { FacilityMap } from './facilityMap/FacilityMap';
 
@@ -24,6 +32,8 @@ export function FacilityMapScreen(): React.ReactElement {
   // Distinguishes "cache not read yet" (spinner) from "cache is empty" (empty state), so the
   // empty-state message never flashes while the first read is in flight.
   const [loaded, setLoaded] = useState(false);
+  const [selected, setSelected] = useState<CachedFacility | null>(null);
+  const [navigatingTo, setNavigatingTo] = useState<CachedFacility | null>(null);
 
   const reload = useCallback(() => {
     void loadFacilities()
@@ -36,10 +46,27 @@ export function FacilityMapScreen(): React.ReactElement {
   useFocusEffect(reload);
   useEffect(reload, [reload, lastSync?.last_sync_at]);
 
+  if (navigatingTo) {
+    return (
+      <LiveNavigationMap
+        destination={{
+          latitude: navigatingTo.latitude,
+          longitude: navigatingTo.longitude,
+          name: navigatingTo.name,
+          contactPhone: navigatingTo.contact_phone,
+        }}
+        // No incident location to seed from here (this isn't a dispatch in progress) — the
+        // screen waits on live GPS the same way it would with no better guess available.
+        fallbackOrigin={null}
+        onExit={() => setNavigatingTo(null)}
+      />
+    );
+  }
+
   return (
     <Screen title="Facility Map" scroll={false} contentStyle={styles.content}>
       <View style={styles.mapArea}>
-        <FacilityMap facilities={facilities} />
+        <FacilityMap facilities={facilities} onSelect={setSelected} />
       </View>
       <View style={styles.sheet}>
         <View style={styles.handle} />
@@ -65,13 +92,24 @@ export function FacilityMapScreen(): React.ReactElement {
           <FlatList
             data={facilities}
             keyExtractor={(facility) => facility.id}
-            renderItem={({ item }) => <FacilityListItem facility={item} />}
+            renderItem={({ item }) => (
+              <FacilityListItem facility={item} onPress={() => setSelected(item)} />
+            )}
             ItemSeparatorComponent={() => <View style={styles.separator} />}
             contentContainerStyle={styles.listContent}
             showsVerticalScrollIndicator={false}
           />
         )}
       </View>
+
+      <FacilityDetailSheet
+        facility={selected}
+        onClose={() => setSelected(null)}
+        onNavigate={(facility) => {
+          setSelected(null);
+          setNavigatingTo(facility);
+        }}
+      />
     </Screen>
   );
 }

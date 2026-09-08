@@ -3,22 +3,27 @@
  *
  * `react-native-maps` is native-only, so the map itself is a Static Maps image (same
  * degradation `DispatchMap.web.tsx` already uses) rather than a live-panning canvas — but the
- * distance/ETA readout IS fully live: `expo-location`'s GPS watch works fine on web, so the
- * same route-derived, GPS-scaled countdown as native runs here too. This still replaces the
- * external Google Maps hand-off the web build previously used — everything stays in-app, the
- * map image just refreshes on a timer instead of panning continuously.
+ * distance/ETA readout IS fully live, via the same `useLiveLocation` hook the native screen
+ * uses (`expo-location` works fine on web). This still replaces the external Google Maps
+ * hand-off the web build previously used — everything stays in-app, the map image just
+ * refreshes on a timer instead of panning continuously.
  */
 
 import { MaterialIcons } from '@expo/vector-icons';
-import * as Location from 'expo-location';
 import React, { useEffect, useRef, useState } from 'react';
 import { Image, Linking, Pressable, StyleSheet, View } from 'react-native';
 
-import { AppText, Button } from '../../components';
+import { AppText, Button, InlineNotice } from '../../components';
+import { useLiveLocation } from '../../hooks/useLiveLocation';
 import { getRoute, type LatLng, type RouteResult } from '../../services/directions';
 import { GOOGLE_MAPS_API_KEY, staticMapUrl } from '../../services/maps';
 import { colors, radius, shadow, spacing } from '../../theme';
-import { formatDistanceMeters, formatDurationClock, haversineMeters } from '../../utils/distance';
+import {
+  FALLBACK_SPEED_MPS,
+  formatDistanceMeters,
+  formatDurationClock,
+  haversineMeters,
+} from '../../utils/distance';
 
 // Duplicated from `LiveNavigationMap.tsx` rather than imported from it: that file pulls in
 // `react-native-maps` (native-only), and importing FROM the platform sibling — even a
@@ -37,9 +42,10 @@ const MAX_PATH_POINTS = 50; // keeps the Static Maps URL well under its length l
 
 interface LiveNavigationMapProps {
   destination: NavigationDestination;
-  arrived: boolean;
-  recordingArrival: boolean;
-  onRecordArrival: () => void;
+  fallbackOrigin: LatLng | null;
+  arrived?: boolean;
+  recordingArrival?: boolean;
+  onRecordArrival?: () => void;
   onExit: () => void;
 }
 
@@ -52,49 +58,40 @@ function decimate(points: LatLng[], max: number): LatLng[] {
 
 export function LiveNavigationMap({
   destination,
-  arrived,
-  recordingArrival,
+  fallbackOrigin,
+  arrived = false,
+  recordingArrival = false,
   onRecordArrival,
   onExit,
 }: LiveNavigationMapProps): React.ReactElement {
-  const [position, setPosition] = useState<LatLng | null>(null);
+  const { position, usingFallback, error: locationError, retry } = useLiveLocation(fallbackOrigin);
   const [route, setRoute] = useState<RouteResult | null>(null);
   const [routeError, setRouteError] = useState<string | null>(null);
   const [imageFailed, setImageFailed] = useState(false);
   const circuityRef = useRef(1);
   const lastImageAtRef = useRef(0);
   const [imageTick, setImageTick] = useState(0);
+  // See LiveNavigationMap.tsx: without this, the periodic refresh below re-fetches from the
+  // stale position captured when the effect started, not where the vehicle actually is.
+  const positionRef = useRef(position);
+  positionRef.current = position;
 
+  // Refresh the static image on a timer while a position is known, independent of how often
+  // the underlying GPS actually ticks.
   useEffect(() => {
-    let subscription: Location.LocationSubscription | null = null;
-    let active = true;
-    void (async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted' || !active) return;
-      subscription = await Location.watchPositionAsync(
-        { accuracy: Location.Accuracy.High, timeInterval: 3000, distanceInterval: 15 },
-        (update) => {
-          if (!active) return;
-          const next = { latitude: update.coords.latitude, longitude: update.coords.longitude };
-          setPosition(next);
-          if (Date.now() - lastImageAtRef.current > IMAGE_REFRESH_MS) {
-            lastImageAtRef.current = Date.now();
-            setImageTick((tick) => tick + 1); // forces the static image URL to refresh
-          }
-        },
-      );
-    })();
-    return () => {
-      active = false;
-      subscription?.remove();
-    };
-  }, []);
+    if (!position) return;
+    const interval = setInterval(() => {
+      lastImageAtRef.current = Date.now();
+      setImageTick((tick) => tick + 1);
+    }, IMAGE_REFRESH_MS);
+    return () => clearInterval(interval);
+  }, [Boolean(position)]);
 
   useEffect(() => {
     if (!position) return;
     let cancelled = false;
     const fetchRoute = async (origin: LatLng): Promise<void> => {
-      const result = await getRoute(origin, destination);
+      const { route: result, error } = await getRoute(origin, destination);
       if (cancelled) return;
       if (result) {
         setRoute(result);
@@ -103,21 +100,31 @@ export function LiveNavigationMap({
         const straightLine = Math.max(1, haversineMeters(origin, destination));
         circuityRef.current = result.distanceMeters / straightLine;
       } else {
-        setRouteError('Live route unavailable — showing straight-line distance instead.');
+        // Surface Google's actual reason (e.g. "REQUEST_DENIED: ...") — see
+        // services/directions.ts's module docstring on why a restricted key looks identical to
+        // "no network" otherwise.
+        setRouteError(error ?? 'Live route unavailable — showing straight-line distance instead.');
       }
     };
     void fetchRoute(position);
-    const interval = setInterval(() => void fetchRoute(position), ROUTE_REFRESH_MS);
+    const interval = setInterval(() => {
+      if (positionRef.current) void fetchRoute(positionRef.current);
+    }, ROUTE_REFRESH_MS);
     return () => {
       cancelled = true;
       clearInterval(interval);
     };
+    // See LiveNavigationMap.tsx's matching effect for why `usingFallback` is a dependency.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [Boolean(position), destination.latitude, destination.longitude]);
+  }, [Boolean(position), usingFallback, destination.latitude, destination.longitude]);
 
   const straightLineNow = position ? haversineMeters(position, destination) : null;
   const remainingMeters = straightLineNow !== null ? straightLineNow * circuityRef.current : null;
-  const averageSpeedMps = route ? route.distanceMeters / Math.max(1, route.durationSeconds) : null;
+  // See LiveNavigationMap.tsx: falls back to a fixed average speed so ETA doesn't sit at "—"
+  // indefinitely whenever Directions fails.
+  const averageSpeedMps = route
+    ? route.distanceMeters / Math.max(1, route.durationSeconds)
+    : FALLBACK_SPEED_MPS;
   const remainingSeconds =
     remainingMeters !== null && averageSpeedMps ? remainingMeters / averageSpeedMps : null;
 
@@ -192,7 +199,7 @@ export function LiveNavigationMap({
           </View>
           <View style={styles.metric}>
             <AppText variant="overline" color="onSurfaceVariant">
-              ETA
+              ETA{route ? '' : ' (estimated)'}
             </AppText>
             <AppText variant="dataLg" color="clinicalTeal">
               {remainingSeconds !== null ? formatDurationClock(remainingSeconds) : '—'}
@@ -200,6 +207,16 @@ export function LiveNavigationMap({
           </View>
         </View>
 
+        {locationError ? (
+          <InlineNotice title="GPS unavailable" message={locationError} />
+        ) : usingFallback ? (
+          <AppText variant="dataSm" color="urgentOrange">
+            Using the incident location to start — refining once live GPS locks on.
+          </AppText>
+        ) : null}
+        {locationError ? (
+          <Button label="Retry GPS" icon="my-location" variant="secondary" onPress={retry} />
+        ) : null}
         {routeError ? (
           <AppText variant="dataSm" color="urgentOrange">
             {routeError}
@@ -211,14 +228,16 @@ export function LiveNavigationMap({
           </AppText>
         ) : null}
 
-        <Button
-          label={arrived ? 'Arrived' : recordingArrival ? 'Recording arrival…' : 'Record arrival'}
-          icon="task-alt"
-          onPress={onRecordArrival}
-          disabled={arrived}
-          loading={recordingArrival}
-          style={styles.arriveButton}
-        />
+        {onRecordArrival ? (
+          <Button
+            label={arrived ? 'Arrived' : recordingArrival ? 'Recording arrival…' : 'Record arrival'}
+            icon="task-alt"
+            onPress={onRecordArrival}
+            disabled={arrived}
+            loading={recordingArrival}
+            style={styles.arriveButton}
+          />
+        ) : null}
       </View>
     </View>
   );

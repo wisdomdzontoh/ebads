@@ -2,7 +2,8 @@
  * Facility map (native) — all cached facilities as Google Maps markers, coloured by bed
  * availability (docs/05 §2.2). Renders from the local cache, so it works online and offline
  * (tiles need network, but the markers/coordinates come from the cache). Marker colour is a
- * presentation lookup only — no matching happens here (docs/05 §8).
+ * presentation lookup only — no matching happens here (docs/05 §8). Tapping a marker opens the
+ * same `FacilityDetailSheet` the list row does — one detail surface, two ways to reach it.
  */
 
 import React from 'react';
@@ -20,7 +21,12 @@ const ACCRA_REGION = {
   longitudeDelta: 0.4,
 };
 
-export function FacilityMap({ facilities }: { facilities: CachedFacility[] }): React.ReactElement {
+interface FacilityMapProps {
+  facilities: CachedFacility[];
+  onSelect?: (facility: CachedFacility) => void;
+}
+
+export function FacilityMap({ facilities, onSelect }: FacilityMapProps): React.ReactElement {
   return (
     <MapView provider={PROVIDER_GOOGLE} style={styles.map} initialRegion={ACCRA_REGION}>
       {facilities.map((facility) => {
@@ -32,6 +38,7 @@ export function FacilityMap({ facilities }: { facilities: CachedFacility[] }): R
             title={facility.name}
             description={`${total} beds available · ${facility.tier}`}
             pinColor={TONE_COLOR[availabilityTone(total)]}
+            onPress={onSelect ? () => onSelect(facility) : undefined}
           />
         );
       })}

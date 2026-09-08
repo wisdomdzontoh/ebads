@@ -68,7 +68,9 @@ Give EAS the Google Maps key so it is inlined at build time (EXPO_PUBLIC_* varia
 visible to the bundler — create it as a plain/sensitive env var, not "secret"):
 
 ```bash
-eas env:create --name EXPO_PUBLIC_GOOGLE_MAPS_API_KEY --value <your-key> \
+eas env:create --name EXPO_PUBLIC_GOOGLE_MAPS_API_KEY --value <your-maps-sdk-key> \
+  --environment production --environment preview --environment development
+eas env:create --name EXPO_PUBLIC_GOOGLE_DIRECTIONS_API_KEY --value <your-directions-key> \
   --environment production --environment preview --environment development
 ```
 
@@ -84,11 +86,32 @@ eas build --profile production --platform ios        # App Store (needs Apple De
 Notes:
 
 - **Identifiers:** `com.ebads.dispatcher` (both platforms, set in `app.json`).
-- **Google Maps key restrictions** (Google Cloud console → the key → Application restrictions):
-  restrict to Android app `com.ebads.dispatcher` with the SHA-1 shown by
-  `eas credentials -p android`, and to iOS bundle id `com.ebads.dispatcher`. Enable
-  **Maps SDK for Android**, **Maps SDK for iOS**, **Maps Static API** (web), and
-  **Directions API** (live in-app navigation route, `services/directions.ts`).
+- **Google Maps keys — you need TWO, not one.** An "Android apps"/"iOS apps"-restricted key only
+  authorizes calls made through the native Maps SDK (how `react-native-maps` renders the map
+  itself); it does **not** authorize a plain `fetch()` from JS, because that request carries none
+  of the app-signature headers the restriction checks for. `services/directions.ts`'s live-route
+  calls (and `services/maps.ts`'s Static Maps calls, on web) go out as plain `fetch()`, so an
+  app-restricted key makes every one of those calls fail with `REQUEST_DENIED` — silently, from
+  the dispatcher's point of view: the map still renders (native SDK, unaffected), but the route
+  line never draws and the ETA never resolves. That failure looks identical to "GPS not working"
+  or "no network" unless you go looking, which is exactly what happened once before — see
+  `services/directions.ts`'s module docstring and `getRoute()`'s returned `error` field (now
+  surfaced directly on the navigation screen as of the fix) if this ever recurs.
+
+  - **Key 1 — Maps SDK key** (`EXPO_PUBLIC_GOOGLE_MAPS_API_KEY`, also used for the web Static Maps
+    fallback): Application restrictions → Android app `com.ebads.dispatcher` with the SHA-1 shown
+    by `eas credentials -p android`, and iOS bundle id `com.ebads.dispatcher`. API restrictions →
+    **Maps SDK for Android**, **Maps SDK for iOS**, **Maps Static API**.
+  - **Key 2 — Directions key**: a *separate* key with Application restrictions set to **None**
+    (there is no app-signature or HTTP-referrer to check for a request sent from a phone's JS
+    runtime). API restrictions → **Directions API** only, to keep it narrowly scoped. Set it as
+    **`EXPO_PUBLIC_GOOGLE_DIRECTIONS_API_KEY`** in `.env` (and as its own EAS env var per profile,
+    same as Key 1 below) — `services/directions.ts` reads it directly and falls back to Key 1 only
+    if it's left unset.
+  - The backend's own `GOOGLE_MAPS_API_KEY` (`infra/.env`, `LiveTravelTimeService`, Distance
+    Matrix API) has the same constraint — it must not be Application-restricted to an Android/iOS
+    app either, since it's called server-to-server, not through a mobile SDK. Restrict it by API
+    only (**Distance Matrix API**), or leave Application restrictions at None.
 - **Cleartext HTTP:** the engine is plain `http://` on a LAN, and Android release builds block
   cleartext by default — `expo-build-properties` sets `usesCleartextTraffic: true` in
   `app.json`. Remove that once the engine is served over HTTPS.

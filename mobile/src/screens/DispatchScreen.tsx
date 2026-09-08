@@ -263,6 +263,7 @@ export function DispatchScreen(): React.ReactElement {
           name: facility.name,
           contactPhone: facility.contact_phone,
         }}
+        fallbackOrigin={coord}
         arrived={arrived}
         recordingArrival={recordingArrival}
         onRecordArrival={() => void recordArrival()}

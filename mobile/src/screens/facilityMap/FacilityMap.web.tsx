@@ -1,7 +1,10 @@
 /**
  * Facility map (web) — a Google Static Maps image with every cached facility as a coloured
- * marker (docs/05 §2.2). react-native-maps is native-only, so web uses the static image; it is
- * not interactive but shows the same Google Maps view with availability-coloured pins.
+ * marker (docs/05 §2.2). react-native-maps is native-only, so web uses the static image; it
+ * has no per-marker tap target (a static image has no interactive regions to hit-test without
+ * a full re-implementation), so `onSelect` is accepted only for prop-shape parity with the
+ * native map — the facility LIST below (tappable on every platform) is where web opens
+ * `FacilityDetailSheet` from.
  */
 
 import React, { useState } from 'react';
@@ -15,7 +18,13 @@ import { availabilityTone, TONE_STATIC_COLOR, totalAvailable } from '../../utils
 
 const ACCRA = { latitude: 5.62, longitude: -0.17 };
 
-export function FacilityMap({ facilities }: { facilities: CachedFacility[] }): React.ReactElement {
+interface FacilityMapProps {
+  facilities: CachedFacility[];
+  onSelect?: (facility: CachedFacility) => void;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- prop-shape parity, see docstring
+export function FacilityMap({ facilities, onSelect }: FacilityMapProps): React.ReactElement {
   const [failed, setFailed] = useState(false);
 
   if (!GOOGLE_MAPS_API_KEY) {
