@@ -35,6 +35,13 @@ const BED_TYPES = Object.keys(BED_TYPE_LABELS) as BedType[];
 const LIVE_DATA_SOURCES = Object.keys(DATA_SOURCE_LABELS) as Exclude<DataSource, "manual">[];
 const NO_DATA_SOURCE = "none" as const;
 
+// See create-user-dialog.tsx's matching comment — Select.Value needs this map to show the
+// human label instead of the raw enum value once selected.
+const DATA_SOURCE_ITEMS = Object.fromEntries([
+  [NO_DATA_SOURCE, "Manual (default)"],
+  ...LIVE_DATA_SOURCES.map((s) => [s, DATA_SOURCE_LABELS[s]]),
+]);
+
 const approveSchema = z.object({
   latitude: z.number().min(-90).max(90),
   longitude: z.number().min(-180).max(180),
@@ -170,7 +177,11 @@ export function ApproveRegistrationDialog({
                 control={control}
                 name="active_data_source"
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  <Select
+                    items={DATA_SOURCE_ITEMS}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
                     <SelectTrigger id="active_data_source" className="w-full">
                       <SelectValue />
                     </SelectTrigger>

@@ -30,6 +30,15 @@ const TIERS = Object.keys(TIER_LABELS) as Tier[];
 const LIVE_DATA_SOURCES = Object.keys(DATA_SOURCE_LABELS) as Exclude<DataSource, "manual">[];
 const NO_DATA_SOURCE = "none" as const;
 
+// `items` maps let <SelectValue> show the human label instead of the raw enum value once
+// selected — Base UI's Select.Value renders the raw `value` by default and only resolves a
+// label when the Root is given this map.
+const TIER_ITEMS = Object.fromEntries(TIERS.map((t) => [t, TIER_LABELS[t]]));
+const DATA_SOURCE_ITEMS = Object.fromEntries([
+  [NO_DATA_SOURCE, "Manual (default)"],
+  ...LIVE_DATA_SOURCES.map((s) => [s, DATA_SOURCE_LABELS[s]]),
+]);
+
 const facilitySchema = z.object({
   name: z.string().min(1, "Required"),
   latitude: z.number().min(-90).max(90),
@@ -169,7 +178,7 @@ export default function FacilityProfilePage() {
                   control={control}
                   name="tier"
                   render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select items={TIER_ITEMS} value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger id="tier" className="w-full">
                         <SelectValue />
                       </SelectTrigger>
@@ -222,7 +231,11 @@ export default function FacilityProfilePage() {
                   control={control}
                   name="active_data_source"
                   render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      items={DATA_SOURCE_ITEMS}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
                       <SelectTrigger id="active_data_source" className="w-full">
                         <SelectValue />
                       </SelectTrigger>

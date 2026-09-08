@@ -1,37 +1,21 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-
 import { useAuth } from "@/components/auth-provider";
-import { listFacilities } from "@/lib/api/facilities";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
-const ROLE_SUMMARY: Record<string, string> = {
-  system_administrator:
-    "Review facility registrations, manage user accounts, and audit system activity.",
-  facility_administrator:
-    "Manage your facility's profile, staff accounts, and bed inventory.",
-  facility_staff:
-    "Keep bed availability current and respond to incoming allocations.",
-  dispatcher: "Use the EBADS mobile app to dispatch emergency allocations.",
+import { DispatcherOverview } from "./overview/dispatcher-overview";
+import { FacilityAdminOverview } from "./overview/facility-admin-overview";
+import { FacilityStaffOverview } from "./overview/facility-staff-overview";
+import { SystemAdminOverview } from "./overview/system-admin-overview";
+
+const GREETING: Record<string, string> = {
+  system_administrator: "System-wide overview.",
+  facility_administrator: "Your facility, at a glance.",
+  facility_staff: "What needs your attention right now.",
+  dispatcher: "Welcome back.",
 };
 
 export default function DashboardOverviewPage() {
   const { user } = useAuth();
-
-  const facilitiesQuery = useQuery({
-    queryKey: ["facilities"],
-    queryFn: listFacilities,
-    enabled: !!user?.facilityId,
-    staleTime: 60_000,
-  });
-  const facility = facilitiesQuery.data?.find((f) => f.id === user?.facilityId);
 
   if (!user) {
     return null;
@@ -39,19 +23,15 @@ export default function DashboardOverviewPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Welcome back</CardTitle>
-          <CardDescription>{ROLE_SUMMARY[user.role]}</CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          {user.facilityId ? (
-            <p>Facility: {facility?.name ?? user.facilityId}</p>
-          ) : (
-            <p>No facility assigned to this account.</p>
-          )}
-        </CardContent>
-      </Card>
+      <div>
+        <h1 className="text-xl font-semibold">Overview</h1>
+        <p className="text-sm text-muted-foreground">{GREETING[user.role]}</p>
+      </div>
+
+      {user.role === "system_administrator" && <SystemAdminOverview />}
+      {user.role === "facility_administrator" && <FacilityAdminOverview />}
+      {user.role === "facility_staff" && <FacilityStaffOverview />}
+      {user.role === "dispatcher" && <DispatcherOverview />}
     </div>
   );
 }

@@ -82,6 +82,15 @@
   --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
   --font-cond: var(--font-plex-sans-condensed), var(--font-plex-sans), ui-sans-serif, system-ui;
+
+  /* Chart categorical palette (6) — transcribed verbatim from the reference; visually
+     distinct, shares lightness ~0.6, used by the role Overview dashboards' charts. */
+  --chart-1: oklch(0.56 0.115 200); /* brand teal */
+  --chart-2: oklch(0.60 0.150 30); /* coral */
+  --chart-3: oklch(0.62 0.150 155); /* green */
+  --chart-4: oklch(0.62 0.150 280); /* violet */
+  --chart-5: oklch(0.72 0.160 85); /* amber */
+  --chart-6: oklch(0.58 0.110 230); /* blue */
 }
 
 /* Dark palette — transcribed from the reference's [data-theme="dark"] block. Reachable ONLY by
@@ -166,6 +175,13 @@
   --color-urgent-tint: var(--urgent-tint);
   --color-standard: var(--standard);
   --color-standard-tint: var(--standard-tint);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
 
   --shadow-card: var(--shadow-card);
   --shadow-primary: var(--shadow-primary);

@@ -155,7 +155,14 @@ export function CreateUserDialog({
                 control={control}
                 name="role"
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  // `items` is what lets <SelectValue> show the human label instead of the raw
+                  // enum value once selected — Base UI's Select.Value renders the raw `value`
+                  // by default and only resolves a label when the Root is given this map.
+                  <Select
+                    items={Object.fromEntries(assignableRoles.map((r) => [r, ROLE_LABELS[r]]))}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
                     <SelectTrigger id="role" className="w-full">
                       <SelectValue />
                     </SelectTrigger>
@@ -178,7 +185,13 @@ export function CreateUserDialog({
                   control={control}
                   name="facility_id"
                   render={({ field }) => (
-                    <Select value={field.value ?? ""} onValueChange={field.onChange}>
+                    <Select
+                      items={Object.fromEntries(
+                        (facilitiesQuery.data ?? []).map((f) => [f.id, f.name]),
+                      )}
+                      value={field.value ?? ""}
+                      onValueChange={field.onChange}
+                    >
                       <SelectTrigger id="facility_id" className="w-full">
                         <SelectValue placeholder="Select a facility" />
                       </SelectTrigger>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -8,6 +9,7 @@ import { KeyRound } from "lucide-react";
 
 import { useAuth } from "@/components/auth-provider";
 import { changePassword } from "@/lib/api/auth";
+import { listFacilities } from "@/lib/api/facilities";
 import { ApiError } from "@/lib/api-client";
 import { MIN_PASSWORD_LENGTH, ROLE_LABELS } from "@/lib/labels";
 
@@ -34,6 +36,16 @@ type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
 export default function AccountPage() {
   const { user } = useAuth();
   const [success, setSuccess] = useState(false);
+
+  // Resolves the facility's NAME for display — showing the raw facility_id (an opaque UUID)
+  // next to the role read like a stray internal identifier leaking into the UI.
+  const facilitiesQuery = useQuery({
+    queryKey: ["facilities"],
+    queryFn: listFacilities,
+    enabled: !!user?.facilityId,
+    staleTime: 60_000,
+  });
+  const facilityName = facilitiesQuery.data?.find((f) => f.id === user?.facilityId)?.name;
 
   const {
     register,
@@ -74,7 +86,7 @@ export default function AccountPage() {
         <h1 className="text-xl font-semibold">Account</h1>
         <p className="text-sm text-muted-foreground">
           {ROLE_LABELS[user.role]}
-          {user.facilityId ? ` · ${user.facilityId}` : ""}
+          {user.facilityId ? ` · ${facilityName ?? "…"}` : ""}
         </p>
       </div>
 
