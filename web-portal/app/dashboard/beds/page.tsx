@@ -12,8 +12,25 @@ import type { BedType } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { ProgressIndicator, ProgressTrack, Progress as ProgressRoot } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+
+/** Bed-availability progress bar tinted by how much room is left — critical/urgent/standard,
+ * the one semantic color channel the app reserves for urgency/availability meaning (matches
+ * the dispatcher app's own availabilityTone convention, mobile/src/utils/availability.ts). A
+ * plain `bg-primary` (now ink-900, a neutral) said nothing about whether a bed type was full,
+ * low, or open. */
+function AvailabilityBar({ pct }: { pct: number }) {
+  const tone =
+    pct <= 0 ? "bg-critical" : pct < 25 ? "bg-urgent" : "bg-standard";
+  return (
+    <ProgressRoot value={pct}>
+      <ProgressTrack>
+        <ProgressIndicator className={tone} />
+      </ProgressTrack>
+    </ProgressRoot>
+  );
+}
 
 import { EditBedCountDialog } from "./edit-bed-count-dialog";
 
@@ -77,7 +94,7 @@ export default function BedsPage() {
                   </div>
                   {count ? (
                     <>
-                      <Progress value={pct} />
+                      <AvailabilityBar pct={pct} />
                       <span className="font-mono text-sm text-muted-foreground">
                         {count.available} / {count.capacity} available
                       </span>

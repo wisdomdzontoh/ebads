@@ -1,0 +1,2111 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<title>EBADS Admin — Design System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     TOKENS — Light (default)
+     ============================================================ */
+  :root, [data-theme="light"] {
+    --paper:   oklch(0.995 0.002 240);
+    --canvas:  oklch(0.985 0.003 240);
+    --surface: oklch(0.995 0.002 240);
+    --surface-hover: oklch(0.97 0.004 240);
+    --surface-sunken: oklch(0.965 0.004 240);
+
+    --ink-900: oklch(0.18 0.012 240);
+    --ink-800: oklch(0.26 0.012 240);
+    --ink-700: oklch(0.38 0.011 240);
+    --ink-600: oklch(0.50 0.010 240);
+    --ink-500: oklch(0.62 0.009 240);
+    --ink-400: oklch(0.74 0.008 240);
+    --ink-300: oklch(0.86 0.006 240);
+    --ink-200: oklch(0.93 0.005 240);
+    --ink-100: oklch(0.965 0.004 240);
+    --ink-50:  oklch(0.985 0.003 240);
+
+    --border: oklch(0.91 0.006 240);
+    --border-strong: oklch(0.84 0.008 240);
+    --divider: oklch(0.945 0.005 240);
+
+    --brand-700: oklch(0.40 0.090 200);
+    --brand-600: oklch(0.48 0.105 200);
+    --brand-500: oklch(0.56 0.115 200);
+    --brand-100: oklch(0.94 0.030 200);
+    --brand-50:  oklch(0.975 0.014 200);
+
+    --urg-critical:  oklch(0.58 0.205 25);
+    --urg-critical-soft: oklch(0.95 0.035 25);
+    --urg-urgent:    oklch(0.72 0.160 70);
+    --urg-urgent-soft: oklch(0.96 0.045 80);
+    --urg-standard:  oklch(0.55 0.130 230);
+    --urg-standard-soft: oklch(0.95 0.030 230);
+
+    --bed-open:   oklch(0.62 0.150 155);
+    --bed-low:    oklch(0.76 0.165 85);
+    --bed-none:   oklch(0.58 0.205 25);
+
+    --success: oklch(0.62 0.150 155);
+    --warning: oklch(0.72 0.160 70);
+    --danger:  oklch(0.58 0.205 25);
+    --info:    oklch(0.55 0.130 230);
+
+    /* Chart categorical palette (6) — visually distinct, share lightness ~0.6 */
+    --chart-1: oklch(0.56 0.115 200);  /* brand teal */
+    --chart-2: oklch(0.60 0.150 30);   /* coral */
+    --chart-3: oklch(0.62 0.150 155);  /* green */
+    --chart-4: oklch(0.62 0.150 280);  /* violet */
+    --chart-5: oklch(0.72 0.160 85);   /* amber */
+    --chart-6: oklch(0.58 0.110 230);  /* blue */
+
+    --shadow-1: 0 1px 0 rgb(0 0 0 / 0.02), 0 1px 2px rgb(0 0 0 / 0.04);
+    --shadow-2: 0 1px 0 rgb(0 0 0 / 0.02), 0 4px 14px -2px rgb(0 0 0 / 0.08);
+    --shadow-3: 0 2px 0 rgb(0 0 0 / 0.03), 0 12px 32px -8px rgb(0 0 0 / 0.16);
+    --focus-ring: 0 0 0 3px rgb(from var(--brand-500) r g b / 0.22);
+  }
+
+  [data-theme="dark"] {
+    --paper:   oklch(0.16 0.012 240);
+    --canvas:  oklch(0.13 0.012 240);
+    --surface: oklch(0.18 0.012 240);
+    --surface-hover: oklch(0.22 0.012 240);
+    --surface-sunken: oklch(0.145 0.012 240);
+
+    --ink-900: oklch(0.985 0.003 240);
+    --ink-800: oklch(0.93 0.005 240);
+    --ink-700: oklch(0.84 0.008 240);
+    --ink-600: oklch(0.70 0.010 240);
+    --ink-500: oklch(0.58 0.009 240);
+    --ink-400: oklch(0.46 0.010 240);
+    --ink-300: oklch(0.34 0.011 240);
+    --ink-200: oklch(0.26 0.012 240);
+    --ink-100: oklch(0.22 0.012 240);
+    --ink-50:  oklch(0.18 0.012 240);
+
+    --border: oklch(0.28 0.012 240);
+    --border-strong: oklch(0.38 0.012 240);
+    --divider: oklch(0.22 0.012 240);
+
+    --brand-700: oklch(0.65 0.110 200);
+    --brand-600: oklch(0.70 0.115 200);
+    --brand-500: oklch(0.76 0.115 200);
+    --brand-100: oklch(0.26 0.060 200);
+    --brand-50:  oklch(0.20 0.040 200);
+
+    --urg-critical-soft: oklch(0.25 0.060 25);
+    --urg-urgent-soft:   oklch(0.26 0.070 75);
+    --urg-standard-soft: oklch(0.25 0.060 230);
+  }
+
+  /* ============================================================
+     RESET + BASE
+     ============================================================ */
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--canvas);
+    color: var(--ink-900);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  :root {
+    --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-cond: "IBM Plex Sans Condensed", "IBM Plex Sans", ui-sans-serif, system-ui;
+    --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  }
+
+  /* ============================================================
+     PAGE CHROME
+     ============================================================ */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 32px;
+    border-bottom: 1px solid var(--border);
+    background: rgb(from var(--paper) r g b / 0.86);
+    backdrop-filter: blur(10px);
+    position: sticky; top: 0; z-index: 30;
+  }
+  .brandmark {
+    display: inline-flex; align-items: center; gap: 12px;
+    font-weight: 600; letter-spacing: -0.005em;
+    color: var(--ink-900);
+  }
+  .brandmark .logo {
+    width: 28px; height: 28px; border-radius: 7px;
+    background: var(--ink-900);
+    display: grid; place-items: center;
+    color: var(--paper);
+    font-family: var(--font-cond); font-weight: 700; font-size: 13px;
+  }
+  [data-theme="dark"] .brandmark .logo { background: var(--paper); color: var(--ink-900); }
+  .brandmark small {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--ink-600);
+    letter-spacing: 0.04em; text-transform: uppercase;
+    margin-left: 6px;
+  }
+  .topnav {
+    display: flex; gap: 4px;
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .topnav a {
+    color: var(--ink-700); text-decoration: none;
+    padding: 6px 10px; border-radius: 6px;
+  }
+  .topnav a:hover { background: var(--surface-sunken); color: var(--ink-900); }
+
+  .theme-toggle {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 32px; padding: 0 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--ink-700);
+    cursor: pointer;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .theme-toggle .d { width: 8px; height: 8px; border-radius: 999px; background: var(--brand-500); }
+
+  .page { max-width: 1320px; margin: 0 auto; padding: 0 32px 96px; }
+
+  /* ============================================================
+     HERO
+     ============================================================ */
+  .hero { padding: 64px 0 48px; max-width: 920px; }
+  .eyebrow {
+    font-family: var(--font-mono); font-size: 12px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--brand-600); margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-size: clamp(36px, 4.6vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.022em;
+    font-weight: 600;
+    margin: 0 0 22px;
+    text-wrap: balance;
+  }
+  .hero p.lead {
+    font-size: 17px; line-height: 1.55;
+    color: var(--ink-700);
+    max-width: 720px;
+    text-wrap: pretty;
+  }
+  .hero .meta {
+    display: flex; gap: 28px; margin-top: 36px;
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--ink-600);
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .hero .meta div b {
+    display: block; font-weight: 500; color: var(--ink-900);
+    font-family: var(--font-sans); font-size: 13px;
+    text-transform: none; letter-spacing: 0; margin-top: 4px;
+  }
+
+  /* ============================================================
+     SECTIONS
+     ============================================================ */
+  section { padding: 56px 0; border-top: 1px solid var(--border); }
+  section.no-rule { border-top: 0; }
+  .section-head {
+    display: grid; grid-template-columns: 220px 1fr; gap: 48px;
+    margin-bottom: 36px;
+  }
+  .section-head .num {
+    font-family: var(--font-mono);
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ink-500);
+  }
+  .section-head h2 {
+    font-size: 28px; line-height: 1.1;
+    letter-spacing: -0.018em;
+    font-weight: 600;
+    margin: 8px 0 12px;
+  }
+  .section-head p {
+    color: var(--ink-700); margin: 0;
+    max-width: 640px;
+    text-wrap: pretty;
+    font-size: 14.5px;
+  }
+
+  .sub-h {
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-600);
+    margin: 28px 0 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sub-h::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ============================================================
+     RELATION CARD (link to mobile DS)
+     ============================================================ */
+  .relation {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 22px 26px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: center;
+    margin-top: 8px;
+  }
+  .relation h3 {
+    font-size: 16px; font-weight: 600; margin: 0 0 4px; letter-spacing: -0.005em;
+  }
+  .relation p {
+    margin: 0; color: var(--ink-700); font-size: 14px; max-width: 720px;
+  }
+  .relation .badges { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  /* ============================================================
+     PRINCIPLES
+     ============================================================ */
+  .principles {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .principles > div { padding: 22px 26px; }
+  .principles > div + div { border-left: 1px solid var(--border); }
+  .principles h4 {
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-500); margin: 0 0 10px; font-weight: 500;
+  }
+  .principles h3 { font-size: 16px; margin: 0 0 4px; font-weight: 600; letter-spacing: -0.005em; }
+  .principles p { margin: 0; font-size: 13.5px; color: var(--ink-700); }
+
+  /* ============================================================
+     COLOR — swatches
+     ============================================================ */
+  .swatch-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .swatch {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .swatch .chip { height: 72px; }
+  .swatch .meta { padding: 9px 11px; display: flex; flex-direction: column; gap: 2px; }
+  .swatch .meta .name { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-900); font-weight: 500; }
+  .swatch .meta .val { font-family: var(--font-mono); font-size: 10px; color: var(--ink-600); }
+
+  .palette-row {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;
+    margin-top: 12px;
+  }
+  .palette-cell {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .palette-cell .sw { height: 38px; border-radius: 6px; }
+  .palette-cell .lbl { font-family: var(--font-mono); font-size: 11px; color: var(--ink-700); }
+  .palette-cell .ll { color: var(--ink-900); font-weight: 500; }
+
+  /* ============================================================
+     TYPE
+     ============================================================ */
+  .type-table {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .type-row {
+    display: grid; grid-template-columns: 140px 1fr 200px;
+    align-items: baseline;
+    padding: 18px 22px;
+    border-top: 1px solid var(--border);
+  }
+  .type-row:first-child { border-top: 0; }
+  .type-row .label {
+    font-family: var(--font-mono); font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--ink-600);
+  }
+  .type-row .sample { color: var(--ink-900); }
+  .type-row .specs {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--ink-600); text-align: right;
+  }
+
+  /* ============================================================
+     COMPONENTS — base building blocks
+     ============================================================ */
+  .comp-grid { display: grid; gap: 20px; grid-template-columns: repeat(2, 1fr); }
+  .comp {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .comp .ctitle {
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--surface-sunken);
+  }
+  .comp .ctitle h4 { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: -0.005em; }
+  .comp .ctitle .tag {
+    font-family: var(--font-mono); font-size: 10.5px;
+    color: var(--ink-600); letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .comp .cbody { padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+  .comp.full { grid-column: 1 / -1; }
+  .comp.full .cbody { padding: 0; }
+  .comp.full .cbody.has-pad { padding: 22px; }
+
+  .row-flex { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .col { display: flex; flex-direction: column; gap: 10px; }
+
+  /* — Buttons — */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 8px;
+    font-family: var(--font-sans); font-size: 13.5px; font-weight: 500;
+    letter-spacing: -0.005em;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--ink-900);
+    cursor: pointer;
+    transition: background 100ms ease, border-color 100ms ease, transform 80ms ease;
+    white-space: nowrap;
+    user-select: none;
+  }
+  .btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .btn--primary { background: var(--ink-900); color: var(--paper); }
+  .btn--primary:hover { background: oklch(0.10 0.012 240); }
+  [data-theme="dark"] .btn--primary { background: var(--paper); color: var(--ink-900); }
+  .btn--brand { background: var(--brand-600); color: var(--paper); }
+  .btn--brand:hover { background: var(--brand-700); }
+  .btn--secondary { background: var(--surface); color: var(--ink-900); border-color: var(--border-strong); }
+  .btn--secondary:hover { background: var(--surface-sunken); }
+  .btn--ghost { background: transparent; color: var(--ink-800); }
+  .btn--ghost:hover { background: var(--surface-sunken); }
+  .btn--danger { background: var(--danger); color: var(--paper); }
+  .btn--danger:hover { background: oklch(0.50 0.20 25); }
+  .btn--sm { height: 28px; padding: 0 10px; font-size: 12.5px; border-radius: 6px; }
+  .btn--lg { height: 44px; padding: 0 18px; font-size: 14.5px; border-radius: 9px; }
+  .btn--icon { width: 36px; padding: 0; }
+  .btn[disabled] { opacity: 0.4; cursor: not-allowed; }
+  .btn .icn { width: 14px; height: 14px; }
+  .btn .icn svg { width: 100%; height: 100%; }
+
+  /* — Inputs — */
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label {
+    font-family: var(--font-mono); font-size: 10.5px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-600); font-weight: 500;
+  }
+  .input, .select, .textarea {
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    font-family: var(--font-sans); font-size: 13.5px;
+    color: var(--ink-900);
+    outline: none;
+    transition: border 100ms ease, box-shadow 100ms ease;
+  }
+  .input:focus, .select:focus, .textarea:focus {
+    border-color: var(--brand-500);
+    box-shadow: var(--focus-ring);
+  }
+  .input--mono { font-family: var(--font-mono); font-size: 12.5px; }
+  .textarea { height: auto; padding: 10px 12px; min-height: 88px; resize: vertical; line-height: 1.5; }
+  .select { background-image: linear-gradient(45deg, transparent 50%, var(--ink-700) 50%), linear-gradient(135deg, var(--ink-700) 50%, transparent 50%);
+            background-position: calc(100% - 16px) 14px, calc(100% - 11px) 14px;
+            background-size: 5px 5px, 5px 5px; background-repeat: no-repeat;
+            padding-right: 30px; appearance: none; -webkit-appearance: none; }
+
+  .input--prefix {
+    display: flex; align-items: stretch;
+    height: 36px; border-radius: 8px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .input--prefix .pfx {
+    padding: 0 10px; display: flex; align-items: center;
+    border-right: 1px solid var(--border);
+    font-family: var(--font-mono); font-size: 11.5px;
+    color: var(--ink-600);
+    background: var(--surface-sunken);
+  }
+  .input--prefix input {
+    flex: 1; border: 0; outline: 0; height: 100%;
+    padding: 0 12px; font-size: 13.5px; background: transparent;
+    color: var(--ink-900);
+  }
+
+  /* — Checkbox / Radio / Switch — */
+  .check {
+    width: 16px; height: 16px; border-radius: 4px;
+    border: 1.5px solid var(--border-strong);
+    background: var(--surface);
+    display: inline-block; vertical-align: middle;
+    position: relative;
+    cursor: pointer;
+  }
+  .check.is-checked { background: var(--ink-900); border-color: var(--ink-900); }
+  .check.is-checked::after {
+    content: ''; position: absolute; left: 3px; top: 0;
+    width: 5px; height: 10px;
+    border-right: 2px solid var(--paper); border-bottom: 2px solid var(--paper);
+    transform: rotate(40deg);
+  }
+  [data-theme="dark"] .check.is-checked { background: var(--paper); border-color: var(--paper); }
+  [data-theme="dark"] .check.is-checked::after { border-color: var(--ink-900); }
+  .radio {
+    width: 16px; height: 16px; border-radius: 999px;
+    border: 1.5px solid var(--border-strong);
+    background: var(--surface);
+    display: inline-block; vertical-align: middle;
+    cursor: pointer; position: relative;
+  }
+  .radio.is-checked { border-color: var(--ink-900); }
+  .radio.is-checked::after {
+    content: ''; position: absolute; inset: 3px;
+    border-radius: 999px; background: var(--ink-900);
+  }
+  [data-theme="dark"] .radio.is-checked { border-color: var(--paper); }
+  [data-theme="dark"] .radio.is-checked::after { background: var(--paper); }
+  .switch {
+    width: 32px; height: 18px;
+    border-radius: 999px;
+    background: var(--border-strong);
+    position: relative;
+    transition: background 120ms ease;
+    display: inline-block; cursor: pointer;
+  }
+  .switch::after {
+    content: ''; position: absolute; left: 2px; top: 2px;
+    width: 14px; height: 14px; border-radius: 999px;
+    background: var(--paper);
+    transition: left 120ms ease;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
+  }
+  .switch.is-on { background: var(--brand-600); }
+  .switch.is-on::after { left: 16px; }
+
+  .check-row { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13.5px; }
+  .check-row .lbl { color: var(--ink-900); }
+
+  /* — Badges / Pills — */
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 22px; padding: 0 8px;
+    border-radius: 999px;
+    font-family: var(--font-mono); font-size: 10.5px;
+    font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+    border: 1px solid transparent;
+    line-height: 1;
+    color: var(--ink-700);
+    background: var(--surface-sunken);
+    border-color: var(--border);
+  }
+  .badge .d { width: 6px; height: 6px; border-radius: 999px; background: currentColor; }
+  .badge--critical { color: var(--urg-critical); background: var(--urg-critical-soft); border-color: rgb(from var(--urg-critical) r g b / 0.2); }
+  .badge--urgent   { color: oklch(0.45 0.12 70); background: var(--urg-urgent-soft); border-color: rgb(from var(--urg-urgent) r g b / 0.3); }
+  [data-theme="dark"] .badge--urgent { color: oklch(0.85 0.15 80); }
+  .badge--standard { color: var(--urg-standard); background: var(--urg-standard-soft); border-color: rgb(from var(--urg-standard) r g b / 0.2); }
+  .badge--success  { color: var(--success); background: oklch(0.95 0.04 155); border-color: rgb(from var(--success) r g b / 0.2); }
+  [data-theme="dark"] .badge--success { background: oklch(0.25 0.06 155); }
+  .badge--warning  { color: oklch(0.50 0.13 70); background: var(--urg-urgent-soft); border-color: rgb(from var(--warning) r g b / 0.3); }
+  .badge--danger   { color: var(--danger); background: var(--urg-critical-soft); border-color: rgb(from var(--danger) r g b / 0.2); }
+  .badge--info     { color: var(--info); background: var(--urg-standard-soft); border-color: rgb(from var(--info) r g b / 0.2); }
+  .badge--solid-success { background: var(--success); color: var(--paper); border: 0; }
+  .badge--solid-warning { background: var(--warning); color: oklch(0.2 0.06 70); border: 0; }
+  .badge--solid-danger { background: var(--danger); color: var(--paper); border: 0; }
+
+  /* — Tabs — */
+  .tabs {
+    display: inline-flex; gap: 2px;
+    border-bottom: 1px solid var(--border);
+    padding: 0;
+  }
+  .tabs .tab {
+    padding: 10px 12px;
+    font-size: 13.5px;
+    color: var(--ink-600);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .tabs .tab.is-active { color: var(--ink-900); border-color: var(--ink-900); }
+  [data-theme="dark"] .tabs .tab.is-active { border-color: var(--paper); }
+  .tabs .tab .count {
+    font-family: var(--font-mono); font-size: 11px;
+    background: var(--surface-sunken);
+    color: var(--ink-700);
+    padding: 1px 6px; border-radius: 999px;
+    margin-left: 6px;
+  }
+  .tabs .tab.is-active .count { background: var(--brand-100); color: var(--brand-700); }
+
+  /* Segmented control */
+  .segment {
+    display: inline-flex; padding: 2px;
+    background: var(--surface-sunken);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .segment .opt {
+    height: 28px; padding: 0 10px;
+    display: inline-flex; align-items: center; gap: 6px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    color: var(--ink-700);
+    cursor: pointer;
+  }
+  .segment .opt.is-active {
+    background: var(--surface);
+    color: var(--ink-900);
+    box-shadow: var(--shadow-1);
+  }
+
+  /* — Breadcrumbs — */
+  .crumbs {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--ink-600);
+    font-family: var(--font-mono);
+  }
+  .crumbs a { color: var(--ink-600); text-decoration: none; }
+  .crumbs a:hover { color: var(--ink-900); }
+  .crumbs .sep { color: var(--ink-400); }
+  .crumbs .cur { color: var(--ink-900); }
+
+  /* — Dropdown menu — */
+  .menu {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 6px;
+    box-shadow: var(--shadow-3);
+    min-width: 200px;
+    display: flex; flex-direction: column;
+  }
+  .menu .mi {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 10px; border-radius: 6px;
+    font-size: 13px;
+    color: var(--ink-800); cursor: pointer;
+  }
+  .menu .mi:hover { background: var(--surface-sunken); color: var(--ink-900); }
+  .menu .mi .kbd {
+    margin-left: auto;
+    font-family: var(--font-mono); font-size: 10.5px;
+    color: var(--ink-500);
+  }
+  .menu .mi.is-danger { color: var(--danger); }
+  .menu .mi svg { width: 14px; height: 14px; }
+  .menu .sep { height: 1px; background: var(--border); margin: 4px 0; }
+  .menu .lbl {
+    padding: 6px 10px 4px;
+    font-family: var(--font-mono); font-size: 10.5px;
+    color: var(--ink-500); text-transform: uppercase; letter-spacing: 0.06em;
+  }
+
+  /* — Toast — */
+  .toast {
+    display: grid; grid-template-columns: 18px 1fr auto;
+    gap: 12px; align-items: start;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow-2);
+    max-width: 360px;
+  }
+  .toast .ic { color: var(--success); margin-top: 2px; }
+  .toast .ic svg { width: 18px; height: 18px; }
+  .toast.is-danger .ic { color: var(--danger); }
+  .toast.is-warning .ic { color: var(--warning); }
+  .toast .body .t { font-weight: 600; font-size: 13.5px; letter-spacing: -0.005em; }
+  .toast .body .s { font-size: 12.5px; color: var(--ink-700); margin-top: 2px; }
+  .toast .close { color: var(--ink-500); cursor: pointer; }
+  .toast .close svg { width: 14px; height: 14px; }
+
+  /* — Tooltip — */
+  .tooltip-demo {
+    position: relative;
+    display: inline-flex; align-items: center;
+  }
+  .tooltip {
+    position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+    background: var(--ink-900); color: var(--paper);
+    font-size: 11.5px; padding: 6px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    font-family: var(--font-mono); letter-spacing: 0.02em;
+  }
+  [data-theme="dark"] .tooltip { background: var(--paper); color: var(--ink-900); }
+  .tooltip::after {
+    content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    border: 4px solid transparent; border-top-color: var(--ink-900);
+  }
+  [data-theme="dark"] .tooltip::after { border-top-color: var(--paper); }
+
+  /* — Search input — */
+  .search {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 36px; padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    min-width: 280px;
+  }
+  .search svg { width: 14px; height: 14px; color: var(--ink-500); }
+  .search input {
+    border: 0; outline: 0; flex: 1; height: 100%;
+    font-family: var(--font-sans); font-size: 13.5px;
+    background: transparent; color: var(--ink-900);
+  }
+  .search .kbd {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--ink-500);
+    border: 1px solid var(--border);
+    background: var(--surface-sunken);
+    padding: 1px 5px; border-radius: 4px;
+  }
+
+  /* ============================================================
+     KPI CARDS
+     ============================================================ */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px 18px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .kpi .k {
+    font-family: var(--font-mono); font-size: 10.5px;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--ink-600);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .kpi .v {
+    font-size: 32px; font-weight: 600;
+    letter-spacing: -0.025em; line-height: 1.05;
+    font-feature-settings: "tnum";
+  }
+  .kpi .v small { font-size: 13px; color: var(--ink-600); font-weight: 500; }
+  .kpi .row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 4px;
+  }
+  .kpi .delta { font-family: var(--font-mono); font-size: 11px; }
+  .kpi .delta.up { color: var(--success); }
+  .kpi .delta.down { color: var(--danger); }
+  .kpi .spark { width: 88px; height: 28px; }
+
+  /* ============================================================
+     TABLE
+     ============================================================ */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .table-bar {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+    flex-wrap: wrap;
+  }
+  table.tbl {
+    width: 100%; border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+  table.tbl th {
+    text-align: left;
+    font-family: var(--font-mono); font-size: 10.5px;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--ink-600);
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 500;
+    background: var(--surface-sunken);
+    white-space: nowrap;
+  }
+  table.tbl th .sortable { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+  table.tbl th .sortable svg { width: 10px; height: 10px; color: var(--ink-500); }
+  table.tbl td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--divider);
+    font-size: 13px;
+    color: var(--ink-900);
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  table.tbl tr:hover td { background: var(--surface-sunken); }
+  table.tbl tr.is-selected td { background: var(--brand-50); }
+  table.tbl tbody tr:last-child td { border-bottom: 0; }
+  table.tbl td.mono { font-family: var(--font-mono); font-size: 12px; }
+  table.tbl td.dim  { color: var(--ink-600); }
+  table.tbl td.num { font-family: var(--font-mono); font-feature-settings: "tnum"; }
+
+  .table-foot {
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--font-mono); font-size: 11px; color: var(--ink-600);
+    background: var(--surface-sunken);
+  }
+  .pager { display: inline-flex; gap: 4px; align-items: center; }
+  .pager .pbtn {
+    width: 26px; height: 26px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    display: inline-grid; place-items: center;
+    cursor: pointer; background: var(--surface);
+    font-family: var(--font-mono); font-size: 11.5px;
+    color: var(--ink-700);
+  }
+  .pager .pbtn.is-active {
+    background: var(--ink-900); color: var(--paper); border-color: var(--ink-900);
+  }
+  [data-theme="dark"] .pager .pbtn.is-active { background: var(--paper); color: var(--ink-900); border-color: var(--paper); }
+
+  /* Filter chips */
+  .filter-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 28px; padding: 0 10px;
+    border-radius: 999px;
+    border: 1px dashed var(--border-strong);
+    color: var(--ink-700);
+    font-size: 12.5px;
+    background: var(--surface);
+    cursor: pointer;
+  }
+  .filter-chip.is-applied {
+    border-style: solid;
+    background: var(--surface-sunken);
+    color: var(--ink-900);
+  }
+  .filter-chip svg { width: 12px; height: 12px; color: var(--ink-500); }
+  .filter-chip .val { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-900); }
+  .filter-chip .sep-bar { width: 1px; height: 14px; background: var(--border-strong); margin: 0 2px; }
+  .filter-chip .x { width: 14px; height: 14px; border-radius: 999px; display: grid; place-items: center; color: var(--ink-600); }
+
+  /* ============================================================
+     CHARTS (SVG)
+     ============================================================ */
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .chart-card h4 {
+    margin: 0 0 4px; font-size: 14px; font-weight: 600; letter-spacing: -0.005em;
+  }
+  .chart-card .sub {
+    font-family: var(--font-mono); font-size: 11px; color: var(--ink-600);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 14px;
+  }
+  .chart { width: 100%; height: 180px; display: block; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 12px; }
+  .legend .l { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-700); }
+  .legend .l .d { width: 10px; height: 10px; border-radius: 2px; }
+
+  /* ============================================================
+     DIALOG MOCK
+     ============================================================ */
+  .dialog-mock {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow-3);
+    overflow: hidden;
+  }
+  .dialog-mock .dh {
+    padding: 18px 20px 8px;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+  }
+  .dialog-mock .dh .t { font-weight: 600; font-size: 16px; letter-spacing: -0.005em; }
+  .dialog-mock .dh .s { font-size: 13px; color: var(--ink-700); margin-top: 4px; }
+  .dialog-mock .dh .close { color: var(--ink-500); cursor: pointer; }
+  .dialog-mock .dh .close svg { width: 14px; height: 14px; }
+  .dialog-mock .db { padding: 8px 20px 16px; display: flex; flex-direction: column; gap: 12px; }
+  .dialog-mock .df {
+    padding: 12px 20px;
+    background: var(--surface-sunken);
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+  }
+
+  /* ============================================================
+     APP SHELL (mock)
+     ============================================================ */
+  .shell {
+    background: var(--canvas);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    display: grid; grid-template-columns: 240px 1fr;
+    height: 720px;
+  }
+  .sidebar {
+    background: var(--paper);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+  }
+  .sidebar .sb-brand {
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar .sb-brand .logo {
+    width: 26px; height: 26px; border-radius: 6px;
+    background: var(--ink-900); color: var(--paper);
+    display: grid; place-items: center;
+    font-family: var(--font-cond); font-weight: 700; font-size: 12px;
+  }
+  [data-theme="dark"] .sidebar .sb-brand .logo { background: var(--paper); color: var(--ink-900); }
+  .sidebar .sb-brand .meta { display: flex; flex-direction: column; }
+  .sidebar .sb-brand .meta b { font-size: 13px; font-weight: 600; letter-spacing: -0.005em; }
+  .sidebar .sb-brand .meta small { font-family: var(--font-mono); font-size: 10px; color: var(--ink-600); text-transform: uppercase; letter-spacing: 0.06em; }
+  .sb-section {
+    padding: 8px 10px 4px;
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--ink-500);
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .sb-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 10px;
+    margin: 0 6px;
+    border-radius: 6px;
+    font-size: 13px; color: var(--ink-700);
+    cursor: pointer;
+  }
+  .sb-item:hover { background: var(--surface-sunken); color: var(--ink-900); }
+  .sb-item.is-active { background: var(--ink-900); color: var(--paper); }
+  [data-theme="dark"] .sb-item.is-active { background: var(--paper); color: var(--ink-900); }
+  .sb-item .ic { width: 16px; height: 16px; opacity: 0.85; }
+  .sb-item.is-active .ic { opacity: 1; }
+  .sb-item .cnt {
+    margin-left: auto;
+    font-family: var(--font-mono); font-size: 10.5px;
+    color: var(--ink-500);
+  }
+  .sb-item.is-active .cnt { color: rgb(from var(--paper) r g b / 0.7); }
+  [data-theme="dark"] .sb-item.is-active .cnt { color: oklch(0.4 0.01 240); }
+  .sidebar .sb-foot {
+    margin-top: auto;
+    border-top: 1px solid var(--border);
+    padding: 10px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .avatar {
+    width: 28px; height: 28px; border-radius: 999px;
+    background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
+    color: var(--paper);
+    display: grid; place-items: center;
+    font-family: var(--font-cond); font-weight: 700; font-size: 12px;
+  }
+
+  .work {
+    background: var(--canvas);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .app-topbar {
+    height: 52px;
+    padding: 0 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+    background: var(--paper);
+  }
+  .app-topbar .env {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 22px; padding: 0 8px;
+    border-radius: 999px;
+    background: var(--brand-50); color: var(--brand-700);
+    font-family: var(--font-mono); font-size: 10.5px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    border: 1px solid var(--brand-100);
+  }
+  .app-topbar .sp { flex: 1; }
+  .app-topbar .icbtn {
+    width: 32px; height: 32px; border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    display: inline-grid; place-items: center;
+    color: var(--ink-700); cursor: pointer;
+  }
+  .app-topbar .icbtn svg { width: 15px; height: 15px; }
+
+  .page-head {
+    padding: 22px 28px 16px;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 16px;
+  }
+  .page-head .t { font-size: 24px; font-weight: 600; letter-spacing: -0.018em; margin: 0; }
+  .page-head .crumbs { margin-bottom: 6px; }
+  .page-head .right { display: flex; gap: 8px; }
+
+  .page-body { padding: 0 28px 28px; flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 16px; }
+
+  /* ============================================================
+     RECENT ACTIVITY LIST (dashboard)
+     ============================================================ */
+  .activity {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .activity .a-row {
+    display: grid;
+    grid-template-columns: 70px 1fr 96px 92px 80px;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 16px;
+    border-top: 1px solid var(--divider);
+    font-size: 13px;
+  }
+  .activity .a-row.head {
+    background: var(--surface-sunken);
+    border-top: 0;
+    font-family: var(--font-mono); font-size: 10.5px;
+    letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--ink-600);
+  }
+  .activity .a-row .when { font-family: var(--font-mono); color: var(--ink-600); font-size: 12px; }
+  .activity .a-row .who b { font-weight: 600; }
+  .activity .a-row .who .sub { font-family: var(--font-mono); color: var(--ink-600); font-size: 11.5px; margin-top: 2px; display: block; }
+
+  /* ============================================================
+     INTEGRATION STATUS / HEALTH
+     ============================================================ */
+  .integ {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0;
+  }
+  .integ .ih { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .integ .ih h4 { margin: 0; font-size: 14px; font-weight: 600; letter-spacing: -0.005em; }
+  .integ .i-row {
+    display: grid; grid-template-columns: 1fr 80px 100px 28px; gap: 12px; align-items: center;
+    padding: 10px 16px;
+    border-top: 1px solid var(--divider);
+    font-size: 13px;
+  }
+  .integ .i-row .nm b { font-weight: 600; }
+  .integ .i-row .nm .sub { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-600); }
+
+  /* ============================================================
+     ICON CELLS
+     ============================================================ */
+  .icon-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; }
+  .icon-cell {
+    aspect-ratio: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    padding: 8px;
+  }
+  .icon-cell svg { width: 18px; height: 18px; color: var(--ink-900); stroke-width: 1.6; }
+  .icon-cell .ll { font-family: var(--font-mono); font-size: 9.5px; color: var(--ink-600); }
+
+  /* ============================================================
+     SPACING & RADII visuals
+     ============================================================ */
+  .scale-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; }
+  .scale-cell {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .scale-cell .bar { background: var(--ink-900); height: 5px; border-radius: 999px; }
+  [data-theme="dark"] .scale-cell .bar { background: var(--paper); }
+  .scale-cell .lbl { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 11px; color: var(--ink-600); }
+  .scale-cell .lbl b { color: var(--ink-900); font-weight: 600; }
+
+  .radii-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .radii-cell {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 14px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .radii-cell .box { height: 48px; background: var(--ink-900); }
+  [data-theme="dark"] .radii-cell .box { background: var(--paper); }
+  .radii-cell .lbl { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 11px; color: var(--ink-600); }
+  .radii-cell .lbl b { color: var(--ink-900); font-weight: 600; }
+
+  /* ============================================================
+     FOOTER
+     ============================================================ */
+  footer {
+    margin-top: 64px; padding: 32px 32px 80px;
+    border-top: 1px solid var(--border);
+    color: var(--ink-600); font-size: 12px;
+    display: flex; justify-content: space-between; gap: 12px;
+    font-family: var(--font-mono); letter-spacing: 0.04em; text-transform: uppercase;
+  }
+
+  @media (max-width: 1100px) {
+    .shell { grid-template-columns: 60px 1fr; }
+    .sidebar .meta, .sb-section, .sb-item .cnt { display: none; }
+    .sb-item { justify-content: center; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .swatch-grid, .palette-row { grid-template-columns: repeat(3, 1fr); }
+    .scale-grid { grid-template-columns: repeat(4, 1fr); }
+    .icon-grid { grid-template-columns: repeat(6, 1fr); }
+    .comp-grid { grid-template-columns: 1fr; }
+    .section-head { grid-template-columns: 1fr; gap: 8px; }
+    .principles { grid-template-columns: 1fr; }
+    .principles > div + div { border-left: 0; border-top: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     TOP BAR
+============================================================ -->
+<div class="topbar">
+  <div class="brandmark">
+    <span class="logo">EB</span>
+    <span>EBADS Admin</span>
+    <small>Design System · v0.1</small>
+  </div>
+  <nav class="topnav">
+    <a href="#foundations">Foundations</a>
+    <a href="#color">Color</a>
+    <a href="#type">Type</a>
+    <a href="#components">Components</a>
+    <a href="#data">Data</a>
+    <a href="#shell">App shell</a>
+  </nav>
+  <button class="theme-toggle" onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';">
+    <span class="d"></span><span id="theme-label">Light mode</span>
+  </button>
+</div>
+
+<div class="page">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="eyebrow">EBADS · Admin Panel · Web</div>
+    <h1>The operator's surface — fast, dense, auditable.</h1>
+    <p class="lead">The Admin Panel is the GHS-facing control surface for the EBADS engine. It builds on the mobile design system's brand and color tokens but adapts them for desktop data work — tables, filters, dialogs, charts, and dashboards designed to be scanned, sorted, and exported in seconds.</p>
+    <div class="meta">
+      <div>Platform<b>Web · Desktop-first</b></div>
+      <div>Stack<b>Next.js 15 · shadcn/ui · Tailwind</b></div>
+      <div>Audience<b>Administrators · Operators · Researchers</b></div>
+      <div>Mode<b>Light &amp; Dark</b></div>
+    </div>
+  </header>
+
+  <!-- RELATION TO MOBILE DS -->
+  <section class="no-rule" style="padding-top: 0;">
+    <div class="relation">
+      <div>
+        <h3>One brand, two surfaces.</h3>
+        <p>The Admin Panel inherits the mobile design system's brand mark, type pairing (IBM Plex Sans + Mono), neutral ink scale, brand teal, urgency triad, and bed-availability triad. It extends them with desktop densities, a chart palette, dark mode, and form/table/dialog primitives that don't exist on mobile.</p>
+      </div>
+      <div class="badges">
+        <span class="badge">Inherits · color tokens</span>
+        <span class="badge">Inherits · type</span>
+        <span class="badge badge--info">Extends · dark mode</span>
+        <span class="badge badge--info">Extends · charts</span>
+        <span class="badge badge--info">Adds · table system</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOUNDATIONS -->
+  <section id="foundations">
+    <div class="section-head">
+      <div>
+        <div class="num">01 · Foundations</div>
+        <h2>Principles</h2>
+      </div>
+      <p>Where the mobile app optimises for one decision at a time, the panel optimises for thousands of rows at a glance.</p>
+    </div>
+    <div class="principles">
+      <div>
+        <h4>Principle 01</h4>
+        <h3>Density without noise</h3>
+        <p>13–14px body, 36px controls, no decorative chrome. Rows breathe through alignment and tabular numerals, not through padding inflation.</p>
+      </div>
+      <div>
+        <h4>Principle 02</h4>
+        <h3>Every action audited</h3>
+        <p>Destructive operations are confirmed; exports record actor + filters; the audit trail is always one click away. The UI never hides what the user did.</p>
+      </div>
+      <div>
+        <h4>Principle 03</h4>
+        <h3>Server is the source of truth</h3>
+        <p>No local DB, no offline cache. Connectivity loss is shown explicitly. The panel is a faithful view of the engine, never an alternate one.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- COLOR -->
+  <section id="color">
+    <div class="section-head">
+      <div>
+        <div class="num">02 · Color</div>
+        <h2>Color &amp; surfaces</h2>
+      </div>
+      <p>Token names are reused across light and dark — the values change, the meanings do not. Surfaces gain three tiers (paper, surface, sunken) so tables and toolbars can sit on the page without resorting to borders or drop shadows alone.</p>
+    </div>
+
+    <div class="sub-h">Surfaces · light</div>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="chip" style="background:var(--paper)"></div><div class="meta"><span class="name">paper</span><span class="val">topbar · sidebar</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--canvas)"></div><div class="meta"><span class="name">canvas</span><span class="val">page body</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--surface)"></div><div class="meta"><span class="name">surface</span><span class="val">cards · tables</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--surface-sunken)"></div><div class="meta"><span class="name">sunken</span><span class="val">th · toolbars · footers</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--border)"></div><div class="meta"><span class="name">border</span><span class="val">card edges</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--ink-900)"></div><div class="meta"><span class="name">ink-900</span><span class="val">body text</span></div></div>
+    </div>
+
+    <div class="sub-h">Brand · teal (active states, environment badge)</div>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="chip" style="background:var(--brand-50)"></div><div class="meta"><span class="name">brand-50</span><span class="val">env · row select bg</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--brand-100)"></div><div class="meta"><span class="name">brand-100</span><span class="val">tab count bg</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--brand-500)"></div><div class="meta"><span class="name">brand-500</span><span class="val">focus ring · sparkline</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--brand-600)"></div><div class="meta"><span class="name">brand-600</span><span class="val">primary brand button</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--brand-700)"></div><div class="meta"><span class="name">brand-700</span><span class="val">brand text</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--ink-900)"></div><div class="meta"><span class="name">ink-900</span><span class="val">affirmative button</span></div></div>
+    </div>
+
+    <div class="sub-h">Semantic · status &amp; alert</div>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="chip" style="background:var(--success)"></div><div class="meta"><span class="name">success</span><span class="val">bed-open · ok</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--warning)"></div><div class="meta"><span class="name">warning</span><span class="val">urgent · low</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--danger)"></div><div class="meta"><span class="name">danger</span><span class="val">critical · bed-none</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--info)"></div><div class="meta"><span class="name">info</span><span class="val">standard · neutral signal</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--urg-urgent-soft)"></div><div class="meta"><span class="name">…-soft</span><span class="val">pill background</span></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--ink-100)"></div><div class="meta"><span class="name">ink-100</span><span class="val">subtle fill</span></div></div>
+    </div>
+
+    <div class="sub-h">Chart palette · categorical · 6</div>
+    <div class="palette-row">
+      <div class="palette-cell"><div class="sw" style="background:var(--chart-1)"></div><div class="lbl"><span class="ll">chart-1</span><br/>brand · primary series</div></div>
+      <div class="palette-cell"><div class="sw" style="background:var(--chart-2)"></div><div class="lbl"><span class="ll">chart-2</span><br/>coral · comparison</div></div>
+      <div class="palette-cell"><div class="sw" style="background:var(--chart-3)"></div><div class="lbl"><span class="ll">chart-3</span><br/>green · success metric</div></div>
+      <div class="palette-cell"><div class="sw" style="background:var(--chart-4)"></div><div class="lbl"><span class="ll">chart-4</span><br/>violet · category</div></div>
+      <div class="palette-cell"><div class="sw" style="background:var(--chart-5)"></div><div class="lbl"><span class="ll">chart-5</span><br/>amber · low / caution</div></div>
+      <div class="palette-cell"><div class="sw" style="background:var(--chart-6)"></div><div class="lbl"><span class="ll">chart-6</span><br/>blue · alternate</div></div>
+    </div>
+
+    <p style="margin-top: 20px; font-size: 13.5px; color: var(--ink-700); max-width: 720px;">
+      Chart palette is for <em>data series only</em>. It never substitutes for urgency or bed-availability colors, which remain semantically reserved.
+    </p>
+  </section>
+
+  <!-- TYPE -->
+  <section id="type">
+    <div class="section-head">
+      <div>
+        <div class="num">03 · Typography</div>
+        <h2>Type system</h2>
+      </div>
+      <p>The same pairing as mobile — IBM Plex Sans for UI, IBM Plex Mono for engine-derived numbers. Base size drops to 14 (from 15) to match desktop information density.</p>
+    </div>
+
+    <div class="type-table">
+      <div class="type-row">
+        <div class="label">Display</div>
+        <div class="sample" style="font-size:36px; line-height:1.05; letter-spacing:-0.022em; font-weight:600;">Emergency requests</div>
+        <div class="specs">Plex Sans · 36 / 38<br/>Weight 600</div>
+      </div>
+      <div class="type-row">
+        <div class="label">Page title</div>
+        <div class="sample" style="font-size:24px; line-height:1.15; letter-spacing:-0.018em; font-weight:600;">Korle Bu Teaching Hospital</div>
+        <div class="specs">Plex Sans · 24 / 28<br/>Weight 600</div>
+      </div>
+      <div class="type-row">
+        <div class="label">Section</div>
+        <div class="sample" style="font-size:16px; line-height:1.3; letter-spacing:-0.008em; font-weight:600;">Bed counts &middot; live</div>
+        <div class="specs">Plex Sans · 16 / 21<br/>Weight 600</div>
+      </div>
+      <div class="type-row">
+        <div class="label">Body</div>
+        <div class="sample" style="font-size:14px; line-height:1.55; color:var(--ink-800);">Critical patients within 30 minutes are scored with the urgency multiplier applied before composite ranking.</div>
+        <div class="specs">Plex Sans · 14 / 22<br/>Weight 400</div>
+      </div>
+      <div class="type-row">
+        <div class="label">Small</div>
+        <div class="sample" style="font-size:12.5px; line-height:1.5; color:var(--ink-700);">Last successful poll · 2 minutes ago</div>
+        <div class="specs">Plex Sans · 12.5 / 19<br/>Weight 400</div>
+      </div>
+      <div class="type-row">
+        <div class="label">UI label</div>
+        <div class="sample" style="font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-600); font-weight:500;">RECEIVED &middot; ALGORITHM &middot; ESCALATION</div>
+        <div class="specs">Plex Mono · 11 · +8%<br/>Caps · Weight 500</div>
+      </div>
+      <div class="type-row">
+        <div class="label">Data · metric</div>
+        <div class="sample" style="font-family:var(--font-mono); font-size:30px; font-weight:600; letter-spacing:-0.02em; font-feature-settings:'tnum';">9.1<span style="font-weight:400; color:var(--ink-600); font-size:16px;">%</span></div>
+        <div class="specs">Plex Mono · 30<br/>Tabular · Weight 600</div>
+      </div>
+      <div class="type-row">
+        <div class="label">Data · row</div>
+        <div class="sample" style="font-family:var(--font-mono); font-size:12px; color:var(--ink-900); font-feature-settings:'tnum';">A18-220 · 09:42:11 · 0.197</div>
+        <div class="specs">Plex Mono · 12<br/>Tabular · Weight 400</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPACING & RADII -->
+  <section id="space">
+    <div class="section-head">
+      <div>
+        <div class="num">04 · Space &amp; shape</div>
+        <h2>Spacing &amp; radii</h2>
+      </div>
+      <p>Card padding lands at 16–22, table cells at 12×14, sidebar items at 7×10. Radii bias smaller than mobile (8 for inputs/buttons, 12 for cards) so adjacent surfaces don't accumulate visual weight.</p>
+    </div>
+
+    <div class="sub-h">Spacing · 4px base</div>
+    <div class="scale-grid">
+      <div class="scale-cell"><div class="bar" style="width:4px"></div><div class="lbl"><b>s-1</b><span>4</span></div></div>
+      <div class="scale-cell"><div class="bar" style="width:6px"></div><div class="lbl"><b>s-1.5</b><span>6</span></div></div>
+      <div class="scale-cell"><div class="bar" style="width:8px"></div><div class="lbl"><b>s-2</b><span>8</span></div></div>
+      <div class="scale-cell"><div class="bar" style="width:12px"></div><div class="lbl"><b>s-3</b><span>12</span></div></div>
+      <div class="scale-cell"><div class="bar" style="width:16px"></div><div class="lbl"><b>s-4</b><span>16</span></div></div>
+      <div class="scale-cell"><div class="bar" style="width:22px"></div><div class="lbl"><b>s-5.5</b><span>22</span></div></div>
+      <div class="scale-cell"><div class="bar" style="width:28px"></div><div class="lbl"><b>s-7</b><span>28</span></div></div>
+      <div class="scale-cell"><div class="bar" style="width:40px"></div><div class="lbl"><b>s-10</b><span>40</span></div></div>
+    </div>
+
+    <div class="sub-h">Radii · tight</div>
+    <div class="radii-grid">
+      <div class="radii-cell"><div class="box" style="border-radius:0"></div><div class="lbl"><b>0</b><span>tables</span></div></div>
+      <div class="radii-cell"><div class="box" style="border-radius:4px"></div><div class="lbl"><b>4</b><span>checks</span></div></div>
+      <div class="radii-cell"><div class="box" style="border-radius:6px"></div><div class="lbl"><b>6</b><span>menu items</span></div></div>
+      <div class="radii-cell"><div class="box" style="border-radius:8px"></div><div class="lbl"><b>8</b><span>buttons · inputs</span></div></div>
+      <div class="radii-cell"><div class="box" style="border-radius:12px"></div><div class="lbl"><b>12</b><span>cards · panels</span></div></div>
+      <div class="radii-cell"><div class="box" style="border-radius:999px"></div><div class="lbl"><b>full</b><span>pills · avatars</span></div></div>
+    </div>
+  </section>
+
+  <!-- ICONS -->
+  <section id="icons">
+    <div class="section-head">
+      <div>
+        <div class="num">05 · Icons</div>
+        <h2>Iconography</h2>
+      </div>
+      <p>20-icon set drawn at 1.6 stroke, 18×18 base in dense UI. Recommended production set: Lucide (matches stroke weight) — these are placeholders mapped to admin domain actions.</p>
+    </div>
+
+    <div class="icon-grid">
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg><div class="ll">dashboard</div></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 14h4"/></svg><div class="ll">facility</div></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 21s-7-6.5-7-12a7 7 0 0114 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg><div class="ll">map</div></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg><div class="ll">emergencies</div></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 20V8M10 20V4M16 20v-9M22 20H2"/></svg><div class="ll">simulation</div></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 6c4 2 14 2 18 0"/><path d="M3 12c4 2 14 2 18 0"/><path d="M3 18c4 2 14 2 18 0"/></svg><div class="ll">integrations</div></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 6h14M5 12h14M5 18h10"/></svg><div class="ll">audit</div></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a8 8 0 000-6l1.6-2.4-2.6-2.6L16 5.6a8 8 0 00-6 0L7.6 4 5 6.6 6.6 9a8 8 0 000 6L5 17.4 7.6 20 10 18.4a8 8 0 006 0l2.4 1.6 2.6-2.6z"/></svg><div class="ll">settings</div></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg><div class="ll">search</div></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h16M7 12h10M10 18h4"/></svg><div class="ll">filter</div></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="ll">alert</div></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 12l5 5L20 6"/></svg><div class="ll">check</div></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 6l12 12M18 6L6 18"/></svg><div class="ll">close</div></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><div class="ll">add</div></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12l7 7 7-7"/></svg><div class="ll">download</div></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 19V5M5 12l7-7 7 7"/></svg><div class="ll">upload</div></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 17l5-5 4 4 9-9"/><path d="M14 7h7v7"/></svg><div class="ll">trend</div></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><div class="ll">more</div></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 6l6 6-6 6"/></svg><div class="ll">chevron</div></div>
+      <div class="icon-cell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><div class="ll">clock</div></div>
+    </div>
+  </section>
+
+  <!-- COMPONENTS -->
+  <section id="components">
+    <div class="section-head">
+      <div>
+        <div class="num">06 · Components</div>
+        <h2>Primitives</h2>
+      </div>
+      <p>Every primitive below maps to a shadcn/ui component. Token-driven so they auto-adapt between light and dark.</p>
+    </div>
+
+    <div class="comp-grid">
+
+      <!-- Buttons -->
+      <div class="comp full">
+        <div class="ctitle"><h4>Buttons</h4><span class="tag">btn · 28/36/44h</span></div>
+        <div class="cbody has-pad">
+          <div class="row-flex">
+            <button class="btn btn--primary">
+              <span class="icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 12l5 5L20 6"/></svg></span>
+              Confirm changes
+            </button>
+            <button class="btn btn--brand">Register facility</button>
+            <button class="btn btn--secondary">Cancel</button>
+            <button class="btn btn--ghost">View audit</button>
+            <button class="btn btn--danger">Deactivate</button>
+            <button class="btn btn--secondary" disabled>Save (no changes)</button>
+          </div>
+          <div class="row-flex">
+            <button class="btn btn--secondary btn--sm">Today</button>
+            <button class="btn btn--secondary btn--sm">7 days</button>
+            <button class="btn btn--secondary btn--sm">30 days</button>
+            <button class="btn btn--primary btn--sm">Apply</button>
+            <button class="btn btn--lg btn--brand">Run simulation</button>
+            <button class="btn btn--secondary btn--icon"><span class="icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inputs -->
+      <div class="comp">
+        <div class="ctitle"><h4>Form fields</h4><span class="tag">field · 36h</span></div>
+        <div class="cbody">
+          <div class="field">
+            <label>Facility name</label>
+            <input class="input" value="Korle Bu Teaching Hospital" />
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="field">
+              <label>Capability tier</label>
+              <select class="select"><option>Tertiary</option><option>Secondary</option><option>Primary</option></select>
+            </div>
+            <div class="field">
+              <label>Data source</label>
+              <select class="select"><option>facility_management_system</option><option>lhims</option><option>fhir</option><option>simulation</option></select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Endpoint</label>
+            <div class="input--prefix">
+              <span class="pfx">HTTPS</span>
+              <input value="facility-system.korlebu.gh/api/beds" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Notes</label>
+            <textarea class="textarea" placeholder="Optional context for the integration…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Checkbox / Radio / Switch -->
+      <div class="comp">
+        <div class="ctitle"><h4>Selection controls</h4><span class="tag">check · radio · switch</span></div>
+        <div class="cbody">
+          <div class="col">
+            <label class="check-row"><span class="check is-checked"></span><span class="lbl">General · 8 beds</span></label>
+            <label class="check-row"><span class="check is-checked"></span><span class="lbl">ICU · 2 beds</span></label>
+            <label class="check-row"><span class="check"></span><span class="lbl">Maternity · 5 beds</span></label>
+            <label class="check-row"><span class="check"></span><span class="lbl">Pediatric · 3 beds</span></label>
+          </div>
+          <div style="height: 1px; background: var(--border)"></div>
+          <div class="col">
+            <label class="check-row"><span class="radio is-checked"></span><span class="lbl">Weighted Scoring (default)</span></label>
+            <label class="check-row"><span class="radio"></span><span class="lbl">Urgency-Weighted Scoring</span></label>
+            <label class="check-row"><span class="radio"></span><span class="lbl">Greedy (simulation baseline)</span></label>
+          </div>
+          <div style="height: 1px; background: var(--border)"></div>
+          <div class="col" style="gap: 14px;">
+            <label class="check-row"><span class="switch is-on"></span><span class="lbl">Notify dispatchers via SMS</span></label>
+            <label class="check-row"><span class="switch"></span><span class="lbl">Auto-rotate API keys monthly</span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Badges -->
+      <div class="comp">
+        <div class="ctitle"><h4>Badges &amp; status</h4><span class="tag">badge · 22h</span></div>
+        <div class="cbody">
+          <div class="row-flex">
+            <span class="badge badge--critical"><span class="d"></span>Critical</span>
+            <span class="badge badge--urgent"><span class="d"></span>Urgent</span>
+            <span class="badge badge--standard"><span class="d"></span>Standard</span>
+          </div>
+          <div class="row-flex">
+            <span class="badge badge--success"><span class="d"></span>Online</span>
+            <span class="badge badge--warning"><span class="d"></span>Polling stale</span>
+            <span class="badge badge--danger"><span class="d"></span>Auth failed</span>
+            <span class="badge badge--info"><span class="d"></span>Pending</span>
+          </div>
+          <div class="row-flex">
+            <span class="badge">Tertiary</span>
+            <span class="badge">Secondary</span>
+            <span class="badge">Primary</span>
+            <span class="badge">simulation</span>
+            <span class="badge">fhir</span>
+          </div>
+          <div class="row-flex">
+            <span class="badge badge--solid-success">ESCALATED · NO</span>
+            <span class="badge badge--solid-warning">STALE 47 MIN</span>
+            <span class="badge badge--solid-danger">NO BED FOUND</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs / Segment -->
+      <div class="comp">
+        <div class="ctitle"><h4>Tabs &amp; segments</h4><span class="tag">nav · grouping</span></div>
+        <div class="cbody">
+          <div class="tabs">
+            <div class="tab is-active">Overview</div>
+            <div class="tab">Bed counts <span class="count">4</span></div>
+            <div class="tab">Audit <span class="count">128</span></div>
+            <div class="tab">Integration</div>
+          </div>
+          <div class="row-flex">
+            <div class="segment">
+              <div class="opt is-active">Light</div>
+              <div class="opt">Dark</div>
+              <div class="opt">Auto</div>
+            </div>
+            <div class="segment">
+              <div class="opt">24h</div>
+              <div class="opt is-active">7d</div>
+              <div class="opt">30d</div>
+              <div class="opt">90d</div>
+            </div>
+          </div>
+          <div class="crumbs">
+            <a href="#">Facilities</a><span class="sep">/</span>
+            <a href="#">Korle Bu Teaching</a><span class="sep">/</span>
+            <span class="cur">Bed counts</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Menu / Tooltip / Toast -->
+      <div class="comp">
+        <div class="ctitle"><h4>Overlays</h4><span class="tag">menu · tooltip · toast</span></div>
+        <div class="cbody">
+          <div class="menu" style="max-width: 260px;">
+            <div class="lbl">Row actions</div>
+            <div class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M2 12c4-5 18-5 22 0M2 12c4 5 18 5 22 0"/></svg>View detail<span class="kbd">⏎</span></div>
+            <div class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 20h16M14 6l4 4-8 8H6v-4z"/></svg>Edit<span class="kbd">E</span></div>
+            <div class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12l7 7 7-7"/></svg>Export row<span class="kbd">⌘E</span></div>
+            <div class="sep"></div>
+            <div class="mi is-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg>Deactivate facility</div>
+          </div>
+
+          <div style="display:flex; gap: 24px; align-items:flex-end; flex-wrap: wrap;">
+            <div class="tooltip-demo">
+              <button class="btn btn--secondary btn--sm">Hover me</button>
+              <span class="tooltip">Last sync · 2 min ago</span>
+            </div>
+            <div class="toast">
+              <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12l5 5L20 6"/></svg></span>
+              <div class="body">
+                <div class="t">Facility registered</div>
+                <div class="s">Ridge Hospital added · 2 bed types seeded</div>
+              </div>
+              <span class="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+            </div>
+            <div class="toast is-danger">
+              <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span>
+              <div class="body">
+                <div class="t">FMS poll failed</div>
+                <div class="s">37 Military Hospital · HTTP 401 · check credentials</div>
+              </div>
+              <span class="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="comp">
+        <div class="ctitle"><h4>Command search</h4><span class="tag">search · 36h</span></div>
+        <div class="cbody">
+          <div class="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg>
+            <input placeholder="Search facilities, emergencies, sessions…" />
+            <span class="kbd">⌘K</span>
+          </div>
+          <div style="font-family:var(--font-mono); font-size:11.5px; color: var(--ink-600);">Type-ahead resolves to the engine's <code>/admin/search</code>. Local filters in tables use the row toolbar, not this input.</div>
+        </div>
+      </div>
+
+      <!-- Dialog -->
+      <div class="comp">
+        <div class="ctitle"><h4>Dialog · destructive confirm</h4><span class="tag">dialog · 480w</span></div>
+        <div class="cbody">
+          <div class="dialog-mock">
+            <div class="dh">
+              <div>
+                <div class="t">Deactivate facility?</div>
+                <div class="s">Korle Bu Teaching Hospital will stop receiving recommendations. Existing emergency records are preserved.</div>
+              </div>
+              <span class="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+            </div>
+            <div class="db">
+              <div class="field">
+                <label>Confirm by typing the facility name</label>
+                <input class="input input--mono" placeholder="Korle Bu Teaching Hospital" />
+              </div>
+              <label class="check-row"><span class="check is-checked"></span><span class="lbl">I understand this will log an audit event.</span></label>
+            </div>
+            <div class="df">
+              <button class="btn btn--ghost">Cancel</button>
+              <button class="btn btn--danger">Deactivate facility</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- DATA — KPI / TABLE / CHARTS -->
+  <section id="data">
+    <div class="section-head">
+      <div>
+        <div class="num">07 · Data</div>
+        <h2>KPI, tables &amp; charts</h2>
+      </div>
+      <p>The substance of the panel. KPI tiles for dashboard overviews, a single canonical table pattern with toolbar + filters + pagination, and a quiet chart style for sensitivity analysis.</p>
+    </div>
+
+    <div class="sub-h">KPI tiles · dashboard summary</div>
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="k">
+          Active facilities
+          <span class="tooltip-demo"><svg style="width:11px;height:11px;color:var(--ink-500)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span>
+        </div>
+        <div class="v">12</div>
+        <div class="row">
+          <span class="delta up">▲ 1 · last 7d</span>
+          <svg class="spark" viewBox="0 0 88 28">
+            <polyline fill="none" stroke="var(--chart-1)" stroke-width="1.5" points="0,20 12,18 24,22 36,15 48,16 60,12 72,14 88,10" />
+          </svg>
+        </div>
+      </div>
+      <div class="kpi">
+        <div class="k">Beds available · now</div>
+        <div class="v">147 <small>/ 312</small></div>
+        <div class="row">
+          <span class="delta down">▼ 12 · vs avg</span>
+          <svg class="spark" viewBox="0 0 88 28">
+            <polyline fill="none" stroke="var(--chart-2)" stroke-width="1.5" points="0,8 12,11 24,9 36,13 48,15 60,14 72,18 88,22" />
+          </svg>
+        </div>
+      </div>
+      <div class="kpi">
+        <div class="k">Escalation rate · 24h</div>
+        <div class="v">9.1<small>%</small></div>
+        <div class="row">
+          <span class="delta up">▼ 4.2 vs baseline</span>
+          <svg class="spark" viewBox="0 0 88 28">
+            <polyline fill="none" stroke="var(--chart-3)" stroke-width="1.5" points="0,12 12,14 24,11 36,13 48,9 60,12 72,8 88,6" />
+          </svg>
+        </div>
+      </div>
+      <div class="kpi">
+        <div class="k">Median dispatch · 24h</div>
+        <div class="v">8.2 <small>min</small></div>
+        <div class="row">
+          <span class="delta up">▼ 1.4 vs prev</span>
+          <svg class="spark" viewBox="0 0 88 28">
+            <polyline fill="none" stroke="var(--chart-4)" stroke-width="1.5" points="0,10 12,12 24,9 36,11 48,7 60,9 72,8 88,7" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-h">Table · emergencies list</div>
+    <div class="table-wrap">
+      <div class="table-bar">
+        <div class="search" style="min-width: 240px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg>
+          <input placeholder="Search by request id…" />
+        </div>
+        <span class="filter-chip is-applied">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          Date <span class="sep-bar"></span> <span class="val">last 24h</span>
+          <span class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+        </span>
+        <span class="filter-chip is-applied">
+          Urgency <span class="sep-bar"></span> <span class="val">Critical, Urgent</span>
+          <span class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+        </span>
+        <span class="filter-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
+          Algorithm
+        </span>
+        <span class="filter-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
+          Escalated
+        </span>
+        <div style="flex: 1;"></div>
+        <button class="btn btn--secondary btn--sm">
+          <span class="icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12l7 7 7-7"/></svg></span>
+          Export CSV
+        </button>
+        <button class="btn btn--primary btn--sm">New request</button>
+      </div>
+
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th style="width:32px;"><span class="check"></span></th>
+            <th><span class="sortable">Received <svg viewBox="0 0 12 12"><path d="M6 8L2 4h8z" fill="currentColor"/></svg></span></th>
+            <th>Request</th>
+            <th>Urgency</th>
+            <th>Bed type</th>
+            <th>Recommendation</th>
+            <th>ETA</th>
+            <th>Algorithm</th>
+            <th>Status</th>
+            <th style="width:32px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="is-selected">
+            <td><span class="check is-checked"></span></td>
+            <td class="mono dim">09:42:11</td>
+            <td class="mono">A18-220</td>
+            <td><span class="badge badge--critical"><span class="d"></span>Critical</span></td>
+            <td>ICU</td>
+            <td><b>Korle Bu Teaching</b> <span style="color:var(--ink-600); font-family:var(--font-mono); font-size: 11.5px;">· Tertiary</span></td>
+            <td class="num">12<span style="color:var(--ink-600)"> min</span></td>
+            <td>Urgency-Wgt</td>
+            <td><span class="badge badge--success"><span class="d"></span>Confirmed</span></td>
+            <td><button class="btn btn--ghost btn--sm btn--icon" style="width:24px; height:24px;"><span class="icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></span></button></td>
+          </tr>
+          <tr>
+            <td><span class="check"></span></td>
+            <td class="mono dim">09:39:48</td>
+            <td class="mono">A18-219</td>
+            <td><span class="badge badge--urgent"><span class="d"></span>Urgent</span></td>
+            <td>General</td>
+            <td><b>37 Military Hospital</b> <span style="color:var(--ink-600); font-family:var(--font-mono); font-size: 11.5px;">· Secondary</span></td>
+            <td class="num">9<span style="color:var(--ink-600)"> min</span></td>
+            <td>Weighted</td>
+            <td><span class="badge badge--success"><span class="d"></span>Confirmed</span></td>
+            <td><button class="btn btn--ghost btn--sm btn--icon" style="width:24px; height:24px;"><span class="icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></span></button></td>
+          </tr>
+          <tr>
+            <td><span class="check"></span></td>
+            <td class="mono dim">09:31:02</td>
+            <td class="mono">A18-218</td>
+            <td><span class="badge badge--critical"><span class="d"></span>Critical</span></td>
+            <td>ICU</td>
+            <td class="dim" style="font-style: italic;">— no facility within range —</td>
+            <td class="num dim">—</td>
+            <td>Urgency-Wgt</td>
+            <td><span class="badge badge--solid-danger">Escalated</span></td>
+            <td><button class="btn btn--ghost btn--sm btn--icon" style="width:24px; height:24px;"><span class="icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></span></button></td>
+          </tr>
+          <tr>
+            <td><span class="check"></span></td>
+            <td class="mono dim">09:24:55</td>
+            <td class="mono">A18-217</td>
+            <td><span class="badge badge--standard"><span class="d"></span>Standard</span></td>
+            <td>Maternity</td>
+            <td><b>Ridge Hospital</b> <span style="color:var(--ink-600); font-family:var(--font-mono); font-size: 11.5px;">· Secondary</span></td>
+            <td class="num">18<span style="color:var(--ink-600)"> min</span></td>
+            <td>Weighted</td>
+            <td><span class="badge badge--success"><span class="d"></span>Confirmed</span></td>
+            <td><button class="btn btn--ghost btn--sm btn--icon" style="width:24px; height:24px;"><span class="icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></span></button></td>
+          </tr>
+          <tr>
+            <td><span class="check"></span></td>
+            <td class="mono dim">09:18:31</td>
+            <td class="mono">A18-216</td>
+            <td><span class="badge badge--urgent"><span class="d"></span>Urgent</span></td>
+            <td>Pediatric</td>
+            <td><b>Princess Marie Louise</b> <span style="color:var(--ink-600); font-family:var(--font-mono); font-size: 11.5px;">· Tertiary</span></td>
+            <td class="num">14<span style="color:var(--ink-600)"> min</span></td>
+            <td>Urgency-Wgt</td>
+            <td><span class="badge badge--info"><span class="d"></span>Pending</span></td>
+            <td><button class="btn btn--ghost btn--sm btn--icon" style="width:24px; height:24px;"><span class="icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></span></button></td>
+          </tr>
+          <tr>
+            <td><span class="check"></span></td>
+            <td class="mono dim">09:12:09</td>
+            <td class="mono">A18-215</td>
+            <td><span class="badge badge--standard"><span class="d"></span>Standard</span></td>
+            <td>General</td>
+            <td><b>LEKMA Hospital</b> <span style="color:var(--ink-600); font-family:var(--font-mono); font-size: 11.5px;">· Primary</span></td>
+            <td class="num">22<span style="color:var(--ink-600)"> min</span></td>
+            <td>Weighted</td>
+            <td><span class="badge badge--success"><span class="d"></span>Confirmed</span></td>
+            <td><button class="btn btn--ghost btn--sm btn--icon" style="width:24px; height:24px;"><span class="icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></span></button></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="table-foot">
+        <span>6 of 1 248 · 1 selected</span>
+        <div class="pager">
+          <span class="pbtn">‹</span>
+          <span class="pbtn is-active">1</span>
+          <span class="pbtn">2</span>
+          <span class="pbtn">3</span>
+          <span class="pbtn">…</span>
+          <span class="pbtn">208</span>
+          <span class="pbtn">›</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-h">Charts · simulation comparison</div>
+    <div style="display:grid; grid-template-columns: 1.4fr 1fr; gap: 16px;">
+      <div class="chart-card">
+        <h4>ATBP — average time-to-bed-placement</h4>
+        <div class="sub">7-day window · 2 sessions</div>
+        <svg class="chart" viewBox="0 0 640 180" preserveAspectRatio="none">
+          <!-- grid -->
+          <g stroke="var(--border)" stroke-width="1">
+            <line x1="40" x2="640" y1="20"  y2="20" />
+            <line x1="40" x2="640" y1="60"  y2="60" />
+            <line x1="40" x2="640" y1="100" y2="100" />
+            <line x1="40" x2="640" y1="140" y2="140" />
+          </g>
+          <g fill="var(--ink-600)" font-family="var(--font-mono)" font-size="10">
+            <text x="6" y="24">16</text>
+            <text x="6" y="64">12</text>
+            <text x="6" y="104">8</text>
+            <text x="6" y="144">4</text>
+          </g>
+          <g fill="var(--ink-600)" font-family="var(--font-mono)" font-size="10">
+            <text x="40" y="170">D1</text><text x="140" y="170">D2</text><text x="240" y="170">D3</text>
+            <text x="340" y="170">D4</text><text x="440" y="170">D5</text><text x="540" y="170">D6</text><text x="610" y="170">D7</text>
+          </g>
+          <!-- series 1 (brand) -->
+          <polyline fill="none" stroke="var(--chart-1)" stroke-width="2"
+                    points="40,80 140,72 240,90 340,68 440,76 540,60 640,52" />
+          <g fill="var(--chart-1)">
+            <circle cx="40" cy="80" r="2.5"/><circle cx="140" cy="72" r="2.5"/><circle cx="240" cy="90" r="2.5"/>
+            <circle cx="340" cy="68" r="2.5"/><circle cx="440" cy="76" r="2.5"/><circle cx="540" cy="60" r="2.5"/><circle cx="640" cy="52" r="2.5"/>
+          </g>
+          <!-- series 2 (coral) -->
+          <polyline fill="none" stroke="var(--chart-2)" stroke-width="2" stroke-dasharray="4 3"
+                    points="40,100 140,108 240,96 340,116 440,110 540,120 640,116" />
+          <g fill="var(--chart-2)">
+            <circle cx="40" cy="100" r="2.5"/><circle cx="140" cy="108" r="2.5"/><circle cx="240" cy="96" r="2.5"/>
+            <circle cx="340" cy="116" r="2.5"/><circle cx="440" cy="110" r="2.5"/><circle cx="540" cy="120" r="2.5"/><circle cx="640" cy="116" r="2.5"/>
+          </g>
+        </svg>
+        <div class="legend">
+          <span class="l"><span class="d" style="background:var(--chart-1)"></span>Urgency-Wgt · 90% occ</span>
+          <span class="l"><span class="d" style="background:var(--chart-2)"></span>Weighted · 90% occ</span>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h4>FRR · failed-request rate</h4>
+        <div class="sub">By algorithm · last 50 events</div>
+        <svg class="chart" viewBox="0 0 380 180" preserveAspectRatio="none">
+          <g stroke="var(--border)" stroke-width="1">
+            <line x1="60" x2="380" y1="20" y2="20" />
+            <line x1="60" x2="380" y1="60" y2="60" />
+            <line x1="60" x2="380" y1="100" y2="100" />
+            <line x1="60" x2="380" y1="140" y2="140" />
+          </g>
+          <g fill="var(--ink-600)" font-family="var(--font-mono)" font-size="10">
+            <text x="20" y="24">20%</text>
+            <text x="20" y="64">15</text>
+            <text x="20" y="104">10</text>
+            <text x="20" y="144">5</text>
+          </g>
+          <!-- bars -->
+          <g>
+            <rect x="80"  y="48"  width="48" height="92" fill="var(--chart-2)"/>
+            <rect x="180" y="78"  width="48" height="62" fill="var(--chart-1)"/>
+            <rect x="280" y="96"  width="48" height="44" fill="var(--chart-3)"/>
+          </g>
+          <g fill="var(--ink-700)" font-family="var(--font-mono)" font-size="10" text-anchor="middle">
+            <text x="104" y="158">Greedy</text>
+            <text x="204" y="158">Weighted</text>
+            <text x="304" y="158">Urg-Wgt</text>
+          </g>
+          <g fill="var(--ink-900)" font-family="var(--font-mono)" font-size="11" font-weight="600" text-anchor="middle">
+            <text x="104" y="42">14.2</text>
+            <text x="204" y="72">9.7</text>
+            <text x="304" y="90">6.3</text>
+          </g>
+        </svg>
+        <div class="legend">
+          <span class="l"><span class="d" style="background:var(--chart-2)"></span>Greedy</span>
+          <span class="l"><span class="d" style="background:var(--chart-1)"></span>Weighted</span>
+          <span class="l"><span class="d" style="background:var(--chart-3)"></span>Urgency-Wgt</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- APP SHELL — DASHBOARD MOCK -->
+  <section id="shell">
+    <div class="section-head">
+      <div>
+        <div class="num">08 · App shell</div>
+        <h2>Page composition</h2>
+      </div>
+      <p>The shell binds sidebar + topbar + page header + page body. Below: the dashboard at 1320×720 composed entirely from the tokens and primitives above.</p>
+    </div>
+
+    <div class="shell">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="sb-brand">
+          <span class="logo">EB</span>
+          <div class="meta"><b>EBADS</b><small>GHS · Admin</small></div>
+        </div>
+
+        <div class="sb-section">Overview</div>
+        <div class="sb-item is-active">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>
+          Dashboard
+        </div>
+
+        <div class="sb-section">Network</div>
+        <div class="sb-item">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+          Facilities <span class="cnt">12</span>
+        </div>
+        <div class="sb-item">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-6.5-7-12a7 7 0 0114 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          Map
+        </div>
+        <div class="sb-item">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6c4 2 14 2 18 0M3 12c4 2 14 2 18 0M3 18c4 2 14 2 18 0"/></svg>
+          Integrations <span class="cnt">1</span>
+        </div>
+
+        <div class="sb-section">Operations</div>
+        <div class="sb-item">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>
+          Emergencies <span class="cnt">1 248</span>
+        </div>
+        <div class="sb-item">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V8M10 20V4M16 20v-9M22 20H2"/></svg>
+          Simulation <span class="cnt">3</span>
+        </div>
+        <div class="sb-item">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 6h14M5 12h14M5 18h10"/></svg>
+          Audit
+        </div>
+
+        <div class="sb-section">System</div>
+        <div class="sb-item">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a8 8 0 000-6l1.6-2.4-2.6-2.6L16 5.6a8 8 0 00-6 0L7.6 4 5 6.6 6.6 9a8 8 0 000 6L5 17.4 7.6 20 10 18.4a8 8 0 006 0l2.4 1.6 2.6-2.6z"/></svg>
+          Settings
+        </div>
+
+        <div class="sb-foot">
+          <span class="avatar">EM</span>
+          <div style="display:flex; flex-direction:column; line-height:1.15;">
+            <span style="font-size:12.5px; font-weight:600;">E. Mensah</span>
+            <span style="font-family:var(--font-mono); font-size:10.5px; color:var(--ink-600); letter-spacing:0.04em; text-transform: uppercase;">Administrator</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- WORK AREA -->
+      <main class="work">
+        <div class="app-topbar">
+          <div class="crumbs">
+            <span class="cur">Dashboard</span>
+          </div>
+          <span class="env"><span style="width:6px;height:6px;border-radius:999px;background:var(--brand-600);display:inline-block;"></span>Production</span>
+          <div class="sp"></div>
+          <div class="search" style="min-width: 280px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg>
+            <input placeholder="Search…" />
+            <span class="kbd">⌘K</span>
+          </div>
+          <button class="icbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8a6 6 0 0112 0v4l2 4H4l2-4z"/><path d="M10 18a2 2 0 004 0"/></svg></button>
+          <span class="badge badge--success" style="height:24px;"><span class="d"></span>Engine OK</span>
+        </div>
+
+        <div class="page-head">
+          <div>
+            <h1 class="t">Overview</h1>
+          </div>
+          <div class="right">
+            <div class="segment">
+              <div class="opt">24h</div>
+              <div class="opt is-active">7d</div>
+              <div class="opt">30d</div>
+            </div>
+            <button class="btn btn--secondary">
+              <span class="icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12l7 7 7-7"/></svg></span>
+              Export
+            </button>
+            <button class="btn btn--primary">New request</button>
+          </div>
+        </div>
+
+        <div class="page-body" style="overflow-y: auto;">
+          <div class="kpi-grid">
+            <div class="kpi">
+              <div class="k">Active facilities</div>
+              <div class="v">12</div>
+              <div class="row">
+                <span class="delta up">▲ 1</span>
+                <svg class="spark" viewBox="0 0 88 28"><polyline fill="none" stroke="var(--chart-1)" stroke-width="1.5" points="0,20 12,18 24,22 36,15 48,16 60,12 72,14 88,10"/></svg>
+              </div>
+            </div>
+            <div class="kpi">
+              <div class="k">Beds available</div>
+              <div class="v">147 <small>/ 312</small></div>
+              <div class="row">
+                <span class="delta down">▼ 12</span>
+                <svg class="spark" viewBox="0 0 88 28"><polyline fill="none" stroke="var(--chart-2)" stroke-width="1.5" points="0,8 12,11 24,9 36,13 48,15 60,14 72,18 88,22"/></svg>
+              </div>
+            </div>
+            <div class="kpi">
+              <div class="k">Escalation 24h</div>
+              <div class="v">9.1<small>%</small></div>
+              <div class="row">
+                <span class="delta up">▼ 4.2</span>
+                <svg class="spark" viewBox="0 0 88 28"><polyline fill="none" stroke="var(--chart-3)" stroke-width="1.5" points="0,12 12,14 24,11 36,13 48,9 60,12 72,8 88,6"/></svg>
+              </div>
+            </div>
+            <div class="kpi">
+              <div class="k">Median dispatch</div>
+              <div class="v">8.2 <small>min</small></div>
+              <div class="row">
+                <span class="delta up">▼ 1.4</span>
+                <svg class="spark" viewBox="0 0 88 28"><polyline fill="none" stroke="var(--chart-4)" stroke-width="1.5" points="0,10 12,12 24,9 36,11 48,7 60,9 72,8 88,7"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1.5fr 1fr; gap: 16px;">
+            <!-- Activity -->
+            <div class="activity">
+              <div style="padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border);">
+                <h4 style="margin:0; font-size:14px; font-weight: 600; letter-spacing: -0.005em;">Recent requests</h4>
+                <a href="#" style="color: var(--brand-700); font-size: 12.5px; text-decoration: none;">View all →</a>
+              </div>
+              <div class="a-row head">
+                <span>Time</span><span>Recommendation</span><span>Urgency</span><span>Algorithm</span><span>Status</span>
+              </div>
+              <div class="a-row">
+                <span class="when">09:42:11</span>
+                <span class="who"><b>Korle Bu Teaching</b><span class="sub">A18-220 · ICU</span></span>
+                <span><span class="badge badge--critical"><span class="d"></span>Critical</span></span>
+                <span style="font-family:var(--font-mono); font-size:12px; color:var(--ink-700);">Urg-Wgt</span>
+                <span><span class="badge badge--success"><span class="d"></span>OK</span></span>
+              </div>
+              <div class="a-row">
+                <span class="when">09:39:48</span>
+                <span class="who"><b>37 Military</b><span class="sub">A18-219 · General</span></span>
+                <span><span class="badge badge--urgent"><span class="d"></span>Urgent</span></span>
+                <span style="font-family:var(--font-mono); font-size:12px; color:var(--ink-700);">Weighted</span>
+                <span><span class="badge badge--success"><span class="d"></span>OK</span></span>
+              </div>
+              <div class="a-row">
+                <span class="when">09:31:02</span>
+                <span class="who"><b style="font-style: italic; color: var(--ink-600);">— no match —</b><span class="sub">A18-218 · ICU</span></span>
+                <span><span class="badge badge--critical"><span class="d"></span>Critical</span></span>
+                <span style="font-family:var(--font-mono); font-size:12px; color:var(--ink-700);">Urg-Wgt</span>
+                <span><span class="badge badge--solid-danger">ESC</span></span>
+              </div>
+              <div class="a-row">
+                <span class="when">09:24:55</span>
+                <span class="who"><b>Ridge Hospital</b><span class="sub">A18-217 · Maternity</span></span>
+                <span><span class="badge badge--standard"><span class="d"></span>Standard</span></span>
+                <span style="font-family:var(--font-mono); font-size:12px; color:var(--ink-700);">Weighted</span>
+                <span><span class="badge badge--success"><span class="d"></span>OK</span></span>
+              </div>
+              <div class="a-row">
+                <span class="when">09:18:31</span>
+                <span class="who"><b>Princess Marie Louise</b><span class="sub">A18-216 · Pediatric</span></span>
+                <span><span class="badge badge--urgent"><span class="d"></span>Urgent</span></span>
+                <span style="font-family:var(--font-mono); font-size:12px; color:var(--ink-700);">Urg-Wgt</span>
+                <span><span class="badge badge--info"><span class="d"></span>Pending</span></span>
+              </div>
+            </div>
+
+            <!-- Integration health -->
+            <div class="integ">
+              <div class="ih">
+                <h4>Integration health</h4>
+                <a href="#" style="color: var(--brand-700); font-size: 12.5px; text-decoration: none;">All →</a>
+              </div>
+              <div class="i-row">
+                <div class="nm"><b>Korle Bu · FMS</b><div class="sub">Last poll 1m ago</div></div>
+                <span style="font-family:var(--font-mono); font-size:11.5px; color:var(--ink-700);">10m</span>
+                <span><span class="badge badge--success"><span class="d"></span>OK</span></span>
+                <button class="btn btn--ghost btn--sm btn--icon" style="width:24px; height:24px;"><span class="icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6l6 6-6 6"/></svg></span></button>
+              </div>
+              <div class="i-row">
+                <div class="nm"><b>Ridge · LHIMS</b><div class="sub">Last poll 6m ago</div></div>
+                <span style="font-family:var(--font-mono); font-size:11.5px; color:var(--ink-700);">5m</span>
+                <span><span class="badge badge--success"><span class="d"></span>OK</span></span>
+                <button class="btn btn--ghost btn--sm btn--icon" style="width:24px; height:24px;"><span class="icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6l6 6-6 6"/></svg></span></button>
+              </div>
+              <div class="i-row">
+                <div class="nm"><b>37 Military · FMS</b><div class="sub" style="color: var(--danger);">HTTP 401 · 22m ago</div></div>
+                <span style="font-family:var(--font-mono); font-size:11.5px; color:var(--ink-700);">10m</span>
+                <span><span class="badge badge--danger"><span class="d"></span>Auth</span></span>
+                <button class="btn btn--ghost btn--sm btn--icon" style="width:24px; height:24px;"><span class="icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6l6 6-6 6"/></svg></span></button>
+              </div>
+              <div class="i-row">
+                <div class="nm"><b>LEKMA · FHIR</b><div class="sub">Last poll 14m ago</div></div>
+                <span style="font-family:var(--font-mono); font-size:11.5px; color:var(--ink-700);">15m</span>
+                <span><span class="badge badge--warning"><span class="d"></span>Stale</span></span>
+                <button class="btn btn--ghost btn--sm btn--icon" style="width:24px; height:24px;"><span class="icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6l6 6-6 6"/></svg></span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <span>EBADS Admin · Design System · v0.1 · 2026.05</span>
+  <span>Prototype</span>
+</footer>
+
+<script>
+  // Theme toggle label sync
+  const root = document.documentElement;
+  const label = document.getElementById('theme-label');
+  const update = () => { label.textContent = (root.dataset.theme === 'dark') ? 'Dark mode' : 'Light mode'; };
+  new MutationObserver(update).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+  update();
+</script>
+
+</body>
+</html>

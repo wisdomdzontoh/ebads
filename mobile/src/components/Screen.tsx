@@ -28,31 +28,23 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useConnectivity } from '../state/ConnectivityContext';
 import { colors, spacing } from '../theme';
-import { AppBar } from './AppBar';
+import { AppBar, APP_BAR_HEIGHT } from './AppBar';
 import { OfflineBanner } from './OfflineBanner';
 
-const APP_BAR_HEIGHT = 56;
-
 interface ScreenProps {
-  title?: string;
   scroll?: boolean;
   children: React.ReactNode;
   contentStyle?: StyleProp<ViewStyle>;
 }
 
-export function Screen({
-  title,
-  scroll = true,
-  children,
-  contentStyle,
-}: ScreenProps): React.ReactElement {
+export function Screen({ scroll = true, children, contentStyle }: ScreenProps): React.ReactElement {
   const { online } = useConnectivity();
   const insets = useSafeAreaInsets();
 
   return (
     <View style={styles.root}>
       <View style={{ paddingTop: insets.top }}>
-        <AppBar title={title} />
+        <AppBar />
       </View>
       {!online ? <OfflineBanner /> : null}
       <KeyboardAvoidingView

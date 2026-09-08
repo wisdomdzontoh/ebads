@@ -42,9 +42,17 @@ export function EbadsLogo({ size = "md", className }: EbadsLogoProps) {
 
   const { px, wordmark } = MARK_SIZES[size];
   return (
-    <div className={cn("flex items-center gap-2", className)}>
+    <div className={cn("flex min-w-0 items-center gap-2", className)}>
       <Image src={markSrc} alt="" width={px} height={px} className="shrink-0" priority />
-      <span className={cn("font-sans font-bold tracking-tight text-primary", wordmark)}>
+      {/* Hidden when a `group-data-[collapsible=icon]` ancestor (the dashboard sidebar,
+          collapsed to its icon-only rail) is active — the icon mark alone still identifies the
+          app; the wordmark has no room there and previously overlapped it instead of hiding. */}
+      <span
+        className={cn(
+          "truncate font-sans font-bold tracking-tight text-primary group-data-[collapsible=icon]:hidden",
+          wordmark,
+        )}
+      >
         EBADS
       </span>
     </div>

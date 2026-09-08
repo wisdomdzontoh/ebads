@@ -1,28 +1,24 @@
 /**
- * `AppBar` — the fixed top bar (DESIGN.md §Components). Shows the EBADS brand (or a screen
- * title) and the live online/offline pill. The connectivity state is read from context so the
- * bar is always truthful about the app's mode.
+ * `AppBar` — the slim top strip every screen renders under. Shows only the live online/offline
+ * pill (docs/05 §3 truthfulness requirement) — no icon, no title text. The EBADS mark lives
+ * only on launch/onboarding; per-screen titles took vertical space away from map/list/card
+ * content without adding information the tab bar's own label doesn't already give, so both were
+ * dropped to leave more room for the screen itself (facility list, history, dispatch sheet).
  */
 
-import { MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { useConnectivity } from '../state/ConnectivityContext';
 import { colors, spacing } from '../theme';
-import { AppText } from './AppText';
 import { StatusPill } from './StatusPill';
 
-export function AppBar({ title }: { title?: string }): React.ReactElement {
+export const APP_BAR_HEIGHT = 34;
+
+export function AppBar(): React.ReactElement {
   const { online } = useConnectivity();
   return (
     <View style={styles.bar}>
-      <View style={styles.brand}>
-        <MaterialIcons name="emergency" size={24} color={colors.clinicalTeal} />
-        <AppText variant="headlineMd" color="clinicalTeal">
-          {title ?? 'EBADS'}
-        </AppText>
-      </View>
       <StatusPill online={online} />
     </View>
   );
@@ -30,12 +26,11 @@ export function AppBar({ title }: { title?: string }): React.ReactElement {
 
 const styles = StyleSheet.create({
   bar: {
-    height: 56,
+    height: APP_BAR_HEIGHT,
     paddingHorizontal: spacing.marginMobile,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     backgroundColor: colors.surfaceContainer,
   },
-  brand: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1 },
 });

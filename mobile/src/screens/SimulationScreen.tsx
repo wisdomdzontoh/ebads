@@ -119,7 +119,7 @@ export function SimulationScreen(): React.ReactElement {
 
   if (!online) {
     return (
-      <Screen title="Simulation">
+      <Screen>
         <AppText variant="bodyLg" color="onSurfaceVariant">
           Simulation runs on the engine and needs connectivity. Reconnect to run or step a
           session.
@@ -129,7 +129,7 @@ export function SimulationScreen(): React.ReactElement {
   }
 
   return (
-    <Screen title="Simulation">
+    <Screen>
       {mode === 'setup' ? (
         <View style={styles.intro}>
           <AppText variant="headlineLg" color="slate900">

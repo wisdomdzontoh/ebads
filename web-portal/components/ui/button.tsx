@@ -9,6 +9,10 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground shadow-primary hover:bg-primary/80",
+        // The reference design system's distinct branded (clinical-teal) CTA — `.btn--brand` —
+        // for actions tied to the engine's own recommendation/decision, kept apart from the
+        // neutral ink `default` primary button used for ordinary form submits.
+        brand: "bg-brand text-brand-foreground hover:bg-brand/90",
         outline:
           "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
         secondary:

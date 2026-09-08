@@ -37,7 +37,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppText, Button, InlineNotice, SectionLabel, StatusPill } from '../components';
+import { AppText, Button, DraggableSheet, InlineNotice, SectionLabel, StatusPill } from '../components';
 import { Screen } from '../components/Screen';
 import type { RootTabParamList } from '../navigation/RootTabs';
 import { ApiError } from '../services/api';
@@ -60,6 +60,11 @@ import { TriageSelector } from './dispatch/TriageSelector';
  * is no push channel to react to instead — see the module docstring. */
 const POLL_INTERVAL_MS = 20_000;
 
+/** Peek height of the draggable bottom sheet when collapsed — tall enough to still show the
+ * heading/coord chip (form) or the "New dispatch" button plus the top of the result card, so
+ * collapsing it never hides which state the dispatcher is in. */
+const SHEET_COLLAPSED_HEIGHT = 168;
+
 export function DispatchScreen(): React.ReactElement {
   const { api } = useAuth();
   const { settings, connection } = useSettings();
@@ -76,7 +81,6 @@ export function DispatchScreen(): React.ReactElement {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
   const [gpsError, setGpsError] = useState<string | null>(null);
-  const [sheetHeight, setSheetHeight] = useState(0);
 
   // Reservation lifecycle, tracked only for a CONFIRMED allocation (result.status === 'confirmed').
   const [allocationId, setAllocationId] = useState<string | null>(null);
@@ -287,25 +291,21 @@ export function DispatchScreen(): React.ReactElement {
         <DispatchMap coord={coord} onPick={setCoord} flyTo={flyTo} facility={resultFacility} />
       </View>
 
-      {/* Floating header — text brand only (the logo lives on launch/onboarding). */}
+      {/* Floating connectivity pill only — no brand chip/title, leaving the map unobstructed
+          (the tab bar already identifies the screen; the logo lives on launch/onboarding). */}
       <View style={[styles.header, { top: insets.top + 10 }]} pointerEvents="box-none">
-        <View style={styles.brandChip}>
-          <MaterialIcons name="emergency" size={18} color={colors.clinicalTeal} />
-          <AppText variant="headlineMd" color="clinicalTeal">
-            EBADS
-          </AppText>
-        </View>
         <StatusPill online={online} />
       </View>
 
-      {/* GPS button, floating just above the sheet (ride-hailing "locate me"). */}
+      {/* GPS button, floating just above the sheet's collapsed peek height (ride-hailing
+          "locate me") — fixed, not measured, since the sheet itself no longer resizes. */}
       {!result ? (
         <Pressable
           onPress={() => void useGps()}
           disabled={locating}
           accessibilityRole="button"
           accessibilityLabel="Use GPS to set the patient location"
-          style={[styles.fab, { bottom: sheetHeight + 14 }]}
+          style={[styles.fab, { bottom: SHEET_COLLAPSED_HEIGHT + 14 }]}
         >
           {locating ? (
             <ActivityIndicator color={colors.clinicalTeal} size="small" />
@@ -315,14 +315,17 @@ export function DispatchScreen(): React.ReactElement {
         </Pressable>
       ) : null}
 
-      {/* Bottom sheet: form → searching → result. */}
-      <View
+      {/* Bottom sheet: form → searching → result. Draggable (Bolt-style) — drag the handle down
+          to collapse it to a peek and see more of the map, drag up to reopen it fully. Re-opens
+          automatically whenever the content switches between the form and a result. */}
+      <DraggableSheet
+        collapsedHeight={SHEET_COLLAPSED_HEIGHT}
+        expandedHeight={height * 0.64}
+        resetKey={result ? 'result' : 'form'}
         style={styles.sheet}
-        onLayout={(event) => setSheetHeight(event.nativeEvent.layout.height)}
       >
-        <View style={styles.handle} />
         <ScrollView
-          style={{ maxHeight: height * 0.66 }}
+          style={styles.scrollFlex}
           contentContainerStyle={styles.sheetContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
@@ -413,7 +416,7 @@ export function DispatchScreen(): React.ReactElement {
             </>
           )}
         </ScrollView>
-      </View>
+      </DraggableSheet>
     </View>
   );
 }
@@ -444,17 +447,7 @@ const styles = StyleSheet.create({
     right: spacing.marginMobile,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  brandChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: colors.surfaceContainerLowest,
-    borderRadius: radius.pill,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    ...shadow.card,
+    justifyContent: 'flex-end',
   },
   fab: {
     position: 'absolute',
@@ -468,24 +461,12 @@ const styles = StyleSheet.create({
     ...shadow.card,
   },
   sheet: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
     backgroundColor: colors.surfaceContainerLowest,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingTop: 10,
     ...shadow.card,
   },
-  handle: {
-    width: 40,
-    height: 4,
-    borderRadius: radius.pill,
-    backgroundColor: colors.outlineVariant,
-    alignSelf: 'center',
-    marginBottom: 6,
-  },
+  scrollFlex: { flex: 1 },
   sheetContent: {
     paddingHorizontal: spacing.gutter,
     paddingTop: 8,

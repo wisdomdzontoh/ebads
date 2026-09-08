@@ -64,7 +64,7 @@ export function FacilityMapScreen(): React.ReactElement {
   }
 
   return (
-    <Screen title="Facility Map" scroll={false} contentStyle={styles.content}>
+    <Screen scroll={false} contentStyle={styles.content}>
       <View style={styles.mapArea}>
         <FacilityMap facilities={facilities} onSelect={setSelected} />
       </View>

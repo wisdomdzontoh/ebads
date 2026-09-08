@@ -42,7 +42,9 @@ export function staticMapUrl(options: {
     ),
     ...(path.length > 1
       ? [
-          `path=color:0x0A616BCC%7Cweight:4%7C${path
+          // weight:7 — thick, high-contrast route line (Bolt/Uber-style); 4 read as thin
+          // against a busy street map.
+          `path=color:0x0A616BCC%7Cweight:7%7C${path
             .map((point) => `${point.latitude},${point.longitude}`)
             .join('%7C')}`,
         ]

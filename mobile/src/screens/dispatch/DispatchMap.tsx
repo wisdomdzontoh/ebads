@@ -83,6 +83,10 @@ export function DispatchMap({
         ref={mapRef}
         style={styles.map}
         provider={PROVIDER_GOOGLE}
+        // Pin the LIGHT map style regardless of the device's system dark-mode setting — see
+        // LiveNavigationMap.tsx's matching prop for why "automatic" (the default) is wrong here.
+        userInterfaceStyle="light"
+        customMapStyle={[]}
         initialRegion={coord ? { ...DEFAULT_REGION, ...coord } : DEFAULT_REGION}
         onRegionChangeComplete={(region, details) => {
           // Only a human gesture sets the location — programmatic camera moves (initial

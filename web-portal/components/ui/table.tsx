@@ -6,13 +6,13 @@ import { cn } from "@/lib/utils"
 
 function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
-    <div
-      data-slot="table-container"
-      className="relative w-full overflow-x-auto"
-    >
+    // No border/radius here — callers already wrap this in a `Card` (the reference's own
+    // `.table-wrap` framing), and adding a second one here would double it, out of step with
+    // the `CardContent className="px-0"` bleed-to-edge pattern those callers use.
+    <div data-slot="table-container" className="relative w-full overflow-x-auto">
       <table
         data-slot="table"
-        className={cn("w-full caption-bottom text-sm", className)}
+        className={cn("w-full caption-bottom text-sm tabular-nums", className)}
         {...props}
       />
     </div>
@@ -23,7 +23,11 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
       data-slot="table-header"
-      className={cn("[&_tr]:border-b", className)}
+      className={cn(
+        // Reference `table.tbl th`: mono, uppercase, tracked, sunken background.
+        "bg-muted [&_tr]:border-b [&_th]:h-9 [&_th]:font-mono [&_th]:text-[10.5px] [&_th]:font-medium [&_th]:tracking-wider [&_th]:text-muted-foreground [&_th]:uppercase",
+        className,
+      )}
       {...props}
     />
   )

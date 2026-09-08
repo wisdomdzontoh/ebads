@@ -20,6 +20,7 @@ import { useAuth } from "@/components/auth-provider";
 import { EbadsLogo } from "@/components/ebads-logo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { API_BASE_URL } from "@/lib/env";
 import {
   Sidebar,
   SidebarContent,
@@ -45,6 +46,19 @@ interface NavItem {
   href?: string;
 }
 
+/** Short, human label for which engine the portal is talking to — the reference design
+ * system's `.app-topbar .env` pill. Purely informational (docs/01 §4's API base URL), never
+ * user-editable here. */
+function environmentLabel(baseUrl: string): string {
+  try {
+    const { hostname } = new URL(baseUrl);
+    if (hostname === "localhost" || hostname === "127.0.0.1") return "Local";
+    return hostname;
+  } catch {
+    return baseUrl;
+  }
+}
+
 const NAV_BY_ROLE: Record<Role, NavItem[]> = {
   system_administrator: [
     { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
@@ -62,7 +76,9 @@ const NAV_BY_ROLE: Record<Role, NavItem[]> = {
   ],
   facility_staff: [
     { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
-    { title: "Bed availability", icon: BedDouble },
+    // facility_staff already holds bed_state:write:own_facility (migration 0005) — same grant
+    // facility_administrator uses — so this reuses that exact page rather than a fork of it.
+    { title: "Bed availability", href: "/dashboard/beds", icon: BedDouble },
     { title: "Incoming allocations", href: "/dashboard/inbound", icon: Inbox },
     { title: "Account", href: "/dashboard/account", icon: KeyRound },
   ],
@@ -146,8 +162,12 @@ export default function DashboardLayout({
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="flex h-12 items-center gap-2 border-b border-border px-3">
+        <header className="flex h-13 items-center gap-2 border-b border-border bg-popover px-3">
           <SidebarTrigger />
+          <span className="inline-flex h-[22px] items-center gap-1.5 rounded-full border border-brand-soft bg-brand-soft px-2 font-mono text-[10.5px] tracking-wide text-brand uppercase">
+            <span className="size-1.5 rounded-full bg-brand" />
+            {environmentLabel(API_BASE_URL)}
+          </span>
           <div className="flex-1" />
           <Badge variant="secondary">{ROLE_LABELS[user.role]}</Badge>
         </header>

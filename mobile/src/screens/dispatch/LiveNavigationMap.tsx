@@ -21,10 +21,10 @@
 
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
-import { Linking, Pressable, StyleSheet, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 
-import { AppText, Button, InlineNotice } from '../../components';
+import { AppText, Button, DraggableSheet, InlineNotice } from '../../components';
 import { getRoute, type LatLng, type RouteResult } from '../../services/directions';
 import { useLiveLocation } from '../../hooks/useLiveLocation';
 import { colors, radius, shadow, spacing } from '../../theme';
@@ -37,6 +37,11 @@ import {
 
 const ROUTE_REFRESH_MS = 90_000;
 const CAMERA_ZOOM_DELTA = 0.02;
+// Peek height when the info sheet is dragged down — destination name/call button and the
+// distance/ETA row stay visible, the same "route summary always showing" behaviour as Bolt's
+// own collapsed ride-options sheet; drag up for GPS/route notices and the arrival button.
+const INFO_SHEET_COLLAPSED_HEIGHT = 158;
+const INFO_SHEET_EXPANDED_HEIGHT = 360;
 
 export interface NavigationDestination extends LatLng {
   name: string;
@@ -146,6 +151,12 @@ export function LiveNavigationMap({
         ref={mapRef}
         style={styles.map}
         provider={PROVIDER_GOOGLE}
+        // Forces the LIGHT map style regardless of the device's system dark-mode setting — left
+        // to "automatic" (the default), iOS renders the Google Maps chrome in dark mode whenever
+        // the phone is in dark mode, which reads as broken/illegible against this light UI, not
+        // as a deliberate theme. customMapStyle=[] pins the classic light Google style explicitly.
+        userInterfaceStyle="light"
+        customMapStyle={[]}
         initialRegion={{
           ...(position ?? destination),
           latitudeDelta: CAMERA_ZOOM_DELTA,
@@ -157,13 +168,21 @@ export function LiveNavigationMap({
       >
         <Marker coordinate={destination} title={destination.name} />
         {route ? (
-          <Polyline coordinates={route.path} strokeColor={colors.clinicalTeal} strokeWidth={5} />
+          // Thick, high-contrast route line (Bolt/Uber-style) — the previous 5px width read as
+          // thin against a busy street map.
+          <Polyline
+            coordinates={route.path}
+            strokeColor={colors.clinicalTeal}
+            strokeWidth={8}
+            lineCap="round"
+            lineJoin="round"
+          />
         ) : position ? (
           // No Directions route yet/unavailable — a straight line beats no line at all.
           <Polyline
             coordinates={[position, destination]}
             strokeColor={colors.slate400}
-            strokeWidth={3}
+            strokeWidth={4}
             lineDashPattern={[8, 8]}
           />
         ) : null}
@@ -178,77 +197,86 @@ export function LiveNavigationMap({
         <MaterialIcons name="arrow-back" size={22} color={colors.slate900} />
       </Pressable>
 
-      <View style={styles.infoBar}>
-        <View style={styles.infoHeader}>
-          <AppText variant="headlineMd" color="slate900">
-            {destination.name}
-          </AppText>
-          <Pressable
-            onPress={() => void Linking.openURL(`tel:${destination.contactPhone}`)}
-            accessibilityRole="button"
-            accessibilityLabel={`Call ${destination.name}`}
-            hitSlop={8}
-          >
-            <MaterialIcons name="call" size={22} color={colors.clinicalTeal} />
-          </Pressable>
-        </View>
-
-        <View style={styles.metrics}>
-          <View style={styles.metric}>
-            <AppText variant="overline" color="onSurfaceVariant">
-              Distance remaining
+      {/* Draggable info sheet (Bolt-style) — drag down to peek at just the route summary and see
+          more of the map, drag up for GPS/route notices and the arrival button. */}
+      <DraggableSheet
+        collapsedHeight={INFO_SHEET_COLLAPSED_HEIGHT}
+        expandedHeight={INFO_SHEET_EXPANDED_HEIGHT}
+        style={styles.infoBar}
+      >
+        <ScrollView
+          style={styles.infoScroll}
+          contentContainerStyle={styles.infoScrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.infoHeader}>
+            <AppText variant="headlineMd" color="slate900">
+              {destination.name}
             </AppText>
-            <AppText variant="dataLg" color="clinicalTeal">
-              {remainingMeters !== null ? formatDistanceMeters(remainingMeters) : '—'}
-            </AppText>
+            <Pressable
+              onPress={() => void Linking.openURL(`tel:${destination.contactPhone}`)}
+              accessibilityRole="button"
+              accessibilityLabel={`Call ${destination.name}`}
+              hitSlop={8}
+            >
+              <MaterialIcons name="call" size={22} color={colors.clinicalTeal} />
+            </Pressable>
           </View>
-          <View style={styles.metric}>
-            <AppText variant="overline" color="onSurfaceVariant">
-              ETA{route ? '' : ' (estimated)'}
-            </AppText>
-            <AppText variant="dataLg" color="clinicalTeal">
-              {remainingSeconds !== null ? formatDurationClock(remainingSeconds) : '—'}
-            </AppText>
+
+          <View style={styles.metrics}>
+            <View style={styles.metric}>
+              <AppText variant="overline" color="onSurfaceVariant">
+                Distance remaining
+              </AppText>
+              <AppText variant="dataLg" color="clinicalTeal">
+                {remainingMeters !== null ? formatDistanceMeters(remainingMeters) : '—'}
+              </AppText>
+            </View>
+            <View style={styles.metric}>
+              <AppText variant="overline" color="onSurfaceVariant">
+                ETA{route ? '' : ' (estimated)'}
+              </AppText>
+              <AppText variant="dataLg" color="clinicalTeal">
+                {remainingSeconds !== null ? formatDurationClock(remainingSeconds) : '—'}
+              </AppText>
+            </View>
           </View>
-        </View>
 
-        {locationError ? (
-          <InlineNotice
-            title="GPS unavailable"
-            message={locationError}
-          />
-        ) : usingFallback ? (
-          <AppText variant="dataSm" color="urgentOrange">
-            Using the incident location to start — refining once live GPS locks on.
-          </AppText>
-        ) : null}
-        {locationError ? (
-          <Button label="Retry GPS" icon="my-location" variant="secondary" onPress={retry} />
-        ) : null}
-        {routeError ? (
-          <AppText variant="dataSm" color="urgentOrange">
-            {routeError}
-          </AppText>
-        ) : null}
-        {!position ? (
-          <AppText variant="dataSm" color="onSurfaceVariant">
-            Waiting for GPS…
-          </AppText>
-        ) : null}
+          {locationError ? (
+            <InlineNotice title="GPS unavailable" message={locationError} />
+          ) : usingFallback ? (
+            <AppText variant="dataSm" color="urgentOrange">
+              Using the incident location to start — refining once live GPS locks on.
+            </AppText>
+          ) : null}
+          {locationError ? (
+            <Button label="Retry GPS" icon="my-location" variant="secondary" onPress={retry} />
+          ) : null}
+          {routeError ? (
+            <AppText variant="dataSm" color="urgentOrange">
+              {routeError}
+            </AppText>
+          ) : null}
+          {!position ? (
+            <AppText variant="dataSm" color="onSurfaceVariant">
+              Waiting for GPS…
+            </AppText>
+          ) : null}
 
-        {onRecordArrival ? (
-          <Button
-            label={
-              arrived ? 'Arrived' : recordingArrival ? 'Recording arrival…' : 'Record arrival'
-            }
-            icon="task-alt"
-            onPress={onRecordArrival}
-            disabled={arrived}
-            loading={recordingArrival}
-            style={styles.arriveButton}
-          />
-        ) : null}
-      </View>
+          {onRecordArrival ? (
+            <Button
+              label={
+                arrived ? 'Arrived' : recordingArrival ? 'Recording arrival…' : 'Record arrival'
+              }
+              icon="task-alt"
+              onPress={onRecordArrival}
+              disabled={arrived}
+              loading={recordingArrival}
+              style={styles.arriveButton}
+            />
+          ) : null}
+        </ScrollView>
+      </DraggableSheet>
     </View>
   );
 }
@@ -269,18 +297,16 @@ const styles = StyleSheet.create({
     ...shadow.card,
   },
   infoBar: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
     backgroundColor: colors.surfaceContainerLowest,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
+    ...shadow.card,
+  },
+  infoScroll: { flex: 1 },
+  infoScrollContent: {
     paddingHorizontal: spacing.gutter,
-    paddingTop: 16,
     paddingBottom: 24,
     gap: 12,
-    ...shadow.card,
   },
   infoHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
   metrics: { flexDirection: 'row', gap: 32 },

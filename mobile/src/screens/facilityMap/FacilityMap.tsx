@@ -28,7 +28,15 @@ interface FacilityMapProps {
 
 export function FacilityMap({ facilities, onSelect }: FacilityMapProps): React.ReactElement {
   return (
-    <MapView provider={PROVIDER_GOOGLE} style={styles.map} initialRegion={ACCRA_REGION}>
+    <MapView
+      provider={PROVIDER_GOOGLE}
+      style={styles.map}
+      // Pin the LIGHT map style regardless of the device's system dark-mode setting — see
+      // LiveNavigationMap.tsx's matching prop for why "automatic" (the default) is wrong here.
+      userInterfaceStyle="light"
+      customMapStyle={[]}
+      initialRegion={ACCRA_REGION}
+    >
       {facilities.map((facility) => {
         const total = totalAvailable(facility.bed_counts);
         return (

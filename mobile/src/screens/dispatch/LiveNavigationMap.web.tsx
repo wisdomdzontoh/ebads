@@ -11,9 +11,9 @@
 
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
-import { Image, Linking, Pressable, StyleSheet, View } from 'react-native';
+import { Image, Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { AppText, Button, InlineNotice } from '../../components';
+import { AppText, Button, DraggableSheet, InlineNotice } from '../../components';
 import { useLiveLocation } from '../../hooks/useLiveLocation';
 import { getRoute, type LatLng, type RouteResult } from '../../services/directions';
 import { GOOGLE_MAPS_API_KEY, staticMapUrl } from '../../services/maps';
@@ -39,6 +39,9 @@ const ROUTE_REFRESH_MS = 90_000;
 // GPS tick would just re-request the same-looking image.
 const IMAGE_REFRESH_MS = 15_000;
 const MAX_PATH_POINTS = 50; // keeps the Static Maps URL well under its length limit
+// See LiveNavigationMap.tsx's matching constants.
+const INFO_SHEET_COLLAPSED_HEIGHT = 158;
+const INFO_SHEET_EXPANDED_HEIGHT = 360;
 
 interface LiveNavigationMapProps {
   destination: NavigationDestination;
@@ -173,7 +176,14 @@ export function LiveNavigationMap({
         <MaterialIcons name="arrow-back" size={22} color={colors.slate900} />
       </Pressable>
 
-      <View style={styles.infoBar}>
+      {/* Draggable info sheet (Bolt-style) — drag down to peek at just the route summary and see
+          more of the map, drag up for GPS/route notices and the arrival button. */}
+      <DraggableSheet
+        collapsedHeight={INFO_SHEET_COLLAPSED_HEIGHT}
+        expandedHeight={INFO_SHEET_EXPANDED_HEIGHT}
+        style={styles.infoBar}
+      >
+      <ScrollView style={styles.infoScroll} contentContainerStyle={styles.infoScrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.infoHeader}>
           <AppText variant="headlineMd" color="slate900">
             {destination.name}
@@ -238,7 +248,8 @@ export function LiveNavigationMap({
             style={styles.arriveButton}
           />
         ) : null}
-      </View>
+      </ScrollView>
+      </DraggableSheet>
     </View>
   );
 }
@@ -267,18 +278,16 @@ const styles = StyleSheet.create({
     ...shadow.card,
   },
   infoBar: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
     backgroundColor: colors.surfaceContainerLowest,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
+    ...shadow.card,
+  },
+  infoScroll: { flex: 1 },
+  infoScrollContent: {
     paddingHorizontal: spacing.gutter,
-    paddingTop: 16,
     paddingBottom: 24,
     gap: 12,
-    ...shadow.card,
   },
   infoHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
   metrics: { flexDirection: 'row', gap: 32 },

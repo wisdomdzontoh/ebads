@@ -55,7 +55,7 @@ export function SettingsScreen(): React.ReactElement {
   };
 
   return (
-    <Screen title="Settings">
+    <Screen>
       <SectionLabel>Account</SectionLabel>
       <AccountCard />
 

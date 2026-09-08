@@ -1,159 +1,130 @@
 @import "tailwindcss";
 
 /*
- * EBADS design tokens — mirrors artifacts/Mobile app UI design system/DESIGN.md so the
- * portal and the dispatcher app read as one product. Material-3-derived surface roles
- * (background/card/muted/etc.) come from that file's YAML front matter; --primary is the
- * DESIGN.md prose's "Primary (Clinical Teal)" (#0A616B) rather than the M3 block's literal
- * `primary` (#004850, used here only as a strong on-light text/stroke tone where needed) —
- * clinical-teal is what the mobile app actually paints as its brand/action color, and this
- * file follows it for cross-client consistency. --destructive is likewise the semantic
- * "critical" triage red (#E5484D) the mobile app uses, not the M3 `error` token.
+ * EBADS Admin design tokens — transcribed from `EBADS Admin Design System.html` (the web
+ * portal's own reference design system, distinct from the mobile app's DESIGN.md), so every
+ * shadcn primitive here (button, badge, card, table, sidebar, dialog, …) reads its color from
+ * these variables and re-skins automatically without touching each component file.
+ *
+ * Two deliberate departures from "just copy the file":
+ *  - The reference's OWN `.btn--primary` is ink-900/paper (a high-contrast neutral, not brand
+ *    teal) with a separate `.btn--brand` for the teal-accented style — so --primary here maps
+ *    to ink-900, matching the reference's actual primary-button semantics, while --ring (focus)
+ *    stays brand teal (the reference's own --focus-ring is always teal regardless of button
+ *    color). This is a deliberate two-tier system in the source file, not an oversight.
+ *  - Radius is left at Tailwind's stock v4 scale, matching how the mobile app's own tokens.ts
+ *    already reconciled this: the reference's 8/12/14px component radii are close enough to
+ *    the stock md/lg/xl scale that introducing custom values would risk visual drift between
+ *    hand-set radii and shadcn internals that read var(--radius-md) directly in calc()/min()
+ *    expressions, for no real gain in fidelity.
  */
 
 :root {
-  /* Radius is deliberately NOT overridden here. The design system's actual screen code
-     (artifacts/.../settings_config/code.html etc., not just DESIGN.md's prose table) uses a
-     plain 3-tier scale — DEFAULT 4px, lg 8px, xl 12px, full pill — which is exactly
-     Tailwind's own v4 default radius scale (node_modules/tailwindcss/theme.css). Every
-     shadcn primitive here already assumes those stock values (several read var(--radius-md)
-     directly in calc()/min() expressions), so leaving them untouched is the correct match,
-     not an oversight.
-
-     Card shadow and the primary-button teal glow below are real, named tokens from that
-     same code (`.custom-shadow` and the Settings screen's CTA `shadow-[...]`), not guesses. */
-  --shadow-card: 0 2px 8px rgba(16, 24, 38, 0.08);
+  --shadow-card: 0 1px 0 rgb(0 0 0 / 0.02), 0 4px 14px -2px rgb(0 0 0 / 0.08);
   --shadow-primary: 0 4px 12px rgba(10, 97, 107, 0.3);
 
-  --background: #f7f9fd;
-  --foreground: #191c1f;
+  --background: oklch(0.985 0.003 240); /* canvas */
+  --foreground: oklch(0.18 0.012 240); /* ink-900 */
 
-  --card: #ffffff;
-  --card-foreground: #191c1f;
-  --popover: #ffffff;
-  --popover-foreground: #191c1f;
+  --card: oklch(0.995 0.002 240); /* surface */
+  --card-foreground: oklch(0.18 0.012 240);
+  --popover: oklch(0.995 0.002 240); /* paper */
+  --popover-foreground: oklch(0.18 0.012 240);
 
-  --primary: #0a616b; /* clinical-teal */
-  --primary-foreground: #ffffff;
+  /* Primary follows the reference's own `.btn--primary` (ink/paper, high-contrast neutral) —
+     `--ring` below carries the brand teal instead, matching the reference's always-teal
+     --focus-ring regardless of button color. */
+  --primary: oklch(0.18 0.012 240);
+  --primary-foreground: oklch(0.995 0.002 240);
 
-  --secondary: #d8e0f4;
-  --secondary-foreground: #5b6374;
+  /* A second, explicitly BRANDED (teal) action color for the moments the reference itself
+     calls out with `.btn--brand` / `.badge` "brand" accents — e.g. the engine's own
+     recommendation, matching the mobile app's clinical-teal-as-brand convention. */
+  --brand: oklch(0.48 0.105 200);
+  --brand-foreground: oklch(0.995 0.002 240);
+  --brand-soft: oklch(0.94 0.030 200);
 
-  --muted: #f2f4f8;
-  --muted-foreground: #3f484a;
+  --secondary: oklch(0.965 0.004 240); /* surface-sunken */
+  --secondary-foreground: oklch(0.38 0.011 240); /* ink-700 */
 
-  --accent: #e6e8ec;
-  --accent-foreground: #191c1f;
+  --muted: oklch(0.965 0.004 240); /* surface-sunken */
+  --muted-foreground: oklch(0.50 0.010 240); /* ink-600 */
 
-  --destructive: #e5484d; /* critical-red */
-  --destructive-foreground: #ffffff;
+  --accent: oklch(0.965 0.004 240); /* surface-sunken */
+  --accent-foreground: oklch(0.18 0.012 240);
 
-  --border: #bec8ca;
-  --input: #bec8ca;
-  --ring: #0a616b;
+  --destructive: oklch(0.58 0.205 25); /* danger / urg-critical */
+  --destructive-foreground: oklch(0.995 0.002 240);
 
-  --sidebar: #ffffff;
-  --sidebar-foreground: #191c1f;
-  --sidebar-primary: #0a616b;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #eceef2;
-  --sidebar-accent-foreground: #191c1f;
-  --sidebar-border: #bec8ca;
-  --sidebar-ring: #0a616b;
+  --border: oklch(0.91 0.006 240);
+  --input: oklch(0.84 0.008 240); /* border-strong — form control borders */
+  --ring: oklch(0.56 0.115 200); /* brand-500 — the reference's focus ring is always teal */
 
-  /* Semantic triage colors — never decorative; the one channel that carries urgency and
-     availability meaning (DESIGN.md "Semantic Urgency"). Independent of light/dark. */
-  --critical: #e5484d;
-  --critical-tint: #fdecec;
-  --urgent: #d98324;
-  --urgent-tint: #fdf2e3;
-  --standard: #2f9e6b;
-  --standard-tint: #e7f5ee;
+  --sidebar: oklch(0.995 0.002 240); /* paper */
+  --sidebar-foreground: oklch(0.18 0.012 240);
+  --sidebar-primary: oklch(0.18 0.012 240); /* .sb-item.is-active: ink-900/paper */
+  --sidebar-primary-foreground: oklch(0.995 0.002 240);
+  --sidebar-accent: oklch(0.965 0.004 240);
+  --sidebar-accent-foreground: oklch(0.18 0.012 240);
+  --sidebar-border: oklch(0.91 0.006 240);
+  --sidebar-ring: oklch(0.56 0.115 200);
+
+  /* Semantic triage/status colors — never decorative; the one channel that carries urgency and
+     bed-availability meaning. Names kept for call-site compatibility; values now transcribed
+     from the reference's --urg-critical/urgent/standard (+ soft tints). */
+  --critical: oklch(0.58 0.205 25);
+  --critical-tint: oklch(0.95 0.035 25);
+  --urgent: oklch(0.72 0.160 70);
+  --urgent-tint: oklch(0.96 0.045 80);
+  --standard: oklch(0.55 0.130 230);
+  --standard-tint: oklch(0.95 0.030 230);
 
   --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
+  --font-cond: var(--font-plex-sans-condensed), var(--font-plex-sans), ui-sans-serif, system-ui;
 }
 
-/* Dark palette derived from DESIGN.md's M3 inverse-* roles (the doc itself is light-only —
-   no dark scheme is specified there, so this extrapolates using the given inverse tokens
-   rather than inventing an unrelated one). Applies both to an explicit dark selection and
-   to system "no explicit choice" dark preference, per the artifact theming contract. */
-:root[data-theme="dark"],
-:root:not([data-theme="light"]) {
-  @media (prefers-color-scheme: dark) {
-    --background: #101826;
-    --foreground: #eff1f5;
-
-    --card: #182233;
-    --card-foreground: #eff1f5;
-    --popover: #182233;
-    --popover-foreground: #eff1f5;
-
-    --primary: #8cd2dd;
-    --primary-foreground: #001f24;
-
-    --secondary: #3f4757;
-    --secondary-foreground: #dbe2f6;
-
-    --muted: #1c2635;
-    --muted-foreground: #8a94a3;
-
-    --accent: #232f42;
-    --accent-foreground: #eff1f5;
-
-    --destructive: #e5484d;
-    --destructive-foreground: #ffffff;
-
-    --border: #2d3648;
-    --input: #2d3648;
-    --ring: #8cd2dd;
-
-    --sidebar: #182233;
-    --sidebar-foreground: #eff1f5;
-    --sidebar-primary: #8cd2dd;
-    --sidebar-primary-foreground: #001f24;
-    --sidebar-accent: #232f42;
-    --sidebar-accent-foreground: #eff1f5;
-    --sidebar-border: #2d3648;
-    --sidebar-ring: #8cd2dd;
-
-    --critical-tint: #3a1f20;
-    --urgent-tint: #3a2c17;
-    --standard-tint: #16332a;
-  }
-}
-
+/* Dark palette — transcribed from the reference's [data-theme="dark"] block. Reachable ONLY by
+   an explicit `data-theme="dark"` selection (no theme toggle exists in the app yet, so this is
+   currently unreachable — deliberately). Earlier this also auto-applied whenever the VIEWER's
+   OS was in dark mode, with no way to opt back to light — the reference design system itself is
+   light-first (`<html data-theme="light">`, a manual toggle only for its own demo purposes), and
+   the portal has no dark-mode-specific QA pass, so a visitor's OS setting silently reskinning it
+   was a bug, not a feature. */
 :root[data-theme="dark"] {
-  --background: #101826;
-  --foreground: #eff1f5;
-  --card: #182233;
-  --card-foreground: #eff1f5;
-  --popover: #182233;
-  --popover-foreground: #eff1f5;
-  --primary: #8cd2dd;
-  --primary-foreground: #001f24;
-  --secondary: #3f4757;
-  --secondary-foreground: #dbe2f6;
-  --muted: #1c2635;
-  --muted-foreground: #8a94a3;
-  --accent: #232f42;
-  --accent-foreground: #eff1f5;
-  --destructive: #e5484d;
-  --destructive-foreground: #ffffff;
-  --border: #2d3648;
-  --input: #2d3648;
-  --ring: #8cd2dd;
-  --sidebar: #182233;
-  --sidebar-foreground: #eff1f5;
-  --sidebar-primary: #8cd2dd;
-  --sidebar-primary-foreground: #001f24;
-  --sidebar-accent: #232f42;
-  --sidebar-accent-foreground: #eff1f5;
-  --sidebar-border: #2d3648;
-  --sidebar-ring: #8cd2dd;
-  --critical-tint: #3a1f20;
-  --urgent-tint: #3a2c17;
-  --standard-tint: #16332a;
+  --background: oklch(0.13 0.012 240);
+  --foreground: oklch(0.985 0.003 240);
+  --card: oklch(0.18 0.012 240);
+  --card-foreground: oklch(0.985 0.003 240);
+  --popover: oklch(0.16 0.012 240);
+  --popover-foreground: oklch(0.985 0.003 240);
+  --primary: oklch(0.985 0.003 240);
+  --primary-foreground: oklch(0.18 0.012 240);
+  --brand: oklch(0.70 0.115 200);
+  --brand-foreground: oklch(0.16 0.012 240);
+  --brand-soft: oklch(0.26 0.060 200);
+  --secondary: oklch(0.22 0.012 240);
+  --secondary-foreground: oklch(0.84 0.008 240);
+  --muted: oklch(0.22 0.012 240);
+  --muted-foreground: oklch(0.70 0.010 240);
+  --accent: oklch(0.22 0.012 240);
+  --accent-foreground: oklch(0.985 0.003 240);
+  --destructive: oklch(0.58 0.205 25);
+  --destructive-foreground: oklch(0.985 0.003 240);
+  --border: oklch(0.28 0.012 240);
+  --input: oklch(0.38 0.012 240);
+  --ring: oklch(0.76 0.115 200);
+  --sidebar: oklch(0.16 0.012 240);
+  --sidebar-foreground: oklch(0.985 0.003 240);
+  --sidebar-primary: oklch(0.985 0.003 240);
+  --sidebar-primary-foreground: oklch(0.18 0.012 240);
+  --sidebar-accent: oklch(0.22 0.012 240);
+  --sidebar-accent-foreground: oklch(0.985 0.003 240);
+  --sidebar-border: oklch(0.28 0.012 240);
+  --sidebar-ring: oklch(0.76 0.115 200);
+  --critical-tint: oklch(0.25 0.060 25);
+  --urgent-tint: oklch(0.26 0.070 75);
+  --standard-tint: oklch(0.25 0.060 230);
 }
 
 @theme inline {
@@ -165,6 +136,9 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-soft: var(--brand-soft);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -198,12 +172,14 @@
 
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
+  --font-cond: var(--font-cond);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11";
 }
 
 code,
@@ -211,4 +187,10 @@ kbd,
 samp,
 pre {
   font-family: var(--font-mono);
+}
+
+/* Tabular figures for metric/count columns (KPI cards, tables) — matches the reference's
+   `font-variant-numeric: tabular-nums` on `.tbl`/`.kpi .v`. */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }

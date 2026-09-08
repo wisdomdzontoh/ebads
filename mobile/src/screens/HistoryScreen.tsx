@@ -78,7 +78,7 @@ export function HistoryScreen(): React.ReactElement {
 
   if (!online && !records) {
     return (
-      <Screen title="History">
+      <Screen>
         <AppText variant="bodyLg" color="onSurfaceVariant">
           Dispatch history needs connectivity. Reconnect to load it.
         </AppText>
@@ -87,7 +87,7 @@ export function HistoryScreen(): React.ReactElement {
   }
 
   return (
-    <Screen title="History" scroll={false}>
+    <Screen scroll={false}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={() => void load()} />}
