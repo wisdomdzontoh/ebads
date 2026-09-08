@@ -57,12 +57,15 @@ jest.mock('expo-location', () => ({
 }));
 
 // expo-notifications is native (and warns loudly under Node); stub the calls the app makes.
+// addNotificationResponseReceivedListener (App.tsx's tap-to-navigate listener) returns a
+// subscription with .remove(), same shape as the real API.
 jest.mock('expo-notifications', () => ({
   getPermissionsAsync: jest.fn(async () => ({ granted: true })),
   requestPermissionsAsync: jest.fn(async () => ({ granted: true })),
   scheduleNotificationAsync: jest.fn(async () => undefined),
   setNotificationHandler: jest.fn(),
   setNotificationChannelAsync: jest.fn(async () => null),
+  addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
   AndroidImportance: { HIGH: 4 },
 }));
 

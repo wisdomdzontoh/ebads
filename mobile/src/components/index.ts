@@ -3,6 +3,7 @@ export { AppText } from './AppText';
 export { AppBar } from './AppBar';
 export { Button } from './Button';
 export { Card } from './Card';
+export { ConfirmDialog } from './ConfirmDialog';
 export { DraggableSheet } from './DraggableSheet';
 export { InlineNotice } from './InlineNotice';
 export { OfflineBanner } from './OfflineBanner';

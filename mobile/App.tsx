@@ -16,21 +16,28 @@ import {
   IBMPlexSans_600SemiBold,
   IBMPlexSans_700Bold,
 } from '@expo-google-fonts/ibm-plex-sans';
-import { NavigationContainer } from '@react-navigation/native';
+import { createNavigationContainerRef, NavigationContainer } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
+import * as Notifications from 'expo-notifications';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { LaunchScreen } from './src/components/LaunchScreen';
-import { RootTabs } from './src/navigation/RootTabs';
+import { RootNavigator, type RootStackParamList } from './src/navigation/RootNavigator';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { OnboardingScreen } from './src/screens/OnboardingScreen';
+import type { NotificationTarget } from './src/services/notificationHistory';
 import { AuthProvider, useAuth } from './src/state/AuthContext';
 import { ConnectivityProvider } from './src/state/ConnectivityContext';
 import { SettingsProvider, useSettings } from './src/state/SettingsContext';
 import { SyncProvider } from './src/state/SyncContext';
+
+// Held at module scope (not component state) so the notification-tap listener below — which
+// must be registered once, outside any particular screen's lifetime — can navigate imperatively
+// regardless of which screen happens to be mounted when a tap arrives.
+const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
 // Keep the native splash up until the fonts are ready — no white flash in between.
 void SplashScreen.preventAutoHideAsync().catch(() => undefined);
@@ -48,6 +55,21 @@ export default function App(): React.ReactElement | null {
   useEffect(() => {
     if (ready) void SplashScreen.hideAsync().catch(() => undefined);
   }, [ready]);
+
+  // Tapping an OS notification (foreground, background, or one that launched the app cold)
+  // navigates straight to what it's about, using the `target` every notification is posted
+  // with (services/notifications.ts). Registered once at the app root — a per-screen listener
+  // would only catch taps while that specific screen happened to be mounted.
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      const target = response.notification.request.content.data?.target as
+        | NotificationTarget
+        | undefined;
+      if (!target || !navigationRef.isReady()) return;
+      navigationRef.navigate('MainTabs', { screen: target.screen });
+    });
+    return () => subscription.remove();
+  }, []);
 
   // A font-loading failure must not strand the app on a blank screen — render with the
   // system fonts instead (the UI degrades visually, never functionally). While loading, show
@@ -84,8 +106,8 @@ function Root(): React.ReactElement | null {
   if (!settings.onboarded) return <OnboardingScreen />;
   if (!session) return <LoginScreen />;
   return (
-    <NavigationContainer>
-      <RootTabs />
+    <NavigationContainer ref={navigationRef}>
+      <RootNavigator />
     </NavigationContainer>
   );
 }

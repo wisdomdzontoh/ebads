@@ -30,18 +30,26 @@ import {
   ActivityIndicator,
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   useWindowDimensions,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppText, Button, DraggableSheet, InlineNotice, SectionLabel, StatusPill } from '../components';
+import {
+  AppText,
+  Button,
+  ConfirmDialog,
+  DraggableSheet,
+  InlineNotice,
+  SectionLabel,
+  StatusPill,
+} from '../components';
 import { Screen } from '../components/Screen';
 import type { RootTabParamList } from '../navigation/RootTabs';
 import { ApiError } from '../services/api';
 import { notifyRecommendation } from '../services/notifications';
+import type { NotificationKind } from '../services/notificationHistory';
 import type { AllocationResponse, BedType, Urgency } from '../services/types';
 import { useAuth } from '../state/AuthContext';
 import { useConnectivity } from '../state/ConnectivityContext';
@@ -93,6 +101,9 @@ export function DispatchScreen(): React.ReactElement {
   // Live in-app navigation (replaces handing off to the external Google Maps app) — takes
   // over the full-screen map while active; the sheet collapses to nothing behind it.
   const [navigating, setNavigating] = useState(false);
+  // Guards "New dispatch" while a CONFIRMED reservation is still held and unresolved — see
+  // startNewDispatch's docstring below for why this is a confirm PROMPT, not a revoke action.
+  const [confirmNewDispatch, setConfirmNewDispatch] = useState(false);
 
   const canSubmit = Boolean(online && coord && urgency && bedType) && !submitting;
 
@@ -104,6 +115,31 @@ export function DispatchScreen(): React.ReactElement {
     setRedirecting(false);
     setRedirectError(null);
     setNavigating(false);
+  };
+
+  const beginNewDispatch = (): void => {
+    setResult(null);
+    setSubmitError(null);
+    resetLifecycle();
+  };
+
+  /** "New dispatch" while a confirmed reservation is still outstanding — held at the facility,
+   * not yet arrived, not yet revoked by them — silently abandons it if left unresolved,
+   * something the facility only discovers once its own expiry (or the dispatcher happening to
+   * call them) catches up. Note this can only ever be a CONFIRMATION prompt, not a "revoke and
+   * proceed" one: revoking a reservation (FR24-27) is a facility-side action by design — a
+   * dispatcher's own account has no permission to release a bed the facility is holding out
+   * from under them (backend/app/api/routes/allocations.py::revoke_allocation requires
+   * FacilityStaffDep). This makes the dispatcher consciously acknowledge the still-active hold
+   * before moving on, which is the whole of what's achievable without granting dispatchers a
+   * new authority the reservation protocol deliberately doesn't give them. */
+  const startNewDispatch = (): void => {
+    const hasActiveHold = allocationId !== null && !arrived && !revoked;
+    if (hasActiveHold) {
+      setConfirmNewDispatch(true);
+      return;
+    }
+    beginNewDispatch();
   };
 
   const useGps = async (): Promise<Coord | null> => {
@@ -128,8 +164,12 @@ export function DispatchScreen(): React.ReactElement {
     }
   };
 
-  const notify = (title: string, body: string): void => {
-    if (settings.pushEnabled) void notifyRecommendation(title, body);
+  // Every alert this screen fires is about the CURRENT dispatch, so tapping any of them (from
+  // the OS tray, or from the Notifications screen's history) always lands back on Dispatch —
+  // there is no per-notification detail view, just this screen's own live lifecycle state.
+  // History is recorded regardless of `pushEnabled` — only the OS-level popup respects it.
+  const notify = (title: string, body: string, kind: NotificationKind = 'other'): void => {
+    void notifyRecommendation(title, body, kind, { screen: 'Dispatch' }, settings.pushEnabled);
   };
 
   const submit = async (): Promise<void> => {
@@ -151,9 +191,10 @@ export function DispatchScreen(): React.ReactElement {
         notify(
           'Bed allocated',
           `${facility.name} · ${facility.travel_time_minutes.toFixed(1)} min · ${facility.available_beds} beds`,
+          'recommendation',
         );
       } else {
-        notify('Manual decision required', response.selection_reason);
+        notify('Manual decision required', response.selection_reason, 'escalation');
       }
     } catch (error) {
       // Shown inline in the sheet (Alert.alert is a silent no-op on web).
@@ -178,7 +219,11 @@ export function DispatchScreen(): React.ReactElement {
         .then((audit) => {
           if (audit.status === 'revoked') {
             setRevoked({ reason: audit.revocation_reason });
-            notify('Reservation withdrawn', 'The facility withdrew this reservation. Get a new recommendation.');
+            notify(
+              'Reservation withdrawn',
+              'The facility withdrew this reservation. Get a new recommendation.',
+              'revocation',
+            );
           } else if (audit.status === 'arrived') {
             setArrived(true);
           }
@@ -233,10 +278,11 @@ export function DispatchScreen(): React.ReactElement {
         notify(
           'New bed allocated',
           `${facility.name} · ${facility.travel_time_minutes.toFixed(1)} min · ${facility.available_beds} beds`,
+          'recommendation',
         );
       } else {
         setAllocationId(null); // escalated — nothing left to poll
-        notify('Manual decision required', response.selection_reason);
+        notify('Manual decision required', response.selection_reason, 'escalation');
       }
     } catch (error) {
       setRedirectError(error instanceof ApiError ? error.message : 'Could not reach the engine.');
@@ -315,32 +361,25 @@ export function DispatchScreen(): React.ReactElement {
         </Pressable>
       ) : null}
 
-      {/* Bottom sheet: form → searching → result. Draggable (Bolt-style) — drag the handle down
-          to collapse it to a peek and see more of the map, drag up to reopen it fully. Re-opens
+      {/* Bottom sheet: form → searching → result. Draggable (Bolt-style) from anywhere on the
+          sheet, not just the handle, plus an explicit close (X) button — drag or tap down to
+          collapse it to a peek and see more of the map, drag up to reopen it. Re-opens
           automatically whenever the content switches between the form and a result. */}
       <DraggableSheet
         collapsedHeight={SHEET_COLLAPSED_HEIGHT}
         expandedHeight={height * 0.64}
         resetKey={result ? 'result' : 'form'}
         style={styles.sheet}
+        contentContainerStyle={styles.sheetContent}
+        keyboardShouldPersistTaps="handled"
       >
-        <ScrollView
-          style={styles.scrollFlex}
-          contentContainerStyle={styles.sheetContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          {result ? (
+        {result ? (
             <>
               <Button
                 label="New dispatch"
                 icon="arrow-back"
                 variant="secondary"
-                onPress={() => {
-                  setResult(null);
-                  setSubmitError(null);
-                  resetLifecycle();
-                }}
+                onPress={startNewDispatch}
               />
               {revoked ? (
                 <RevocationBanner
@@ -351,6 +390,10 @@ export function DispatchScreen(): React.ReactElement {
                 />
               ) : result.status === 'confirmed' ? (
                 <RecommendationCard
+                  // Keyed by allocation id so a NEW recommendation (a fresh submit, or a
+                  // post-revocation reallocation) always remounts with its own "Confirm
+                  // reservation" gate unconfirmed — never inheriting a previous one's tap.
+                  key={result.id}
                   result={result}
                   arrived={arrived}
                   recordingArrival={recordingArrival}
@@ -415,8 +458,21 @@ export function DispatchScreen(): React.ReactElement {
               />
             </>
           )}
-        </ScrollView>
       </DraggableSheet>
+
+      <ConfirmDialog
+        visible={confirmNewDispatch}
+        title="Reservation still held"
+        message="The facility is still holding a bed for the current reservation — it hasn't been arrived or revoked. Starting a new dispatch won't release it; you'll need to call the facility directly if it's no longer needed."
+        confirmLabel="Start new dispatch anyway"
+        cancelLabel="Keep current reservation"
+        destructive
+        onConfirm={() => {
+          setConfirmNewDispatch(false);
+          beginNewDispatch();
+        }}
+        onCancel={() => setConfirmNewDispatch(false)}
+      />
     </View>
   );
 }
@@ -466,7 +522,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     ...shadow.card,
   },
-  scrollFlex: { flex: 1 },
   sheetContent: {
     paddingHorizontal: spacing.gutter,
     paddingTop: 8,

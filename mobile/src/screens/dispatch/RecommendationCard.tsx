@@ -7,10 +7,19 @@
  * Nothing is computed here; every value comes straight off `AllocatedResponse` — except the
  * "Record arrival" action (FR22), the one write this card itself triggers, since it is the
  * natural place a dispatcher confirms the patient reached the facility.
+ *
+ * The engine reserves the bed the instant it returns this response (the CAS reservation
+ * protocol, docs/01 §7 — that's what stops two dispatchers being handed the same bed; there is
+ * no unreserved "preview" state to gate). What this card DOES gate behind an explicit "Confirm
+ * reservation" tap is the dispatcher's own next actions — Navigate and Contact — so a
+ * recommendation is never acted on by reflex before the dispatcher has actually looked at it.
+ * Purely a local UI gate: nothing is sent to the engine when confirmed, and nothing about the
+ * reservation itself changes whether or not this tap ever happens (see the caller — the parent
+ * keys this component by `result.id` so a NEW recommendation always starts unconfirmed again).
  */
 
 import { MaterialIcons } from '@expo/vector-icons';
-import React from 'react';
+import React, { useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 
 import { AppText, Button, Card, InlineNotice } from '../../components';
@@ -77,6 +86,7 @@ export function RecommendationCard({
 }): React.ReactElement {
   const facility = result.recommended_facility;
   const weights = result.weight_vector;
+  const [confirmed, setConfirmed] = useState(false);
 
   return (
     <View style={styles.wrapper}>
@@ -160,21 +170,30 @@ export function RecommendationCard({
           </AppText>
         </View>
 
-        <View style={styles.actions}>
+        {confirmed ? (
+          <View style={styles.actions}>
+            <Button
+              label="Contact"
+              icon="call"
+              variant="secondary"
+              onPress={() => void Linking.openURL(`tel:${facility.contact_phone}`)}
+              style={styles.action}
+            />
+            <Button
+              label="Navigate"
+              icon="navigation"
+              onPress={onNavigate}
+              style={styles.action}
+            />
+          </View>
+        ) : (
           <Button
-            label="Contact"
-            icon="call"
-            variant="secondary"
-            onPress={() => void Linking.openURL(`tel:${facility.contact_phone}`)}
-            style={styles.action}
+            label="Confirm reservation"
+            icon="check-circle"
+            onPress={() => setConfirmed(true)}
+            style={styles.confirmAction}
           />
-          <Button
-            label="Navigate"
-            icon="navigation"
-            onPress={onNavigate}
-            style={styles.action}
-          />
-        </View>
+        )}
       </Card>
 
       <Card style={styles.audit}>
@@ -244,6 +263,7 @@ const styles = StyleSheet.create({
   contactRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 16 },
   actions: { flexDirection: 'row', gap: 12, marginTop: 16 },
   action: { flex: 1 },
+  confirmAction: { marginTop: 16 },
   audit: { backgroundColor: colors.surfaceContainerLow, gap: 12 },
   auditHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   spacer: { flex: 1 },

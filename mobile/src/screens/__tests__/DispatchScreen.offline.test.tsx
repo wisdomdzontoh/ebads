@@ -9,6 +9,7 @@
  * Uses react-test-renderer directly (the RNTL renderer is not wired for this RN/React combo).
  */
 
+import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 
@@ -78,7 +79,11 @@ describe('DispatchScreen offline mode', () => {
   it('renders cached facilities + banner and issues no allocation request', async () => {
     let tree!: TestRenderer.ReactTestRenderer;
     await act(async () => {
-      tree = TestRenderer.create(<DispatchScreen />);
+      tree = TestRenderer.create(
+        <NavigationContainer>
+          <DispatchScreen />
+        </NavigationContainer>,
+      );
     });
     // Flush the loadFacilities() promise + its state update.
     await act(async () => {
@@ -96,5 +101,12 @@ describe('DispatchScreen offline mode', () => {
 
     // The strict boundary: no allocation request was issued while offline.
     expect(mockApi.createAllocation).not.toHaveBeenCalled();
+
+    // AppBar's unread-count poll (services/notificationHistory) is a real interval — unmount
+    // inside act() so its cleanup fires before Jest tears down, same reason
+    // DispatchScreen.confirmed.test.tsx unmounts at the end.
+    await act(async () => {
+      tree.unmount();
+    });
   });
 });

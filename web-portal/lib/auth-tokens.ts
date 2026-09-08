@@ -24,7 +24,11 @@ export const AUTH_COOKIE_NAMES = {
 } as const;
 
 export interface StoredSession {
-  accessToken: string;
+  // Null whenever the 30-minute access-token cookie has naturally expired but the 7-day
+  // refresh token is still valid — a real session, just needing lib/api-client.ts's
+  // refresh-on-401 to mint a fresh access token on the next request. Treating this as "not
+  // logged in" (the previous behavior) is what forced a full re-login after any 30-minute gap.
+  accessToken: string | null;
   refreshToken: string;
   role: Role;
   facilityId: string | null;
@@ -66,11 +70,18 @@ export function storeAccessToken(accessToken: string) {
 }
 
 export function readSession(): StoredSession | null {
-  const accessToken = getCookie(ACCESS_TOKEN_COOKIE);
+  // Only refreshToken + role establish "is there a session at all" — accessToken is a cache
+  // of convenience with its own short, independently-expiring cookie (see StoredSession's
+  // accessToken docstring); requiring it here reintroduces the forced-relogin bug.
   const refreshToken = getCookie(REFRESH_TOKEN_COOKIE);
   const role = getCookie(ROLE_COOKIE) as Role | null;
-  if (!accessToken || !refreshToken || !role) return null;
-  return { accessToken, refreshToken, role, facilityId: getCookie(FACILITY_ID_COOKIE) };
+  if (!refreshToken || !role) return null;
+  return {
+    accessToken: getCookie(ACCESS_TOKEN_COOKIE),
+    refreshToken,
+    role,
+    facilityId: getCookie(FACILITY_ID_COOKIE),
+  };
 }
 
 export function clearSession() {

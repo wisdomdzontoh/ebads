@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Bell, BellOff } from "lucide-react";
 
 import { acknowledgeReservation, listInboundReservations } from "@/lib/api/allocations";
 import { ApiError } from "@/lib/api-client";
 import { BED_TYPE_LABELS, URGENCY_CLASSES, URGENCY_LABELS } from "@/lib/labels";
 import type { InboundReservation } from "@/lib/types";
+import { useNewItemNotifications } from "@/hooks/use-new-item-notifications";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -38,6 +40,18 @@ export default function InboundPage() {
     refetchInterval: REFRESH_INTERVAL_MS,
   });
 
+  // A live (OS-level) alert on every NEW reservation, so staff don't have to keep this tab
+  // focused and watch the list — the poll above already refreshes every 15s regardless of
+  // whether notifications are permitted; this only adds an alert on top of it.
+  const { permission, requestPermission } = useNewItemNotifications(
+    data,
+    (r) => r.allocation_id,
+    (r) => ({
+      title: "Incoming reservation",
+      body: `${URGENCY_LABELS[r.urgency ?? "standard"]} · ${BED_TYPE_LABELS[r.required_bed_type]} bed`,
+    }),
+  );
+
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["inbound-reservations"] });
 
   async function handleAcknowledge(reservation: InboundReservation) {
@@ -52,13 +66,27 @@ export default function InboundPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold">Incoming allocations</h1>
-        <p className="text-sm text-muted-foreground">
-          Active reservations held for your facility, most urgent first. Acknowledge to let
-          the dispatcher know you&apos;ve seen it, or revoke if the bed is no longer
-          available — arrival itself is recorded by the dispatcher on arrival.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-semibold">Incoming allocations</h1>
+          <p className="text-sm text-muted-foreground">
+            Active reservations held for your facility, most urgent first. Acknowledge to let
+            the dispatcher know you&apos;ve seen it, or revoke if the bed is no longer
+            available — arrival itself is recorded by the dispatcher on arrival.
+          </p>
+        </div>
+        {permission === "default" && (
+          <Button variant="outline" size="sm" onClick={requestPermission} className="shrink-0">
+            <Bell />
+            Enable live alerts
+          </Button>
+        )}
+        {permission === "denied" && (
+          <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+            <BellOff className="size-3.5" />
+            Blocked in browser settings
+          </span>
+        )}
       </div>
 
       {isLoading ? (

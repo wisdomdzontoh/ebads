@@ -21,7 +21,7 @@
 
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, View } from 'react-native';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 
 import { AppText, Button, DraggableSheet, InlineNotice } from '../../components';
@@ -197,18 +197,15 @@ export function LiveNavigationMap({
         <MaterialIcons name="arrow-back" size={22} color={colors.slate900} />
       </Pressable>
 
-      {/* Draggable info sheet (Bolt-style) — drag down to peek at just the route summary and see
-          more of the map, drag up for GPS/route notices and the arrival button. */}
+      {/* Draggable info sheet (Bolt-style) from anywhere on the sheet, plus an explicit close
+          (X) button — drag or tap down to peek at just the route summary and see more of the
+          map, drag up for GPS/route notices and the arrival button. */}
       <DraggableSheet
         collapsedHeight={INFO_SHEET_COLLAPSED_HEIGHT}
         expandedHeight={INFO_SHEET_EXPANDED_HEIGHT}
         style={styles.infoBar}
+        contentContainerStyle={styles.infoScrollContent}
       >
-        <ScrollView
-          style={styles.infoScroll}
-          contentContainerStyle={styles.infoScrollContent}
-          showsVerticalScrollIndicator={false}
-        >
           <View style={styles.infoHeader}>
             <AppText variant="headlineMd" color="slate900">
               {destination.name}
@@ -275,7 +272,6 @@ export function LiveNavigationMap({
               style={styles.arriveButton}
             />
           ) : null}
-        </ScrollView>
       </DraggableSheet>
     </View>
   );
@@ -302,7 +298,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     ...shadow.card,
   },
-  infoScroll: { flex: 1 },
   infoScrollContent: {
     paddingHorizontal: spacing.gutter,
     paddingBottom: 24,

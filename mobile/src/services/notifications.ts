@@ -11,6 +11,12 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
+import {
+  recordNotification,
+  type NotificationKind,
+  type NotificationTarget,
+} from './notificationHistory';
+
 // Without a handler, Expo suppresses notifications while the app is foregrounded — which is
 // exactly when a dispatch recommendation arrives. Registered once at module load.
 try {
@@ -47,11 +53,26 @@ export async function requestNotificationPermission(): Promise<boolean> {
   }
 }
 
-/** Post a local notification (used to surface a recommendation in-app, docs/05 §6). */
-export async function notifyRecommendation(title: string, body: string): Promise<void> {
+/** Post a local notification (used to surface a recommendation in-app, docs/05 §6) AND record
+ * it to the Notifications screen's history. History is recorded UNCONDITIONALLY — it's the
+ * in-app activity log, and turning off OS push (Settings' own toggle) shouldn't also make an
+ * event vanish from it — while the OS notification itself respects `postOsNotification`
+ * (Settings' `pushEnabled`) and is best-effort regardless. `target` becomes
+ * `notification.request.content.data.target` so `App.tsx`'s tap listener can navigate straight
+ * to the relevant screen; it also travels on the history record for browsing back through
+ * later, tap or not. */
+export async function notifyRecommendation(
+  title: string,
+  body: string,
+  kind: NotificationKind = 'other',
+  target?: NotificationTarget,
+  postOsNotification = true,
+): Promise<void> {
+  await recordNotification({ kind, title, body, target }).catch(() => undefined);
+  if (!postOsNotification) return;
   try {
     await Notifications.scheduleNotificationAsync({
-      content: { title, body },
+      content: { title, body, data: target ? { target } : undefined },
       trigger: null, // deliver immediately
     });
   } catch {
