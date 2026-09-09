@@ -6,6 +6,7 @@ import Link from "next/link";
 import {
   BedDouble,
   Building2,
+  ClipboardCheck,
   ClipboardList,
   Inbox,
   KeyRound,
@@ -62,6 +63,10 @@ function environmentLabel(baseUrl: string): string {
 const NAV_BY_ROLE: Record<Role, NavItem[]> = {
   system_administrator: [
     { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
+    // Read-only cross-facility view (allocation_overview:read:all, migration 0012) — no
+    // action buttons anywhere on this page; system_administrator holds no allocation:write
+    // of any scope, so there is nothing here TO wire up even by mistake.
+    { title: "Allocations", href: "/dashboard/allocations", icon: ClipboardCheck },
     { title: "Facility registrations", href: "/dashboard/registrations", icon: ClipboardList },
     { title: "Users", href: "/dashboard/users", icon: UsersIcon },
     { title: "Audit log", href: "/dashboard/audit-log", icon: ScrollText },
@@ -72,6 +77,11 @@ const NAV_BY_ROLE: Record<Role, NavItem[]> = {
     { title: "Facility profile", href: "/dashboard/facility", icon: Building2 },
     { title: "Users", href: "/dashboard/users", icon: UsersIcon },
     { title: "Beds", href: "/dashboard/beds", icon: BedDouble },
+    // facility_administrator now holds allocation:read/write:own_facility (migration 0011,
+    // the same grants facility_staff already had) — same page facility_staff uses below,
+    // not a fork of it; its actions (acknowledge/revoke) already work for both roles
+    // because the route dependencies check the PERMISSION, not the role name.
+    { title: "Incoming allocations", href: "/dashboard/inbound", icon: Inbox },
     { title: "Account", href: "/dashboard/account", icon: KeyRound },
   ],
   facility_staff: [

@@ -1,6 +1,8 @@
 // Human-readable labels for backend/app/parameters.py enums, kept in one place so every
 // view spells the same enum value the same way.
 import type {
+  AlgorithmName,
+  AllocationStatus,
   BedType,
   DataSource,
   FacilityRequestStatus,
@@ -78,6 +80,36 @@ export const FACILITY_REQUEST_STATUS_LABELS: Record<FacilityRequestStatus, strin
 export const USER_STATUS_LABELS: Record<UserStatus, string> = {
   active: "Active",
   suspended: "Suspended",
+};
+
+export const ALLOCATION_STATUS_LABELS: Record<AllocationStatus, string> = {
+  pending: "Pending",
+  confirmed: "Confirmed",
+  arrived: "Arrived",
+  expired: "Expired",
+  refused: "Refused",
+  escalated: "Escalated",
+  revoked: "Revoked",
+};
+
+// Tailwind utility classes reading the same critical/urgent/standard tokens
+// URGENCY_CLASSES above uses — arrived/confirmed read as healthy, revoked/refused/expired as
+// a problem, escalated as needing attention, pending as neutral. Purely descriptive on the
+// read-only allocation overview (role/permission audit Task 2) — never a control.
+export const ALLOCATION_STATUS_CLASSES: Record<AllocationStatus, { text: string; bg: string }> = {
+  pending: { text: "text-muted-foreground", bg: "bg-muted" },
+  confirmed: { text: "text-standard", bg: "bg-standard-tint" },
+  arrived: { text: "text-standard", bg: "bg-standard-tint" },
+  escalated: { text: "text-urgent", bg: "bg-urgent-tint" },
+  expired: { text: "text-critical", bg: "bg-critical-tint" },
+  refused: { text: "text-critical", bg: "bg-critical-tint" },
+  revoked: { text: "text-critical", bg: "bg-critical-tint" },
+};
+
+export const ALGORITHM_LABELS: Record<AlgorithmName, string> = {
+  greedy: "Greedy",
+  weighted: "Weighted",
+  urgency_adaptive: "Urgency-adaptive",
 };
 
 // Backend/app/parameters.py MIN_PASSWORD_LENGTH — mirrored so the form rejects a too-short

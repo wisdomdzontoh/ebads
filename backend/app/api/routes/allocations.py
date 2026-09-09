@@ -21,6 +21,7 @@ from app.api.schemas.allocation import (
     AllocatedResponse,
     AllocationAuditRead,
     AllocationCreate,
+    AllocationOverviewRead,
     AllocationResponse,
     EscalatedResponse,
     FacilityBrief,
@@ -35,6 +36,7 @@ from app.api.schemas.allocation import (
 from app.config import get_settings
 from app.db.models.allocation import Allocation
 from app.db.models.emergency_request import EmergencyRequest
+from app.db.models.facility import Facility
 from app.db.models.reservation import Reservation
 from app.db.models.user_account import UserAccount
 from app.db.session import get_session
@@ -70,19 +72,38 @@ ReaderDep = Annotated[
 # own_facility grant, but facility_id is not a path param on these routes (only
 # allocation_id is) — trust_service_scoping=True, with the actual match checked in the
 # handler against the loaded allocation's facility_id (docs/01 §4 separation of duties).
-FacilityStaffDep = Annotated[
+#
+# Named for what it CHECKS (the allocation:write:own_facility grant), not for which role
+# happens to hold it — require_permission looks up the caller's actual role's grants, so
+# this admits every role that holds the grant, not "facility_staff" specifically (it was
+# previously named FacilityStaffDep, which read as role-gated when it never was; renamed
+# during the role/permission audit once facility_administrator also started holding this
+# same grant, 0011_allocation_grants — no functional change).
+FacilityWriterDep = Annotated[
     UserAccount,
     Depends(
         require_permission("allocation", PermissionAction.WRITE, trust_service_scoping=True)
     ),
 ]
-# Same shape as FacilityStaffDep but for the read grant added in 0010_facility_allocation_read
-# — the inbound-reservations query below filters by actor.facility_id itself (Task 3).
+# Same shape as FacilityWriterDep but for the read grant (0010_facility_allocation_read,
+# extended to facility_administrator by 0011) — the inbound-reservations query below filters
+# by actor.facility_id itself (Task 3).
 FacilityReaderDep = Annotated[
     UserAccount,
     Depends(
         require_permission("allocation", PermissionAction.READ, trust_service_scoping=True)
     ),
+]
+# Cross-facility, READ-ONLY oversight (role/permission audit Task 2) — gated on a resource
+# name distinct from "allocation" itself (allocation_overview, 0012) specifically so this
+# never admits a dispatcher, who already holds allocation:read:all for their OWN allocations
+# (GET /allocations, GET /allocations/{id}) but must not see everyone else's. See that
+# migration's docstring for why a new resource name, not a role check or a new scope value.
+# No corresponding WRITE permission exists on this resource anywhere in the codebase — that
+# absence, not a check in the route below, is what makes this endpoint structurally
+# incapable of exposing acknowledge/revoke/refuse/arrive.
+OverviewDep = Annotated[
+    UserAccount, Depends(require_permission("allocation_overview", PermissionAction.READ))
 ]
 
 
@@ -295,6 +316,48 @@ async def list_inbound_reservations(
     return reads
 
 
+# Registered ahead of GET /{allocation_id} for the same reason as GET /inbound above — a
+# literal path segment must be matched before the parameterized route.
+@router.get("/overview", response_model=list[AllocationOverviewRead])
+async def list_allocations_overview(
+    session: SessionDep,
+    actor: OverviewDep,
+    status_filter: Annotated[AllocationStatus | None, Query(alias="status")] = None,
+    from_: Annotated[datetime | None, Query(alias="from")] = None,
+    to: datetime | None = None,
+) -> list[AllocationOverviewRead]:
+    """Role/permission audit Task 2: system-administrator, cross-facility, READ-ONLY
+    oversight — every current allocation across every facility, newest first, with the
+    facility's name attached (unlike ``list_allocations``/``get_allocation``, this caller
+    doesn't already know which facility each row belongs to). Same ``status``/``from``/``to``
+    filters as ``list_allocations``, which itself is left untouched — this is a dedicated
+    endpoint, not a widened version of it, so a dispatcher's own scoping never changes.
+
+    ``OverviewDep`` is the entire enforcement of "read-only": no route in this file (or
+    anywhere else) can mutate an allocation under the ``allocation_overview`` permission,
+    because no such grant exists for any action but ``read`` (0012). There is deliberately
+    no facility_id filter here — that is the whole point of an oversight view.
+    """
+    query = (
+        select(Allocation, Facility.name)
+        .join(EmergencyRequest, Allocation.request_id == EmergencyRequest.id)
+        .outerjoin(Facility, Allocation.facility_id == Facility.id)
+        .order_by(Allocation.created_at.desc())
+    )
+    if status_filter is not None:
+        query = query.where(Allocation.status == status_filter)
+    if from_ is not None:
+        query = query.where(Allocation.created_at >= from_)
+    if to is not None:
+        query = query.where(Allocation.created_at <= to)
+    rows = (await session.execute(query)).all()
+    reads = []
+    for allocation, facility_name in rows:
+        base = await _to_audit_read(session, allocation)
+        reads.append(AllocationOverviewRead(**base.model_dump(), facility_name=facility_name))
+    return reads
+
+
 @router.get("/{allocation_id}", response_model=AllocationAuditRead)
 async def get_allocation(
     allocation_id: uuid.UUID, session: SessionDep, actor: ReaderDep
@@ -360,7 +423,7 @@ async def _load_for_facility_actor(
 
 @router.post("/{allocation_id}/acknowledge", response_model=ReservationRead)
 async def acknowledge(
-    allocation_id: uuid.UUID, session: SessionDep, actor: FacilityStaffDep
+    allocation_id: uuid.UUID, session: SessionDep, actor: FacilityWriterDep
 ) -> ReservationRead:
     """FR20: record facility acknowledgement — advisory, never blocks anything."""
     await _load_for_facility_actor(session, allocation_id, actor)
@@ -378,7 +441,7 @@ async def refuse_allocation(
     allocation_id: uuid.UUID,
     payload: RefuseRequest,
     session: SessionDep,
-    actor: FacilityStaffDep,
+    actor: FacilityWriterDep,
 ) -> AllocationAuditRead:
     """The facility declines the patient — releases the held bed back to availability."""
     await _load_for_facility_actor(session, allocation_id, actor)
@@ -399,7 +462,7 @@ async def revoke_allocation(
     allocation_id: uuid.UUID,
     payload: RevokeRequest,
     session: SessionDep,
-    actor: FacilityStaffDep,
+    actor: FacilityWriterDep,
 ) -> AllocationAuditRead:
     """FR24-27: the facility withdraws the reservation before arrival — releases the held
     bed and notifies the dispatcher on two channels so they can request a new placement."""

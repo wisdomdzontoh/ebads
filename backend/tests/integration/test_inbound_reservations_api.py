@@ -205,9 +205,18 @@ async def test_inbound_list_as_dispatcher_is_empty_not_another_facilitys_data(
     assert response.json() == []
 
 
-async def test_inbound_list_as_system_administrator_is_403(
+async def test_inbound_list_as_system_administrator_is_200_but_empty(
     client: AsyncClient, system_admin_headers: dict[str, str]
 ) -> None:
-    """system_administrator has no ``allocation`` grant at all (docs/02 §2.2)."""
+    """Updated by the role/permission audit: system_administrator now holds
+    ``allocation:read:all`` (0011_allocation_grants, Finding 1 — they had no ``allocation``
+    grant at all before, so this used to 403). ``scope=all`` admits them past the permission
+    check unconditionally, same as it already did for dispatcher — but the query here still
+    filters on ``actor.facility_id``, which is NULL for system_administrator (the same
+    facility-less invariant as dispatcher, docs/02 §2.3's trigger), so it matches nothing.
+    200 with an empty list, not 403 — this endpoint was never meant to serve oversight (that
+    is ``GET /allocations/overview``, role/permission audit Task 2; Finding 4's own analysis
+    predicted exactly this)."""
     response = await client.get("/api/v1/allocations/inbound", headers=system_admin_headers)
-    assert response.status_code == 403
+    assert response.status_code == 200
+    assert response.json() == []

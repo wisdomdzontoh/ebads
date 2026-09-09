@@ -186,3 +186,55 @@ export interface AuditLogEntry {
   detail: Record<string, unknown>;
   logged_at: string;
 }
+
+// --- allocation overview (role/permission audit Task 2) ---------------------------------
+
+export type AlgorithmName = "greedy" | "weighted" | "urgency_adaptive";
+
+// Live reservation lifecycle status (backend/app/parameters.py::AllocationStatus) — distinct
+// from the mobile app's own pure scoring verdict; this is what an allocation's status column
+// actually holds once persisted.
+export type AllocationStatus =
+  | "pending"
+  | "confirmed"
+  | "arrived"
+  | "expired"
+  | "refused"
+  | "escalated"
+  | "revoked";
+
+export interface WeightVector {
+  w_t: number;
+  w_b: number;
+  w_c: number;
+}
+
+// GET /allocations/overview (system_administrator, allocation_overview:read:all) — every
+// facility's allocations in one read-only list, unlike InboundReservation (one facility's
+// own active queue) or the mobile app's own allocation history (one dispatcher's own).
+// Mirrors backend/app/api/schemas/allocation.py::AllocationOverviewRead exactly.
+export interface AllocationOverviewRead {
+  id: string;
+  created_at: string;
+  patient_lat: number;
+  patient_lon: number;
+  urgency: Urgency | null;
+  required_bed_type: BedType;
+  simulation_session_id: string | null;
+  algorithm_used: AlgorithmName;
+  weight_vector: WeightVector | null;
+  selection_reason: string;
+  facility_id: string | null;
+  travel_time_minutes: number | null;
+  is_estimated_travel_time: boolean;
+  eta_minutes: number | null;
+  capability_match: number | null;
+  candidates_evaluated: number;
+  attempts: number;
+  status: AllocationStatus;
+  supersedes_allocation_id: string | null;
+  revocation_reason: string | null;
+  // Absent on the mobile app's / facility's own allocation views, where the facility is
+  // already implied — here it's the whole point (docs of this page: "every facility, at once").
+  facility_name: string | null;
+}

@@ -149,6 +149,17 @@ class AllocationAuditRead(BaseModel):
     revocation_reason: str | None
 
 
+class AllocationOverviewRead(AllocationAuditRead):
+    """``AllocationAuditRead`` plus the facility's name — the system-administrator
+    cross-facility oversight view (``GET /allocations/overview``, role/permission audit
+    Task 2). ``AllocationAuditRead`` alone identifies the facility only by id; a caller
+    seeing every facility's allocations at once (not just their own, where the id is
+    already implied) needs the name to make the list legible without a second lookup.
+    ``None`` on an escalated allocation — no facility was ever reserved."""
+
+    facility_name: str | None
+
+
 class InboundReservationRead(BaseModel):
     """One active (confirmed) reservation awaiting the receiving facility's action — the
     inbound queue the web portal's facility-staff view lists (docs/02 §3.5-3.6, FR20).
